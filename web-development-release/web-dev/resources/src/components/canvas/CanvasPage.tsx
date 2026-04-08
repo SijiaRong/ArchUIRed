@@ -94,9 +94,13 @@ function buildEdges(links: ModuleLink[], childUuidSet: Set<string>, sourceId: st
       target: targetId,
       type: 'linkEdge',
       data: { relation: link.relation },
-      markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-color)', width: 12, height: 12 },
+      markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12 },
     } satisfies Edge
   })
+}
+
+function getTheme() {
+  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
 }
 
 export function CanvasPage() {
@@ -107,6 +111,13 @@ export function CanvasPage() {
   const loading         = useCanvasStore(s => s.loading)
   const error           = useCanvasStore(s => s.error)
   const setError        = useCanvasStore(s => s.setError)
+  const [theme, setTheme] = useState<'dark' | 'light'>(getTheme)
+
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.setAttribute('data-theme', next)
+    setTheme(next)
+  }
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
@@ -184,7 +195,7 @@ export function CanvasPage() {
         ...connection,
         type: 'linkEdge',
         data: { relation: 'related-to' },
-        markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-color)', width: 12, height: 12 },
+        markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12 },
       }, eds))
     } catch (e) {
       setError(String(e))
@@ -256,12 +267,12 @@ export function CanvasPage() {
           deleteKeyCode="Delete"
           proOptions={{ hideAttribution: true }}
         >
-          <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--canvas-dot)" />
+          <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--color-canvas-dot)" />
           <Controls showInteractive={false} />
           <MiniMap
-            nodeColor={() => 'var(--node-bg)'}
-            maskColor="var(--overlay-dim)"
-            style={{ background: 'var(--bg-crust)' }}
+            nodeColor={() => 'var(--color-surface-default)'}
+            maskColor="var(--color-minimap-mask)"
+            style={{ background: 'var(--color-surface-raised)' }}
           />
         </ReactFlow>
 
@@ -269,6 +280,9 @@ export function CanvasPage() {
         <div className={s.toolbar}>
           <button className={s.toolBtn} onClick={() => setShowNewModule(true)}>＋ Module</button>
           <button className={s.toolBtn} onClick={() => reload()}>↺ Reload</button>
+          <button className={s.toolBtn} onClick={toggleTheme} title="Toggle light/dark mode">
+            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+          </button>
           <button className={s.toolBtn} onClick={() => setShowPalette(true)}>⌘K</button>
         </div>
 

@@ -12,7 +12,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots",
+    "lint:tokens": "node scripts/token-lint.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.8",

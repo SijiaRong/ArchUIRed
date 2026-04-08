@@ -2,12 +2,12 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: var(--bg-base);
+  background: var(--color-surface-canvas);
 }
 
 .canvas {
   flex: 1;
-  background: var(--canvas-bg);
+  background: var(--color-surface-canvas);
 }
 
 .loading {
@@ -15,8 +15,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: var(--overlay1);
-  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  font: 400 13px/18px 'Inter', system-ui, sans-serif;
 }
 
 .errorBanner {
@@ -24,37 +24,41 @@
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--red-muted);
-  border: 1px solid var(--red);
-  color: var(--red);
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  background: var(--color-status-error-bg);
+  border: 1px solid var(--color-status-error);
+  color: var(--color-status-error);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--dimension-border-radius-small);
+  font: 400 13px/18px 'Inter', system-ui, sans-serif;
   z-index: 100;
   max-width: 480px;
   text-align: center;
+  cursor: pointer;
 }
 
 .toolbar {
   position: absolute;
-  top: 8px;
-  right: 12px;
+  top: var(--spacing-2);
+  right: var(--spacing-3);
   display: flex;
-  gap: 6px;
+  gap: var(--spacing-2);
   z-index: 10;
 }
 
 .toolBtn {
-  padding: 5px 12px;
-  background: var(--bg-crust);
-  border: 1px solid var(--bg-surface1);
-  border-radius: var(--radius-sm);
-  color: var(--subtext1);
-  font-size: 0.75rem;
+  padding: 5px var(--spacing-3);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--dimension-border-radius-small);
+  color: var(--color-text-secondary);
+  font: 400 12px/16px 'Inter', system-ui, sans-serif;
   cursor: pointer;
-  transition: background .15s, color .15s;
+  transition: background 0.15s, color 0.15s;
 }
-.toolBtn:hover { background: var(--bg-surface0); color: var(--text); }
+.toolBtn:hover {
+  background: var(--color-surface-overlay);
+  color: var(--color-text-primary);
+}
 
 .emptyHint {
   position: absolute;
@@ -64,5 +68,12 @@
   text-align: center;
   pointer-events: none;
 }
-.emptyHint h3 { color: var(--overlay1); font-size: 1rem; margin-bottom: 6px; }
-.emptyHint p  { color: var(--overlay0); font-size: 0.8rem; }
+.emptyHint h3 {
+  color: var(--color-text-tertiary);
+  font: 600 14px/20px 'Inter', system-ui, sans-serif;
+  margin-bottom: var(--spacing-2);
+}
+.emptyHint p {
+  color: var(--color-text-tertiary);
+  font: 400 13px/18px 'Inter', system-ui, sans-serif;
+}

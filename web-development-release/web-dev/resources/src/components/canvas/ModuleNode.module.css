@@ -1,53 +1,102 @@
+/* ======================================================
+   ModuleNode — Primary module card
+   Token source: gui/components/primary-module-card/default/resources/visual-spec.md
+   ====================================================== */
+
 .node {
-  background: var(--node-bg);
-  border: 1.5px solid var(--node-border);
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  min-width: 160px;
-  max-width: 220px;
+  width: var(--dimension-node-width);
+  background: var(--color-surface-default);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--dimension-border-radius-card);
+  box-shadow: var(--elevation-card-default);
   cursor: pointer;
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
   user-select: none;
+  /* React Flow adds its own padding — reset it */
+  padding: 0;
 }
 
 .node:hover {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 3px var(--blue-glow-sm);
+  background: color-mix(in srgb, var(--color-surface-default) 94%, var(--color-interactive-hover) 100%);
 }
 
-.nodeSelected {
-  border-color: var(--node-selected) !important;
-  box-shadow: 0 0 0 3px var(--blue-glow-md) !important;
+.selected {
+  border-color: var(--color-border-focus) !important;
+  box-shadow: var(--elevation-card-selected) !important;
+  background: var(--color-interactive-selected-bg) !important;
+}
+
+/* ----- Header (36px) ----- */
+.header {
+  height: var(--dimension-node-header-height);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: 0 var(--spacing-4);
+  overflow: hidden;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-status-clean);
+  flex-shrink: 0;
 }
 
 .name {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
+  font: 600 14px/20px 'Inter', system-ui, sans-serif;
+  color: var(--color-text-primary);
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.desc {
-  font-size: 0.7rem;
-  color: var(--overlay0);
+.drillIn {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.node:hover .drillIn {
+  opacity: 1;
+}
+
+/* ----- UUID row ----- */
+.uuid {
+  font: 400 11px/16px 'Inter', system-ui, sans-serif;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.1px;
+  padding: 0 var(--spacing-4) var(--spacing-2);
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ----- Body (52px) ----- */
+.body {
+  height: var(--dimension-node-body-height);
+  padding: var(--spacing-2) var(--spacing-4);
+  overflow: hidden;
+}
+
+.desc {
+  font: 400 13px/18px 'Inter', system-ui, sans-serif;
+  color: var(--color-text-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  line-height: 1.4;
+  overflow: hidden;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-top: 6px;
-  padding: 2px 6px;
-  background: var(--bg-surface0);
-  border-radius: var(--radius-xs);
-  font-size: 0.65rem;
-  color: var(--overlay1);
+/* ----- Connection handles ----- */
+.handle {
+  width: var(--dimension-handle-size) !important;
+  height: var(--dimension-handle-size) !important;
+  background: var(--color-surface-default) !important;
+  border: 1.5px solid var(--color-border-default) !important;
+  border-radius: 50% !important;
 }

@@ -1,10 +1,15 @@
+/* ======================================================
+   LinkEdge label pill
+   Token source: gui/components/link-renderer/resources/edge-reference.md
+   ====================================================== */
+
 .label {
-  background: var(--bg-surface0);
-  border: 1px solid var(--bg-surface1);
-  border-radius: var(--radius-xs);
-  padding: 2px 6px;
-  font-size: 0.65rem;
-  color: var(--overlay1);
-  pointer-events: all;
-  cursor: default;
+  background: var(--color-surface-overlay);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--dimension-border-radius-small);
+  padding: 2px var(--spacing-2);
+  font: 500 11px/14px 'Inter', system-ui, sans-serif;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
 }

@@ -9,13 +9,14 @@ export interface ExternalStubNodeData {
 }
 
 export function ExternalStubNode({ data }: NodeProps & { data: ExternalStubNodeData }) {
+  const shortUuid = data.uuid.length > 8 ? data.uuid.slice(0, 8) + '…' : data.uuid
+
   return (
     <div className={s.node}>
-      <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
-      <div className={s.label}>{data.label ?? 'External module'}</div>
-      <div className={s.uuid}>{data.uuid}</div>
-      {data.relation && <div className={s.tag}>{data.relation}</div>}
-      <Handle type="source" position={Position.Right} style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Left} className={s.handle} />
+      <div className={s.name}>{data.label ?? 'External module'}</div>
+      <div className={s.uuid}>{shortUuid}</div>
+      <Handle type="source" position={Position.Right} className={s.handle} />
     </div>
   )
 }
