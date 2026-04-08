@@ -3,6 +3,7 @@ export interface ModuleLink {
   uuid: string
   relation?: string
   description?: string
+  fromPortId?: string  // child UUID of the source port row; absent = module-level handle
 }
 
 /** Parsed .archui/index.yaml */
@@ -36,12 +37,22 @@ export interface ArchModule {
   children: ChildModule[]
 }
 
+/** A lightweight summary of a grandchild module, for detail-panel submodule list */
+export interface SubmoduleSummary {
+  uuid: string
+  folderName: string
+  name: string
+  description?: string
+}
+
 export interface ChildModule {
   folderName: string
   uuid: string
   path: string
   name: string
   description: string
+  links: ModuleLink[]       // child's own outgoing links (from its .archui/index.yaml)
+  submodules: SubmoduleSummary[]  // child's own direct submodules (one level deeper)
 }
 
 /** A directory entry returned by the server /api/fs/list */

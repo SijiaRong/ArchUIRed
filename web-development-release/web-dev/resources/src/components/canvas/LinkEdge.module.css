@@ -9,7 +9,7 @@
   border-radius: var(--dimension-border-radius-small);
   padding: 2px var(--spacing-2);
   font: 500 11px/14px 'Inter', system-ui, sans-serif;
-  color: var(--color-text-tertiary);
+  color: var(--edge-color, var(--color-text-tertiary));
   letter-spacing: 0.2px;
   white-space: nowrap;
 }

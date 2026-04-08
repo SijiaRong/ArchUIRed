@@ -34,7 +34,13 @@ submodules:
   web-dev: "11000000-0000-0000-0000-000000000001"
   web-server: "12000000-0000-0000-0000-000000000001"
   web-build: "13000000-0000-0000-0000-000000000001"
-links: []
+links:
+  - uuid: "30000000-0000-0000-0000-000000000001"
+    relation: depends-on
+    description: "Web platform implements the GUI design-system token vocabulary."
+  - uuid: "20000000-0000-0000-0000-000000000001"
+    relation: depends-on
+    description: "CI pipeline runs the CLI validator after every build."
 `.trim()),
 
   /* ── web-dev ── */
@@ -79,7 +85,10 @@ links: []
 schema_version: "1"
 uuid: "20000000-0000-0000-0000-000000000001"
 submodules: {}
-links: []
+links:
+  - uuid: "30000000-0000-0000-0000-000000000001"
+    relation: references
+    description: "CLI validator references GUI design-system token conventions."
 `.trim()),
 
   /* ── gui ── */

@@ -17,86 +17,103 @@ import { useCanvasStore } from '../../store/canvas'
 import { saveLayout, addLink, createModule } from '../../filesystem/writeOps'
 import type { ChildModule, ModuleLink } from '../../types'
 import { Breadcrumb } from '../nav/Breadcrumb'
+import { StatusBar } from '../nav/StatusBar'
 import { ContextMenu } from '../ui/ContextMenu'
 import type { MenuItem } from '../ui/ContextMenu'
 import { NewModuleDialog } from '../ui/NewModuleDialog'
 import { CommandPalette } from '../ui/CommandPalette'
 import type { Command } from '../ui/CommandPalette'
 import { ModuleNode } from './ModuleNode'
-import type { ModuleNodeData } from './ModuleNode'
-import { ExternalStubNode } from './ExternalStubNode'
-import type { ExternalStubNodeData } from './ExternalStubNode'
+import type { ModuleNodeData, ResolvedLink } from './ModuleNode'
 import { LinkEdge } from './LinkEdge'
+import { DetailPanel } from './DetailPanel'
 import s from './CanvasPage.module.css'
 
-const NODE_TYPES = { moduleNode: ModuleNode, externalStubNode: ExternalStubNode }
+const NODE_TYPES = { moduleNode: ModuleNode }
 const EDGE_TYPES = { linkEdge: LinkEdge }
 
 const GRID_W = 240
-const GRID_H = 170
+const H_GAP  = 60   // horizontal gap between columns
+const V_GAP  = 40   // vertical gap between rows in same column
 
+/** Card height formula: header(36) + uuid-row(28) + body(52) + optional port section */
+function cardHeight(child: ChildModule): number {
+  return 116 + (child.links.length > 0 ? 1 + child.links.length * 28 : 0)
+}
+
+/** Arrange children in columns, advancing Y cursor by actual card height to prevent overlap */
 function autoLayout(children: ChildModule[]): Record<string, { x: number; y: number }> {
   const cols = Math.max(1, Math.ceil(Math.sqrt(children.length)))
-  return Object.fromEntries(
-    children.map((c, i) => [
-      c.uuid,
-      { x: (i % cols) * GRID_W + 40, y: Math.floor(i / cols) * GRID_H + 40 },
-    ])
-  )
+  const colY = Array<number>(cols).fill(40)
+  return Object.fromEntries(children.map((child, i) => {
+    const col = i % cols
+    const pos = { x: col * (GRID_W + H_GAP) + 40, y: colY[col] }
+    colY[col] += cardHeight(child) + V_GAP
+    return [child.uuid, pos]
+  }))
+}
+
+interface Rect { x: number; y: number; w: number; h: number }
+function rectsOverlap(a: Rect, b: Rect): boolean {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y
+}
+function hasOverlap(layout: Record<string, { x: number; y: number }>, children: ChildModule[]): boolean {
+  const rects = children
+    .filter(c => layout[c.uuid])
+    .map(c => ({ ...layout[c.uuid], w: GRID_W, h: cardHeight(c) }))
+  for (let i = 0; i < rects.length; i++)
+    for (let j = i + 1; j < rects.length; j++)
+      if (rectsOverlap(rects[i], rects[j])) return true
+  return false
 }
 
 function buildNodes(
   children: ChildModule[],
   layout: Record<string, { x: number; y: number }>,
-  externalLinks: ModuleLink[],
-  childUuidSet: Set<string>,
 ): Node[] {
   const positions = Object.keys(layout).length > 0 ? layout : autoLayout(children)
 
-  const moduleNodes: Node[] = children.map(child => ({
-    id: child.uuid,
-    type: 'moduleNode',
-    position: positions[child.uuid] ?? { x: 0, y: 0 },
-    data: {
-      child,
-      submoduleCount: 0, // loaded lazily
-    } satisfies ModuleNodeData,
-  }))
+  // UUID → name map for resolving port row labels
+  const childByUuid = new Map(children.map(c => [c.uuid, c]))
 
-  // External stubs for links pointing outside current children
-  let stubX = (children.length > 0 ? Math.ceil(Math.sqrt(children.length)) : 1) * GRID_W + 100
-  const externalNodes: Node[] = externalLinks
-    .filter(link => !childUuidSet.has(link.uuid))
-    .map(link => {
-      const x = stubX
-      stubX += 200
-      return {
-        id: `stub-${link.uuid}`,
-        type: 'externalStubNode',
-        position: layout[`stub-${link.uuid}`] ?? { x, y: 40 },
-        data: {
-          uuid: link.uuid,
-          relation: link.relation,
-          label: link.description,
-        } satisfies ExternalStubNodeData,
-      }
-    })
-
-  return [...moduleNodes, ...externalNodes]
+  return children.map(child => {
+    const resolvedLinks: ResolvedLink[] = child.links.map(link => ({
+      uuid: link.uuid,
+      relation: link.relation,
+      description: link.description,
+      targetName: childByUuid.get(link.uuid)?.name,  // resolved if sibling; undefined for cross-level
+    }))
+    return {
+      id: child.uuid,
+      type: 'moduleNode',
+      position: positions[child.uuid] ?? { x: 0, y: 0 },
+      data: {
+        child,
+        submoduleCount: child.submodules.length,
+        resolvedLinks,
+      } satisfies ModuleNodeData,
+    }
+  })
 }
 
-function buildEdges(links: ModuleLink[], childUuidSet: Set<string>, sourceId: string): Edge[] {
-  return links.map(link => {
-    const targetId = childUuidSet.has(link.uuid) ? link.uuid : `stub-${link.uuid}`
-    return {
-      id: `edge-${link.uuid}`,
-      source: sourceId,
-      target: targetId,
-      type: 'linkEdge',
-      data: { relation: link.relation },
-      markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12 },
-    } satisfies Edge
-  })
+// Edges are only drawn between siblings — cross-level links are omitted (visible in detail panel)
+function buildEdges(children: ChildModule[], childUuidSet: Set<string>): Edge[] {
+  const edges: Edge[] = []
+  for (const child of children) {
+    for (const link of child.links) {
+      if (!childUuidSet.has(link.uuid)) continue  // skip cross-level links
+      edges.push({
+        id: `edge-${child.uuid}-${link.uuid}`,
+        source: child.uuid,
+        target: link.uuid,
+        sourceHandle: link.fromPortId ? `port-${link.uuid}` : undefined,
+        type: 'linkEdge',
+        data: { relation: link.relation },
+        markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12 },
+      } satisfies Edge)
+    }
+  }
+  return edges
 }
 
 function getTheme() {
@@ -121,25 +138,31 @@ export function CanvasPage() {
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
+  const [selectedCount, setSelectedCount] = useState(0)
+  const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
   const [ctxMenu, setCtxMenu]  = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
   const [showNewModule, setShowNewModule] = useState(false)
   const [showPalette, setShowPalette]     = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Rebuild graph when module changes
+  // Rebuild graph when module changes; auto-correct overlapping layouts
   useEffect(() => {
     if (!currentModule) return
-    const childUuidSet = new Set(currentModule.children.map(c => c.uuid))
-    const newNodes = buildNodes(
-      currentModule.children,
-      currentModule.layout,
-      currentModule.links,
-      childUuidSet,
-    )
-    const newEdges = buildEdges(currentModule.links, childUuidSet, currentModule.uuid)
-    setNodes(newNodes)
-    setEdges(newEdges)
-  }, [currentModule, setNodes, setEdges])
+    setSelectedUuid(null)  // clear selection when navigating to a new level
+    const { children, layout: savedLayout, uuid } = currentModule
+    const childUuidSet = new Set(children.map(c => c.uuid))
+
+    // Use saved layout unless it's empty or has overlaps (e.g. after cards gained port rows)
+    const hasValidLayout = Object.keys(savedLayout).length > 0 && !hasOverlap(savedLayout, children)
+    const layout = hasValidLayout ? savedLayout : autoLayout(children)
+    if (!hasValidLayout && Object.keys(savedLayout).length > 0) {
+      // Overlaps detected — persist corrected layout silently
+      saveLayout(adapter, uuid, layout).catch(console.error)
+    }
+
+    setNodes(buildNodes(children, layout))
+    setEdges(buildEdges(children, childUuidSet))
+  }, [currentModule, adapter, setNodes, setEdges])
 
   // Persist layout after drag with debounce
   const handleNodesChange: OnNodesChange = useCallback((changes) => {
@@ -158,9 +181,10 @@ export function CanvasPage() {
     }, 600)
   }, [currentModule, adapter, onNodesChange, setNodes])
 
-  // Double-click a node → navigate in
+  // Double-click a node → navigate in (clear selection first)
   const handleNodeDoubleClick: NodeMouseHandler = useCallback((_e, node) => {
     if (node.type === 'moduleNode') {
+      setSelectedUuid(null)
       const data = node.data as unknown as ModuleNodeData
       navigate(data.child.path)
     }
@@ -247,7 +271,20 @@ export function CanvasPage() {
 
   return (
     <div className={s.wrap}>
-      <Breadcrumb />
+      {/* Topbar — 48px */}
+      <header className={s.topbar}>
+        <span className={s.topbarLogo}>ArchUI</span>
+        <Breadcrumb />
+        <div className={s.topbarRight}>
+          <button className={s.toolBtn} onClick={() => setShowNewModule(true)}>＋ Module</button>
+          <button className={s.toolBtn} onClick={() => reload()}>↺ Reload</button>
+          <button className={s.toolBtn} onClick={toggleTheme} title="Toggle light/dark mode">
+            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+          </button>
+          <button className={s.toolBtn} onClick={() => setShowPalette(true)}>⌘K</button>
+        </div>
+      </header>
+
       <div className={s.canvas} style={{ position: 'relative' }}>
         <ReactFlow
           nodes={nodes}
@@ -257,7 +294,12 @@ export function CanvasPage() {
           onConnect={onConnect}
           onNodeDoubleClick={handleNodeDoubleClick}
           onNodeContextMenu={handleNodeContextMenu}
-          onPaneClick={() => setCtxMenu(null)}
+          onPaneClick={() => { setCtxMenu(null); setSelectedUuid(null) }}
+          onSelectionChange={({ nodes: sel }) => {
+            setSelectedCount(sel.length)
+            const firstModule = sel.find(n => n.type === 'moduleNode')
+            setSelectedUuid(firstModule ? (firstModule.data as unknown as ModuleNodeData).child.uuid : null)
+          }}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
           fitView
@@ -276,16 +318,6 @@ export function CanvasPage() {
           />
         </ReactFlow>
 
-        {/* Toolbar */}
-        <div className={s.toolbar}>
-          <button className={s.toolBtn} onClick={() => setShowNewModule(true)}>＋ Module</button>
-          <button className={s.toolBtn} onClick={() => reload()}>↺ Reload</button>
-          <button className={s.toolBtn} onClick={toggleTheme} title="Toggle light/dark mode">
-            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
-          </button>
-          <button className={s.toolBtn} onClick={() => setShowPalette(true)}>⌘K</button>
-        </div>
-
         {loading && <div className={s.loading}>Loading…</div>}
 
         {!loading && currentModule && currentModule.children.length === 0 && (
@@ -301,6 +333,16 @@ export function CanvasPage() {
           </div>
         )}
       </div>
+
+      {/* Status bar — 36px */}
+      <StatusBar selectedCount={selectedCount} />
+
+      {/* Detail panel — slides in from right on selection */}
+      <DetailPanel
+        selectedUuid={selectedUuid}
+        allModules={currentModule?.children ?? []}
+        selectedIndex={currentModule?.children.findIndex(c => c.uuid === selectedUuid) ?? 0}
+      />
 
       {ctxMenu && (
         <ContextMenu

@@ -92,6 +92,39 @@
   overflow: hidden;
 }
 
+/* ----- Port section ----- */
+.portDivider {
+  height: 1px;
+  border-top: 1px dashed var(--color-border-default);
+  margin: 0 var(--spacing-4);
+}
+
+.portRow {
+  height: var(--dimension-port-row-height);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-4);
+  position: relative;
+}
+
+.portLabel {
+  font: 400 12px/16px 'Inter', system-ui, sans-serif;
+  color: var(--color-text-tertiary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portHandle {
+  width: var(--dimension-handle-size) !important;
+  height: var(--dimension-handle-size) !important;
+  background: var(--color-surface-default) !important;
+  border: 1.5px solid var(--color-border-default) !important;
+  border-radius: 50% !important;
+  right: -4px !important;
+}
+
 /* ----- Connection handles ----- */
 .handle {
   width: var(--dimension-handle-size) !important;

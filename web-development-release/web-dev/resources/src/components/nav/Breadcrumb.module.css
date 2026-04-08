@@ -1,13 +1,11 @@
+/* Breadcrumb sits inside the topbar — no background/border of its own */
 .nav {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 0 12px;
-  height: 36px;
-  background: var(--bg-crust);
-  border-bottom: 1px solid var(--bg-surface0);
   overflow-x: auto;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
 }
 .nav::-webkit-scrollbar { display: none; }
 
@@ -21,15 +19,15 @@
 .btn {
   background: none;
   border: none;
-  color: var(--overlay1);
+  color: var(--color-text-secondary);
   cursor: pointer;
-  font-size: 0.8rem;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  transition: color .15s, background .15s;
+  font: 400 13px/18px 'Inter', system-ui, sans-serif;
+  padding: 2px var(--spacing-2);
+  border-radius: var(--dimension-border-radius-small);
+  transition: color 0.15s, background 0.15s;
 }
-.btn:hover { color: var(--text); background: var(--bg-surface0); }
-.btnActive { color: var(--text); font-weight: 500; }
-.btnActive:hover { cursor: default; background: none; }
+.btn:hover { color: var(--color-text-primary); background: var(--color-interactive-hover); }
+.btnActive { color: var(--color-text-accent); font-weight: 500; cursor: default; }
+.btnActive:hover { background: none; }
 
-.sep { color: var(--overlay0); font-size: 0.75rem; user-select: none; }
+.sep { color: var(--color-text-tertiary); font-size: 12px; user-select: none; }

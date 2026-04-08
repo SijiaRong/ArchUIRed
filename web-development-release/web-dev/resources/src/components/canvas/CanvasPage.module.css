@@ -5,44 +5,30 @@
   background: var(--color-surface-canvas);
 }
 
-.canvas {
-  flex: 1;
-  background: var(--color-surface-canvas);
+/* ── Topbar ── */
+.topbar {
+  height: var(--dimension-topbar-height);
+  background: var(--color-surface-topbar);
+  border-bottom: 1px solid var(--color-border-subtle);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-4);
+  flex-shrink: 0;
+  z-index: 20;
 }
 
-.loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--color-text-tertiary);
-  font: 400 13px/18px 'Inter', system-ui, sans-serif;
+.topbarLogo {
+  font: 600 14px/20px 'Inter', system-ui, sans-serif;
+  color: var(--color-text-accent);
+  flex-shrink: 0;
 }
 
-.errorBanner {
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--color-status-error-bg);
-  border: 1px solid var(--color-status-error);
-  color: var(--color-status-error);
-  padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--dimension-border-radius-small);
-  font: 400 13px/18px 'Inter', system-ui, sans-serif;
-  z-index: 100;
-  max-width: 480px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.toolbar {
-  position: absolute;
-  top: var(--spacing-2);
-  right: var(--spacing-3);
+.topbarRight {
+  margin-left: auto;
   display: flex;
   gap: var(--spacing-2);
-  z-index: 10;
+  flex-shrink: 0;
 }
 
 .toolBtn {
@@ -58,6 +44,39 @@
 .toolBtn:hover {
   background: var(--color-surface-overlay);
   color: var(--color-text-primary);
+}
+
+/* ── Canvas ── */
+.canvas {
+  flex: 1;
+  background: var(--color-surface-canvas);
+  min-height: 0;
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-text-tertiary);
+  font: 400 13px/18px 'Inter', system-ui, sans-serif;
+}
+
+.errorBanner {
+  position: absolute;
+  bottom: var(--spacing-4);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-status-error-bg);
+  border: 1px solid var(--color-status-error);
+  color: var(--color-status-error);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--dimension-border-radius-small);
+  font: 400 13px/18px 'Inter', system-ui, sans-serif;
+  z-index: 100;
+  max-width: 480px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .emptyHint {

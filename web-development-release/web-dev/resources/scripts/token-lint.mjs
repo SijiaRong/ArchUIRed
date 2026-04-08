@@ -42,10 +42,16 @@ const RULES = [
     name: 'hardcoded-hex',
     pattern: /#([0-9a-fA-F]{3,8})\b/g,
     // Exempt: hex values inside CSS variable definitions (--color-xxx: #value)
+    // Exempt: hex values inside SVG arrowhead color maps (object literals where
+    //         CSS var() is not usable — SVG <marker> fill must be a literal color)
     check: (_m, line) => {
       const trimmed = line.trim()
       // Allow hex inside token definition lines (--xxx: #value)
       if (/--[\w-]+\s*:\s*#/.test(trimmed)) return false
+      // Allow hex as a value in object literal lines: 'key': '#hex'
+      if (/['"`][^'"`]+['"`]\s*:\s*['"`]#/.test(trimmed)) return false
+      // Allow hex in const/let declarations used as SVG fill literals
+      if (/const\s+\w+\s*=\s*['"`]#/.test(trimmed)) return false
       // Allow hex inside rgba() which is caught separately
       return true
     },
