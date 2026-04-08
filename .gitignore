@@ -36,3 +36,9 @@ npm-debug.log*
 
 # ArchUI runtime state
 .archui/layout.yaml
+
+# Claude Code conversation exports
+20??-??-??-*.txt
+
+# Temporary backups
+*.backup

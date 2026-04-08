@@ -1,29 +1,36 @@
 ---
 name: ArchUI
-description: "An AI agent-prioritized knowledge management and generation system — visual canvas for humans, AI-friendly filesystem access for AI agents"
+description: "企业级开发知识基础设施 — 为 agentic engineering 时代设计的结构化文档系统"
 ---
 
 # ArchUI
 
-A dual-interface knowledge management system that bridges the gap between human-oriented and agent-oriented documentation.
+**为 agentic thinking 时代设计的企业级开发知识基础设施。**
 
 ## The Problem
 
-Traditional long documents (product specs, design docs) are readable for humans but inefficient for LLM agents. Agents perform best with short, modular, contextually-loaded content following two principles:
+2025-2026 年，软件工程正在经历范式转变：从"人类写代码、AI 辅助"到"AI 写代码、人类定义意图"。这个转变的瓶颈不在 AI 能力，而在**知识基础设施**。
 
-- **Load context when needed** — retrieve only relevant knowledge chunks, not entire documents
-- **Progressive Disclosure (渐进式披露)** — surface summaries first, details on demand
+当前的文档系统（Confluence、Notion、README）都是为人类设计的，AI agent 只能勉强适配：
 
-These agent-friendly documentation patterns are hard for humans to author and navigate naturally. There is a fundamental tension between what is good for agents and what is good for humans.
+- **跨仓库依赖关系不清**：50 个微服务仓库，架构师需要手动打开 10+ 个文档才能理解依赖关系
+- **知识传承困难**：新人平均需要 3-6 个月才能理解系统全貌，这期间几乎没有产出
+- **文档持续腐烂**：架构文档平均滞后实际代码 3-6 个月，agent 无法信任过时的信息
+- **Agent 导航困境**：即使有 200K context window，agent 仍然无法可靠地在大型项目中导航和推理
 
 ## The Solution
 
-ArchUI provides:
+ArchUI 是第一个从第一天就为 agentic thinking 设计的企业级开发知识基础设施：
 
-- **GUI (Canvas)** — a node-based visual canvas (in the style of [ComfyUI](https://github.com/comfyanonymous/ComfyUI)) where humans drag, link, and navigate knowledge modules. Human edits are tracked by git; an LLM can be triggered later to propagate changes to affected files.
-- **CLI** — a command-line tool that validates filesystem conformance to ArchUI rules, and can invoke agents to modify ArchUI modules or execute ArchUI commands following ArchUI skills and rules.
+- **UUID 链接系统**：跨仓库的关系通过 UUID 稳定表达，不受重命名影响，agent 可以可靠地遍历依赖图
+- **渐进式披露**：description（一句话）→ README body（详细）→ resources（代码），三层信息密度适配有限的 context window
+- **Schema 验证**：CLI 验证器保证文档结构一致性，agent 行为可预测
+- **Git-based 协作**：所有变更通过 git 追踪，和代码用同一套工作流
+- **双界面设计**：
+  - **GUI (Canvas)** — 人类通过节点式可视化画布操作
+  - **CLI** — Agent 通过命令行工具验证和修改
 
-The **filesystem is the source of truth.** AI agents can directly modify files and folders; the GUI and CLI are interfaces over that same structure.
+**文件系统是唯一真理来源。** AI agent 可以直接修改文件和文件夹；GUI 和 CLI 是同一结构的不同界面。
 
 ## Filesystem Structure
 
@@ -78,74 +85,85 @@ submodules:                 # direct children: folder-name → child uuid
 links:
   - uuid: b3c4d5e6
     relation: depends-on
-    description: Needs this module for token validation.
-  - uuid: c7d8e9f0
-    relation: references
+    description: "Why this dependency exists"
+  - uuid: c5d6e7f8
+    relation: implements
+    description: "What interface or contract this fulfills"
 ```
 
-### .archui/layout.yaml
+**Key design decisions**:
 
-A single file at the project root (`.archui/layout.yaml`) stores canvas card positions for the GUI. The format maps each parent module UUID to a set of child UUIDs with `{x, y}` coordinates:
+- **UUID stability**: Links use UUIDs, not file paths. Renaming or moving a module does not break links.
+- **Relation semantics**: Links carry meaning (`depends-on`, `implements`, `extends`). Agents can reason about the graph structure.
+- **Separation of concerns**: `README.md` is for humans (prose), `.archui/index.yaml` is for structure (machine-readable).
 
-```yaml
-<parent-uuid>:
-  <child-uuid>: {x: 120, y: 340}
-  <child-uuid>: {x: 400, y: 100}
+## Progressive Disclosure (渐进式披露)
+
+Agents load knowledge in three layers:
+
+1. **description** (from README frontmatter) — one sentence, always loaded
+2. **README body** — full prose, loaded on demand
+3. **resources/** — code, diagrams, videos, loaded only when needed
+
+This design respects context window limits while allowing deep exploration.
+
+## CLI
+
+The CLI validates structure, runs agents, and propagates changes:
+
+```bash
+# Validate all modules conform to ArchUI schema
+archui validate .
+
+# Regenerate all UUIDs (useful after forking)
+archui uuid-regenerate .
+
+# Run an agent task on a module
+archui agent --module ./path/to/module --task "update dependencies"
+
+# Propagate changes across linked modules
+archui sync --from ./moduleA --relation depends-on
 ```
 
-The GUI writes this file when a user drags a node on the canvas. It is purely a display hint — it has no effect on the module graph, link resolution, or filesystem structure. If the file is missing or a canvas level has no entry, positions are auto-generated.
+## GUI (Canvas)
 
-### Link Rules
+The GUI is a node-based visual canvas where:
 
-- Both `relation` and `description` are optional.
-- `relation` has a recommended vocabulary: `depends-on`, `implements`, `extends`, `references`, `related-to`. Custom relation strings are also valid.
-- The CLI validates that the `uuid` exists in the project and that the link is well-formed; it does not reject unknown relation types.
-- The global uuid→path index is derived by walking the tree, not from a central file.
+- Each module is a card showing `name` and `description`
+- Links between modules are edges with relation labels
+- Drag-and-drop to create new modules or relink
+- Click to expand and edit README body
+- All edits write directly to the filesystem
 
-## How It Works
+The GUI is built with:
+- **Web**: React + Canvas API
+- **Desktop**: Electron wrapper
+- **Mobile**: React Native (iOS/Android)
 
-- **Humans** use the GUI canvas to author, link, and explore modules visually. Changes are tracked by git. An LLM can be triggered on-demand (using `git diff` as input) to update changed and affected files.
-- **AI agents** read and write files directly — no special API needed. The structure itself enforces context boundaries and progressive disclosure.
-- **CLI** validates that agent edits haven't broken the ArchUI filesystem rules, and can invoke agents to modify modules or execute ArchUI commands following ArchUI skills and rules.
-- **Resources** — any module can have a `resources/` subfolder for referenced material (code, video, images, etc.).
+Design files are in `gui/design-system/` and reference the Figma file `beEbYQhz9LBLHrAj2eGyft`.
 
-## Development Model: Docs-Driven, Agent-Executed
+## Use Cases
 
-ArchUI is built using its own system. All development workflows are defined as ArchUI modules. For example:
+### For Architects / Tech Leads
 
-```
-archui/
-├── ios-development-release/
-│   ├── README.md              # context for the iOS agent
-│   ├── ios-development/
-│   │   └── README.md
-│   └── ios-release/
-│       └── README.md
-├── android-development-release/
-│   └── ...
-├── web-development-release/
-│   └── ...
-└── electron-development-release/
-    └── ...
-```
+- Map dependencies across 50+ microservice repositories
+- Understand "what breaks if I change this service?"
+- Onboard new team members with a visual knowledge graph
+- Document architectural decisions with stable links
 
-Each platform module contains the specs, guidelines, and context that the corresponding programming and testing agents need. Modules are only loaded when that platform is being worked on — agents working on iOS have no reason to load the Android module.
+### For AI Agents
 
-The workflow is:
-1. **Humans and architect agents** modify architecture/spec files.
-2. **Platform-specific programming agents** are scoped to their module and implement natively.
-3. **Testing agents** verify against the spec.
+- Navigate large codebases without loading everything into context
+- Follow `depends-on` links to understand system boundaries
+- Verify changes don't violate architectural constraints
+- Generate documentation that stays in sync with code
 
-There are no hardcoded platform targets. New platforms, roles, or workflows are added simply by creating a new module. UI consistency is maintained via **Figma MCP** as the shared design source of truth.
+### For Teams
 
-## Design Principles
-
-- **Filesystem as source of truth** — no database, no proprietary format
-- **UUID-stable links** — module references survive renames and moves
-- **Modularity** — each module is an independently loadable unit
-- **Infinite nesting** — the same GUI pattern applies at every level of depth
-- **Agent-native** — the structure is designed so LLMs can navigate it without a special adapter
-- **Standalone with integration surface** — works independently; future integrations can be added by the community
+- Git-based workflow: all changes are versioned and reviewable
+- Schema validation prevents documentation rot
+- Progressive disclosure keeps context manageable
+- Cross-repository knowledge lives in one place
 
 ## Forking This Project
 
