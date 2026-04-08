@@ -3,12 +3,12 @@ import type { ProjectIndexEntry } from '../../types'
 import s from './DetailPanel.module.css'
 
 const RELATION_COLORS: Record<string, string> = {
-  'depends-on': 'var(--color-edge-depends-on)',
-  'implements':  'var(--color-edge-implements)',
-  'extends':     'var(--color-edge-extends)',
-  'references':  'var(--color-edge-references)',
-  'related-to':  'var(--color-edge-related-to)',
-  'custom':      'var(--color-edge-custom)',
+  'depends-on': 'var(--edge-depends-on)',
+  'implements':  'var(--edge-implements)',
+  'extends':     'var(--edge-extends)',
+  'references':  'var(--edge-references)',
+  'related-to':  'var(--edge-related-to)',
+  'custom':      'var(--edge-related-to)',
 }
 
 interface DetailPanelProps {

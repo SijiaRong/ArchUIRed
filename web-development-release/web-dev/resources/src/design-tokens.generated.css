@@ -57,6 +57,7 @@
   --accent-4: #9A5B4B;
   --accent-5: #9A7A2D;
   --shadow-soft: 0 10px 26px rgba(85, 55, 24, .08);
+  --shadow-float: 0 8px 20px rgba(85, 55, 24, .10);
   --shadow-card: 0 18px 40px rgba(85, 55, 24, .12);
   --shadow-card-hover: 0 26px 52px rgba(85, 55, 24, .16);
   --shadow-card-hero: 0 28px 64px rgba(85, 55, 24, .18);

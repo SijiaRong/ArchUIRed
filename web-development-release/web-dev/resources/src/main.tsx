@@ -5,9 +5,17 @@ import './design-tokens.generated.css'
 import './global.css'
 import App from './App'
 
-// Theme: ?theme=light overrides default dark (used by E2E tests to verify light mode tokens)
-const _urlTheme = new URLSearchParams(window.location.search).get('theme')
-document.documentElement.setAttribute('data-theme', _urlTheme === 'light' ? 'light' : 'dark')
+// Apply initial theme synchronously to avoid flash; must match getInitialTheme() in App.tsx
+;(function () {
+  const params = new URLSearchParams(window.location.search)
+  const urlTheme = params.get('theme')
+  if (urlTheme === 'light' || urlTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', urlTheme)
+    return
+  }
+  const stored = window.localStorage.getItem('archui-theme')
+  document.documentElement.setAttribute('data-theme', stored === 'dark' ? 'dark' : 'light')
+})()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

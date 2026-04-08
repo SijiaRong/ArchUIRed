@@ -19,7 +19,6 @@ import type { ArchModule, ModuleLink, ProjectIndexEntry } from '../../types'
 import { workspaceContent } from '../../generated/workspace-content.generated'
 import { workspaceLayout } from '../../generated/workspace-layout.generated'
 import { Breadcrumb } from '../nav/Breadcrumb'
-import { StatusBar } from '../nav/StatusBar'
 import { ContextMenu } from '../ui/ContextMenu'
 import type { MenuItem } from '../ui/ContextMenu'
 import { NewModuleDialog } from '../ui/NewModuleDialog'
@@ -29,6 +28,7 @@ import { ModuleNode } from './ModuleNode'
 import type { ModuleNodeData } from './ModuleNode'
 import { LinkEdge } from './LinkEdge'
 import { DetailPanel } from './DetailPanel'
+import { relationColor } from './relationColor'
 import s from './CanvasPage.module.css'
 
 const NODE_TYPES = { moduleNode: ModuleNode }
@@ -58,21 +58,6 @@ function accentIndexFromUuid(uuid: string): number {
   return Number.parseInt(slice, 16) % ACCENT_COUNT
 }
 
-function relationColor(relation?: string): string {
-  switch (relation) {
-    case 'depends-on':
-      return 'var(--edge-depends-on)'
-    case 'implements':
-      return 'var(--edge-implements)'
-    case 'extends':
-      return 'var(--edge-extends)'
-    case 'references':
-      return 'var(--edge-references)'
-    case 'related-to':
-    default:
-      return 'var(--edge-related-to)'
-  }
-}
 
 function realUuid(nodeId: string): string {
   return nodeId.startsWith('ext-') ? nodeId.slice(4) : nodeId
@@ -92,7 +77,6 @@ function autoChildPosition(index: number, total: number): { x: number; y: number
 function buildGraph(
   currentModule: ArchModule,
   projectIndex: Record<string, ProjectIndexEntry>,
-  selectedUuid: string | null,
 ): { nodes: Node[]; edges: Edge[] } {
   const visibleIds = new Set<string>([currentModule.uuid, ...currentModule.children.map(child => child.uuid)])
   const seenEdges = new Set<string>()
@@ -150,7 +134,6 @@ function buildGraph(
         linkCount: currentModule.links.length,
         accentIndex: accentIndexFromUuid(currentModule.uuid),
       } satisfies ModuleNodeData,
-      selected: selectedUuid === currentModule.uuid,
     },
     ...currentModule.children.map((child, index) => {
       const entry = projectIndex[child.uuid] ?? {
@@ -174,7 +157,6 @@ function buildGraph(
           linkCount: child.links.length,
           accentIndex: accentIndexFromUuid(child.uuid),
         } satisfies ModuleNodeData,
-        selected: selectedUuid === child.uuid,
       } satisfies Node
     }),
   ]
@@ -201,11 +183,21 @@ export function CanvasPage({ theme, onToggleTheme }: CanvasPageProps) {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
+    setSelectedUuid(null)
+  }, [currentModule])
+
+  useEffect(() => {
     if (!currentModule) return
-    const next = buildGraph(currentModule, projectIndex, selectedUuid)
+    const next = buildGraph(currentModule, projectIndex)
     setNodes(next.nodes)
     setEdges(next.edges)
-  }, [currentModule, projectIndex, selectedUuid, setNodes, setEdges])
+  }, [currentModule, projectIndex, setNodes, setEdges])
+
+  useEffect(() => {
+    setNodes(current =>
+      current.map(node => ({ ...node, selected: node.id === selectedUuid })),
+    )
+  }, [selectedUuid, setNodes])
 
   const handleNodesChange: OnNodesChange = useCallback((changes) => {
     onNodesChange(changes)
