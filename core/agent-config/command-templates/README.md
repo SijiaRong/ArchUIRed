@@ -9,18 +9,17 @@ Command templates are the canonical, platform-neutral definitions of executable 
 
 Commands differ from skills: skills encode background knowledge and rules (always-on context), while commands encode specific tasks with clear start and end conditions.
 
-## Template: convert-project
+## Templates
 
-The `convert-project` command guides an agent through converting an existing software project into a valid ArchUI-compliant structure. It covers:
+`resources/convert-project.md` is the single source of truth used by both the CLI (`archui init --convert`, imported at esbuild build time) and each agent adapter's `deploy.sh` (copied at deploy time).
 
-- **Module decomposition principles** — how to identify module boundaries, when to split vs. consolidate, naming conventions
-- **README merge rule** — non-destructive handling of existing README files (create / prepend / patch / skip)
-- **ArchUI file generation** — writing `index.yaml`, `layout.yaml`, and updating parent `submodules` maps
-- **Link inference** — detecting cross-module dependencies from imports and package relationships
-- **Resource archival** — moving every non-spec file into its owning module's `resources/` directory, refining decomposition when no suitable module exists
-- **Validation loop** — running `archui validate` and fixing errors until zero ERRORs remain
-- **Multi-agent submodule completion** — spawning parallel sub-agents (one per top-level module) to audit and fill in missing `submodules` entries in every `index.yaml`
-- **Multi-agent link completion** — spawning parallel sub-agents (one per top-level module) to infer and fill in missing `links` entries in every `index.yaml` from source imports and prose references
+| Template | Purpose | Full prompt |
+|---|---|---|
+| `convert-project` | Converts an existing software project into a valid ArchUI-compliant module structure | [`resources/convert-project.md`](resources/convert-project.md) |
+
+### convert-project
+
+Guides an agent through a nine-step autonomous workflow: scan the project tree, create modules with frontmatter and `.archui/` metadata, infer cross-module links, archive non-spec files into `resources/` directories, validate until zero errors, then spawn parallel sub-agents for submodule completion, link completion, and documentation enrichment.
 
 ## Deployment
 

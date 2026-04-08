@@ -141,6 +141,89 @@ When reading any module's identity document (`README.md`, `SPEC.md`, `SKILL.md`,
 
 ---
 
+## Identity Document Authoring & Reading
+
+This section teaches how to write and read the prose inside ArchUI identity documents. It complements the structural rules above.
+
+### Description Field Quality
+
+The `description` frontmatter field is always loaded into agent context. It must be:
+- **One sentence** — multi-sentence triggers a validation warning
+- **Declarative** — states what the module *does*, not what it *contains*
+- **Self-contained** — understandable without reading the body
+- **Present tense** — "Validates filesystem structure" not "Will validate..."
+
+| Quality | Example |
+|---|---|
+| Bad | "This is the CLI module." |
+| Bad | "Contains index.ts, validate.ts, and init.ts." |
+| Good | "Validates ArchUI filesystem structure and reports conformance errors after agent or human edits." |
+
+### Writing SPEC.md
+
+A SPEC defines an implementation specification — a module with `resources/` that implements something. Every SPEC must have exactly one HARNESS submodule.
+
+**Required body sections:**
+- **Overview** — What this module does, why it exists, what problem it solves — 2–4 sentences
+- **Design** — Key design decisions, constraints, architectural choices — 3–6 sentences
+- **Sub-modules** — One sentence per direct child (omit if none)
+- **Dependencies** — One sentence per link (omit if none)
+
+**Anti-patterns:** Do not reproduce source code, list files in `resources/`, write "TODO", or leave body empty.
+
+### Writing HARNESS.md
+
+A HARNESS is a test playbook for its parent SPEC. Exactly one link to parent SPEC with `relation: implements`.
+
+**Required body sections:**
+- **Overview** — What this harness tests — 2–3 sentences
+- **Playbook** — Test groups using `[init]`/`[action]`/`[eval]`/`[end]` markers
+
+Each `[eval]` must describe verifiable outcomes. Groups must be independently runnable.
+
+### Writing MEMORY.md
+
+A MEMORY records accumulated knowledge for its parent SPEC. Links only to parent SPEC.
+
+**Required body sections:**
+- **Overview** — What knowledge is recorded — 2–3 sentences
+- **Observations** — Timestamped, append-only entries
+
+### Writing README.md
+
+A README is the generic fallback. Used for organizational modules without `resources/`.
+
+**Required body sections:**
+- **Overview** — What this module represents — 2–4 sentences
+- **Sub-modules** — One sentence per child (omit if none)
+- **Dependencies** — One sentence per link (omit if none)
+
+### Content Quality Rules
+
+1. Third-person present tense: "This module validates…"
+2. Every sentence must add information beyond the module name
+3. No source code in identity documents — code belongs in `resources/`
+4. No file listings — summarize the implementation approach
+5. Omit a section rather than writing "TODO" or "See code"
+6. 3–6 sentences per section unless complexity demands more
+
+### Progressive Disclosure
+
+- If body exceeds 300 lines → prepend a table of contents with line ranges
+- Cross-reference other documents instead of duplicating content
+- Limit heading depth to H3 (`###`) — deeper nesting means split into a submodule
+
+### Reading Strategy
+
+When reading ArchUI modules:
+1. Read `description` fields first (one-sentence scan)
+2. Select 2–3 relevant modules
+3. Only then read full bodies
+
+Never read all identity documents fully at once. Start narrow, expand as needed.
+
+---
+
 ## Workflows
 
 ### Create a new module
@@ -394,7 +477,73 @@ Spawn one sub-agent per top-level module directory. Each sub-agent is responsibl
 
 **Coordination rule:** Sub-agents work in parallel. Links are directional — each sub-agent only adds outbound links from modules in its own subtree. After all sub-agents complete, the orchestrating agent runs `node cli/resources/dist/index.js validate .` over the full project and fixes any residual errors before proceeding.
 
-### Step 8: Clean Up
+### Step 8: Multi-Agent Documentation Enrichment
+
+Spawn one sub-agent per top-level module directory. Each sub-agent is responsible for enriching the body of every identity document within its assigned subtree so that the documentation is genuinely useful — not just a name and a one-sentence description stub.
+
+**Sub-agent task per top-level module `<module-path>/`:**
+
+1. Walk every module under `<module-path>/` and read its identity document and `.archui/index.yaml`.
+
+2. For each module, classify its current documentation state:
+   - **Stub** — body is empty or shorter than three sentences → must enrich
+   - **Partial** — body exists but lacks key sections (Overview, architecture, sub-module summary) → fill gaps
+   - **Complete** — body covers purpose, design decisions, and sub-module structure adequately → leave unchanged
+
+3. For stub and partial modules, write or expand the identity document body using the following structure:
+
+   **For `README.md` and `SPEC.md` (generic and spec modules):**
+   ```markdown
+   ## Overview
+
+   [What this module does, why it exists, what problem it solves — 2–4 sentences.]
+
+   ## Design
+
+   [Key design decisions, constraints, or architectural choices. If the module has resources/, summarise the implementation approach without reproducing code. If the module is purely conceptual, describe the model.]
+
+   ## Sub-modules
+
+   [For each direct child module listed in .archui/index.yaml submodules, one sentence describing its role.]
+
+   ## Dependencies
+
+   [For each link in .archui/index.yaml links, one sentence explaining why this module depends on or relates to the target.]
+   ```
+
+   **For `HARNESS.md` (test harness modules):**
+   ```markdown
+   ## Overview
+
+   [What this harness tests, and how it verifies the parent SPEC — 2–3 sentences.]
+
+   ## Test Approach
+
+   [The testing strategy: what scenarios are covered, what acceptance criteria are checked, how results are verified.]
+   ```
+
+   **For `MEMORY.md` (persistent memory modules):**
+   ```markdown
+   ## Overview
+
+   [What accumulated knowledge or session state this memory module records — 2–3 sentences.]
+   ```
+
+4. **Content quality rules:**
+   - Write in third-person present tense: "This module validates…" not "I will validate…"
+   - Every sentence must add information not already implied by the module name
+   - Do not reproduce source code, config files, or file listings — describe the design, not the contents
+   - If `resources/` exists for this module, read representative files to extract accurate architectural facts before writing
+   - Omit a section entirely rather than writing a placeholder like "TODO" or "See code"
+   - Keep each section concise: aim for 3–6 sentences per section, not exhaustive prose
+
+5. **Progressive disclosure rule:** If a module's identity document body exceeds 300 lines after enrichment, prepend a table of contents with line numbers immediately after the frontmatter block.
+
+6. **Frontmatter must not change:** Never modify `name`, `description`, or any other frontmatter field. Only the markdown body below the closing `---` fence is within scope.
+
+**Coordination rule:** Sub-agents work in parallel across top-level modules. After all sub-agents complete, the orchestrating agent runs `node cli/resources/dist/index.js validate .` to confirm no frontmatter was corrupted, then proceeds.
+
+### Step 9: Clean Up
 
 Delete `.archui/conversion-plan.yaml` — it is a temporary file and should not be committed.
 
