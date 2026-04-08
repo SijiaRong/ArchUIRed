@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: 7c1d9e3f
+submodules:
+  test-playbook: ee000002
+links:
+  - uuid: 1d3c7a9e
+    relation: depends-on
+    description: The README schema defines the frontmatter fields (especially
+      `description`) that this contract relies on for cheap context loading.

@@ -1,0 +1,12 @@
+schema_version: 1
+uuid: 7e70243e
+submodules:
+  settings: acf32c57
+  skill-loader: c7b7f19b
+  api-client: 55d0e921
+  task-runner: 4f398005
+  streaming-output: fb74a160
+links:
+  - uuid: f7cbda7f
+    relation: related-to
+    description: ai-agent is the execution engine for the import/conversion flow

@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: fb000005
+submodules:
+  test-playbook: fb000006
+links:
+  - uuid: 4c8a5e9d
+    relation: references
+    description: Hotfixes increment the PATCH version component; the versioning
+      contract in versioning-strategy governs all version decisions.

@@ -1,0 +1,19 @@
+schema_version: 1
+uuid: 4e1a7b3c
+submodules:
+  ios-development: 8c5f2a6d
+  ios-release: 1b9e4d7a
+  test-playbook: dd000001
+links:
+  - uuid: 5c9a1e3f
+    relation: implements
+    description: The iOS app is the native SwiftUI implementation of the gui
+      module's canvas and component model.
+  - uuid: 2c4d8f1a
+    relation: references
+    description: iOS agents must respect core filesystem rules when reading and
+      writing ArchUI module trees on-device.
+  - uuid: 1a5b9c3d
+    relation: references
+    description: The CLI is the canonical interface for triggering sync, build, and
+      release operations that the iOS agent may invoke or replicate.

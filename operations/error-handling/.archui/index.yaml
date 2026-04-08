@@ -1,0 +1,17 @@
+schema_version: 1
+uuid: 6c1e8b4a
+submodules:
+  error-taxonomy: ab000006
+  recovery-strategies: ab000007
+  test-playbook: ee000009
+links:
+  - uuid: 1a5b9c3d
+    relation: references
+    description: The CLI is the primary emitter of VALIDATION_ERROR, PARSE_ERROR,
+      BROKEN_LINK, and INDEX_STALE events, and runs the `archui index --fix`
+      recovery command.
+  - uuid: 4b6a8d2e
+    relation: references
+    description: GUI file-sync is the primary emitter of SYNC_FAILURE and
+      FILESYSTEM_ERROR events; the GUI canvas implements the error badge and
+      global error panel presentation.

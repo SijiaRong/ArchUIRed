@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: ee000002
+links:
+  - uuid: 7c1d9e3f
+    relation: implements
+    description: Tests the initialization contract and context budget principles
+      defined in agent-context.

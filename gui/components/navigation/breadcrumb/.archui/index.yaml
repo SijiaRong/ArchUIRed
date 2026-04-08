@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: d02900a5
+links:
+  - uuid: 9d4c7e1b
+    relation: implements
+    description: Implements the breadcrumb UI element of the parent navigation component.

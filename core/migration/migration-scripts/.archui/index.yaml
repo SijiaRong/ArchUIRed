@@ -1,0 +1,13 @@
+schema_version: 1
+uuid: ab000001
+submodules:
+  test-playbook: ab000011
+links:
+  - uuid: 3f7b2e9d
+    relation: extends
+    description: Migration scripts are the executable implementation of the
+      migration contract defined in the parent migration module.
+  - uuid: 8d2f6a4e
+    relation: depends-on
+    description: Every migration script invokes archui index --fix on completion to
+      rebuild the index.

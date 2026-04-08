@@ -1,0 +1,12 @@
+schema_version: 1
+uuid: 9d4c7e1b
+submodules:
+  breadcrumb: d02900a5
+  test-playbook: bb000005
+links:
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: Navigation traverses the filesystem hierarchy defined by
+      core/filesystem-rules — every drill-in step corresponds to entering a
+      subfolder, and every back step corresponds to returning to the parent
+      folder.

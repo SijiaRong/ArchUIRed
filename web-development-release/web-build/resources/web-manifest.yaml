@@ -1,0 +1,45 @@
+# web-manifest.yaml
+# Maps each ArchUI module to the web source files it generates in its own resources/.
+# All file paths are relative to each module's resources/ directory.
+# No two modules may claim the same output file.
+# Update this file whenever a module's update-resources adds or removes files.
+
+web-development-release/web-dev:
+  - index.html
+  - vite.config.ts
+  - tsconfig.json
+  - package.json
+  - src/vite-env.d.ts
+  - src/main.tsx
+  - src/App.tsx
+  - src/types.ts
+  - src/design-tokens.css
+  - src/global.css
+  - src/testHook.ts
+  - src/filesystem/serverAdapter.ts
+  - src/filesystem/loadProject.ts
+  - src/filesystem/parseReadme.ts
+  - src/filesystem/memAdapter.ts
+  - src/filesystem/writeOps.ts
+  - src/filesystem/fsa.ts
+  - src/components/ui/ConfirmDialog.tsx
+  - src/components/ui/ConfirmDialog.module.css
+  - src/components/ui/CommandPalette.tsx
+  - src/components/ui/CommandPalette.module.css
+  - src/components/ui/NewModuleDialog.tsx
+  - src/components/ui/NewModuleDialog.module.css
+  - src/components/ui/ContextMenu.tsx
+  - src/components/ui/ContextMenu.module.css
+  - src/components/ui/OpenFolder.tsx
+  - src/components/ui/OpenFolder.module.css
+  - src/components/nav/Breadcrumb.tsx
+  - src/components/nav/Breadcrumb.module.css
+  - src/store/canvas.ts
+  - src/components/canvas/CanvasPage.tsx
+  - src/components/canvas/CanvasPage.module.css
+  - src/components/canvas/ModuleNode.tsx
+  - src/components/canvas/ModuleNode.module.css
+  - src/components/canvas/LinkEdge.tsx
+  - src/components/canvas/LinkEdge.module.css
+  - src/components/canvas/ExternalStubNode.tsx
+  - src/components/canvas/ExternalStubNode.module.css

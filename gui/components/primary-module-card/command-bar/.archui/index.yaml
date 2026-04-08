@@ -1,0 +1,12 @@
+schema_version: 1
+uuid: e04a0523
+links:
+  - uuid: 7dbb954d
+    relation: implements
+    description: command-bar is the GUI rendering of the command system defined in core/commands
+  - uuid: 7e70243e
+    relation: depends-on
+    description: clicking a command button invokes the ai-agent
+  - uuid: fb74a160
+    relation: depends-on
+    description: command execution output is rendered by streaming-output

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: bb000007
+links:
+  - uuid: 7e3f1c9a
+    relation: implements
+    description: Tests the behaviors described in the Design System module.

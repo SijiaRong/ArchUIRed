@@ -1,0 +1,12 @@
+schema_version: 1
+uuid: f7cbda7f
+submodules:
+  prerequisite-check: c5ab3409
+  conversion: 2de3f47b
+links:
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: import must produce output that satisfies filesystem-rules
+  - uuid: 74bec9da
+    relation: depends-on
+    description: import triggers a project load after conversion completes

@@ -1,0 +1,11 @@
+schema_version: "1"
+uuid: 1ae0b731
+submodules:
+  primary-module-card: 6f1c4a9d
+  link-renderer: 2a8e5b3f
+  navigation: 9d4c7e1b
+  detail-panel: 4ccc342f
+layout:
+  62f8e34e:
+    x: "-333.37376977022143"
+    y: "215.06992076191895"

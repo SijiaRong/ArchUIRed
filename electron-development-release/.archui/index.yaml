@@ -1,0 +1,25 @@
+schema_version: "1"
+uuid: c7d5e9f1
+submodules:
+  electron-development: 4f9c2a6e
+  electron-release: 8d4a7f5c
+  test-playbook: de000003
+links:
+  - uuid: 5c9a1e3f
+    relation: implements
+    description: This module builds the Electron desktop app, one of the primary
+      user-facing implementations of the ArchUI GUI specification alongside the
+      web platform.
+  - uuid: e3a1f8b2
+    relation: depends-on
+    description: The Electron app embeds the React SPA produced by
+      web-development-release; the Electron shell adds native filesystem access
+      on top of the shared frontend.
+  - uuid: 2c4d8f1a
+    relation: references
+    description: Core defines the ArchUI filesystem rules that the Electron main
+      process enforces for all filesystem operations.
+layout:
+  8d4a7f5c:
+    x: "-335.8619280177819"
+    y: "217.96015734729914"

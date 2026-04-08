@@ -1,0 +1,27 @@
+schema_version: "1"
+uuid: e3a1f8b2
+submodules:
+  web-dev: 7a1e5b8d
+  web-server: f4b7c2a9
+  web-build: 120d1668
+  web-release: 2e6b3d1f
+  web-test: 71e6fea9
+  test-playbook: de000002
+links:
+  - uuid: 5c9a1e3f
+    relation: implements
+    description: This module builds the primary production GUI — the React web app
+      and its Express backend server are the main user-facing implementation of
+      the ArchUI GUI specification.
+  - uuid: 2c4d8f1a
+    relation: references
+    description: Core defines the ArchUI filesystem rules and README schema that the
+      web app reads, renders, and allows users to edit.
+  - uuid: 1a5b9c3d
+    relation: references
+    description: The CLI module provides file-sync and LLM operations that the web
+      server can invoke via subprocess for on-demand sync workflows.
+layout:
+  de000002:
+    x: "1049.6116705175991"
+    y: "366.8258782234175"

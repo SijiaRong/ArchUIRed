@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: b0628346
+links:
+  - uuid: c14c91a5
+    relation: transitions-to
+    description: Clicking the breadcrumb back arrow or pressing Escape/Backspace
+      navigates back to the parent canvas, landing in idle state.

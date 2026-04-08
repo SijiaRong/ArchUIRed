@@ -1,0 +1,19 @@
+schema_version: "1"
+uuid: 5c9a1e3f
+submodules:
+  screens: 855df7a8
+  components: 1ae0b731
+  file-sync: 4b6a8d2e
+  design-system: 7e3f1c9a
+  design-update-trigger: 333a9a92
+  test-playbook: bb000001
+links:
+  - uuid: 2c4d8f1a
+    relation: depends-on
+    description: The GUI renders and navigates the module graph defined by core —
+      every visual node corresponds to a core-conformant module folder with a
+      README.md.
+layout:
+  86b720c5:
+    x: 112.6971207141479
+    y: 136.60697510237705

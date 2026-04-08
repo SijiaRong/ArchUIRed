@@ -1,0 +1,23 @@
+schema_version: "1"
+uuid: 7e3f1c9a
+submodules:
+  foundations: 3ccb57fd
+  figma-integration: 93ab33c4
+  test-playbook: bb000007
+links:
+  - uuid: 8c5f2a6d
+    relation: related-to
+    description: iOS development reads Figma tokens via MCP and generates Swift
+      Color extensions.
+  - uuid: 5a2e7c4b
+    relation: related-to
+    description: Android development reads Figma tokens via MCP and generates
+      Compose MaterialTheme token files.
+  - uuid: 7a1e5b8d
+    relation: related-to
+    description: Web development reads Figma tokens via MCP and maps them to CSS
+      custom properties.
+layout:
+  3ccb57fd:
+    x: "-83.39874321206062"
+    y: "176.63764269651134"

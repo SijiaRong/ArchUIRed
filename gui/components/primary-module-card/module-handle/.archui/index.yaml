@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: 470c4fc8
+links:
+  - uuid: 6f1c4a9d
+    relation: implements
+    description: Module handle is part of the primary module card, appearing in its description section.
+  - uuid: b936f200
+    relation: related-to
+    description: Module handle and port handle are the two distinct handle types on the primary card — module handle represents the focused module itself, port handle represents a submodule.

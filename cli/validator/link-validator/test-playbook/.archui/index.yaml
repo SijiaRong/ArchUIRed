@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: cc000005
+links:
+  - uuid: 9e5b3a7f
+    relation: implements
+    description: Tests the link entry validation rules enforced by the
+      link-validator module.

@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: fa000001
+submodules:
+  test-playbook: fa000002
+links:
+  - uuid: 4b6a8d2e
+    relation: references
+    description: The GUI health signals measured here are emitted by gui/file-sync
+      (LLM sync latency, filesystem watch events) and the canvas render loop
+      (frame rate).

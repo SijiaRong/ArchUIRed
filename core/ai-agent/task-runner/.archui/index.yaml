@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: 4f398005
+links:
+  - uuid: 55d0e921
+    relation: depends-on
+    description: task-runner receives tool-call events from api-client and returns tool results
+  - uuid: fb74a160
+    relation: related-to
+    description: task-runner progress events are displayed by streaming-output

@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: "74bec9da"
+links:
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: project loading must respect filesystem-rules — only valid modules are registered
+  - uuid: 1a5b9c3d
+    relation: related-to
+    description: cli implements this loading algorithm in its validator pipeline

@@ -1,0 +1,11 @@
+schema_version: 1
+uuid: 7dbb954d
+submodules:
+  update-resources: 24dcd838
+links:
+  - uuid: 7e70243e
+    relation: depends-on
+    description: clicking a command button invokes the ai-agent with the command body as skill
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: .archui/commands/ is a permitted subfolder defined in filesystem-rules

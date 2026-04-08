@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: 24dcd838
+links:
+  - uuid: 7e70243e
+    relation: depends-on
+    description: update-resources uses ai-agent sub-agents to execute each module's generation
+  - uuid: f7cbda7f
+    relation: related-to
+    description: both use the ai-agent; import converts foreign projects, update-resources regenerates from spec

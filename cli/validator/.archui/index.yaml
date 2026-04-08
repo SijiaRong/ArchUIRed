@@ -1,0 +1,12 @@
+schema_version: 1
+uuid: 8d2f6a4e
+submodules:
+  structure-validator: 3c7e1b5a
+  frontmatter-validator: 6a4d8f2c
+  link-validator: 9e5b3a7f
+  index-sync: 2f8c6d4b
+  test-playbook: cc000002
+links:
+  - uuid: 1a5b9c3d
+    relation: extends
+    description: The validator is the core command surface of the CLI module.

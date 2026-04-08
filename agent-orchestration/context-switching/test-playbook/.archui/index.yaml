@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: ee000003
+links:
+  - uuid: 3b6a4d8c
+    relation: implements
+    description: Tests the boundary-crossing rules, cost model, and handoff protocol
+      defined in context-switching.

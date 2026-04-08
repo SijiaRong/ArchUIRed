@@ -1,0 +1,28 @@
+schema_version: "1"
+uuid: 7a1e5b8d
+submodules:
+  filesystem-adapters: b2c4d6e8
+  test-playbook: dd000008
+links:
+  - uuid: 537c63d3
+    relation: implements
+    description: This module is the concrete React implementation of the ArchUI
+      canvas spec defined in gui/screens/canvas — every canvas interaction, node
+      rendering, and drill-down behavior described there is built here.
+  - uuid: 7e3f1c9a
+    relation: references
+    description: All React components must use tokens, spacing, and typography from
+      gui/design-system to ensure visual consistency with the ArchUI spec.
+  - uuid: 1d3c7a9e
+    relation: references
+    description: The README schema (frontmatter fields, link structure) drives what
+      the canvas renders — the web app parses and displays exactly the fields
+      defined in core/readme-schema.
+  - uuid: f4b7c2a9
+    relation: depends-on
+    description: In production server-hosted mode, the React app communicates with
+      the web-server backend for all filesystem operations.
+layout:
+  stub:dd000008--7a1e5b8d:
+    x: "742.7243392065706"
+    y: "27.02854087678705"

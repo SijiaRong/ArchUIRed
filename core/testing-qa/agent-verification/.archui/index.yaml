@@ -1,0 +1,19 @@
+schema_version: 1
+uuid: 7a3f1b9e
+submodules:
+  test-playbook: aa000008
+links:
+  - uuid: 5e2a8f4b
+    relation: references
+    description: Agent orchestration governs when and how agents are dispatched;
+      this module defines what each agent must do after making filesystem
+      changes.
+  - uuid: 8d2f6a4e
+    relation: depends-on
+    description: The self-check protocol is built around archui validate and archui
+      index --fix; a passing validator is the exit condition for the protocol.
+  - uuid: 9e2b5d7c
+    relation: references
+    description: Whenever a new filesystem rule is added to filesystem-rules, a
+      corresponding integration test case must be added and this module's
+      regression baseline must be updated.

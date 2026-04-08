@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 119593de
+links:
+  - uuid: 3ccb57fd
+    relation: implements
+    description: Implements the typography section of the foundations token vocabulary.

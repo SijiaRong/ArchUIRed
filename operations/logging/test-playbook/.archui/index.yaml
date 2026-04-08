@@ -1,0 +1,8 @@
+schema_version: 1
+uuid: ee00000b
+links:
+  - uuid: 9e4a6c8f
+    relation: implements
+    description: Tests the NDJSON format rules, required and optional fields, log
+      file locations, rotation policy, and debug mode behavior defined in the
+      logging module.

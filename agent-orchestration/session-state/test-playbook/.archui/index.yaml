@@ -1,0 +1,8 @@
+schema_version: 1
+uuid: ee000004
+links:
+  - uuid: 9f5e2c1b
+    relation: implements
+    description: Tests the session state persistence rules, checkpoint commit
+      format, resumption protocol, and scratch file lifecycle defined in
+      session-state.

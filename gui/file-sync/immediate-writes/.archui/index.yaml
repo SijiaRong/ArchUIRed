@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: ab000004
+submodules:
+  test-playbook: ab000014
+links:
+  - uuid: 4b6a8d2e
+    relation: extends
+    description: Immediate writes are one half of the file-sync write strategy — the
+      deterministic, synchronous half.

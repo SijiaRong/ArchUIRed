@@ -1,0 +1,20 @@
+schema_version: "1"
+uuid: 5e2a8f4b
+submodules:
+  agent-context: 7c1d9e3f
+  context-switching: 3b6a4d8c
+  session-state: 9f5e2c1b
+  test-playbook: ee000001
+links:
+  - uuid: 2c4d8f1a
+    relation: depends-on
+    description: Agent scoping and initialization rules are grounded in the core
+      module's filesystem and schema contracts.
+  - uuid: 1a5b9c3d
+    relation: related-to
+    description: The CLI is the primary entry point for launching and configuring
+      agent sessions.
+layout:
+  7c1d9e3f:
+    x: "-53.98123365538813"
+    y: "35.443334014905396"

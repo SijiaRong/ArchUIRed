@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: 3c7e1b5a
+submodules:
+  test-playbook: cc000003
+links:
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: The structural rules this validator enforces are defined in
+      core/filesystem-rules.

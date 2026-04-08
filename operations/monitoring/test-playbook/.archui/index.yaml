@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: ee00000a
+links:
+  - uuid: 2b7d3f5c
+    relation: implements
+    description: Tests the GUI health signals, CLI performance checkpoints, agent
+      run observability events, and telemetry policy defined in monitoring.

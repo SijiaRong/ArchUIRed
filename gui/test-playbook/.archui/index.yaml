@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: bb000001
+links:
+  - uuid: 5c9a1e3f
+    relation: implements
+    description: Tests the behaviors described in the GUI module.
+  - uuid: 333a9a92
+    relation: references
+    description: Group 5 verifies the screenshot capture and design consistency
+      workflow defined by the Design Update Trigger.

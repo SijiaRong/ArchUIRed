@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: aa000004
+links:
+  - uuid: 8b2e4f6d
+    relation: implements
+    description: Tests the link schema and validation behavior defined in link-system.

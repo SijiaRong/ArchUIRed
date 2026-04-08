@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: ff000001
+links:
+  - uuid: 7f3a1b9e
+    relation: implements
+    description: Tests the root ArchUI module, covering overall filesystem
+      structure, README format, and module navigation from the project root.

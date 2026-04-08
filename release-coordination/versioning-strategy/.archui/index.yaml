@@ -1,0 +1,21 @@
+schema_version: "1"
+uuid: 4c8a5e9d
+submodules:
+  test-playbook: ee000006
+links:
+  - uuid: 1b9e4d7a
+    relation: references
+    description: iOS release agent must follow this versioning contract when tagging
+      ios/v* releases and reacting to schema/vX tags.
+  - uuid: 9c6f1d3e
+    relation: references
+    description: Android release agent must follow this versioning contract when
+      tagging android/v* releases and reacting to schema/vX tags.
+  - uuid: 2e6b3d1f
+    relation: references
+    description: Web release agent must follow this versioning contract when tagging
+      web/v* releases and reacting to schema/vX tags.
+layout:
+  4c8a5e9d:
+    x: "628.5980678492879"
+    y: "32.209106006394784"

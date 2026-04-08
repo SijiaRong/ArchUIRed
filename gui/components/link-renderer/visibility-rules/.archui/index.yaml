@@ -1,0 +1,11 @@
+schema_version: 1
+uuid: 5cb39d81
+links:
+  - uuid: 2a8e5b3f
+    relation: implements
+    description: Implements the scoping rules that govern which edges the
+      link-renderer draws on any given canvas.
+  - uuid: 537c63d3
+    relation: references
+    description: The canvas screen defines the "focused module" context in which
+      these visibility rules apply.

@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: f0e1d2c3
+links:
+  - uuid: b2c4d6e8
+    relation: related-to
+    description: One of three adapters in the filesystem-adapters group.
+  - uuid: f4b7c2a9
+    relation: depends-on
+    description: Calls the web-server's /api/fs/read, /api/fs/write, and
+      /api/fs/list endpoints at runtime.

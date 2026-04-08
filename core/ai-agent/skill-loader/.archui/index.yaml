@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: c7b7f19b
+links:
+  - uuid: 74bec9da
+    relation: depends-on
+    description: skill-loader reads module README.md files via the same filesystem access as project-loading

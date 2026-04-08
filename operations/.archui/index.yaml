@@ -1,0 +1,21 @@
+schema_version: 1
+uuid: 4d9a2c6f
+submodules:
+  error-handling: 6c1e8b4a
+  monitoring: 2b7d3f5c
+  logging: 9e4a6c8f
+  test-playbook: ee000008
+links:
+  - uuid: 4b6a8d2e
+    relation: references
+    description: GUI file-sync is a primary consumer of error reporting and
+      monitoring — sync failures and filesystem watch latency are surfaced
+      through operations conventions.
+  - uuid: 1a5b9c3d
+    relation: references
+    description: The CLI is the primary runtime for validation errors, index
+      operations, and performance monitoring targets defined in this module.
+  - uuid: 5e2a8f4b
+    relation: references
+    description: Agent orchestration runs must comply with agent error handling
+      rules and structured logging conventions defined here.

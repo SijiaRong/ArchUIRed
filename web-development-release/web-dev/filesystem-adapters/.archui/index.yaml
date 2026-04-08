@@ -1,0 +1,15 @@
+schema_version: 1
+uuid: b2c4d6e8
+submodules:
+  fsa-adapter: a1b3c5d7
+  server-adapter: f0e1d2c3
+  mem-adapter: c9d8e7f6
+links:
+  - uuid: 7a1e5b8d
+    relation: related-to
+    description: These adapters are the filesystem integration layer of the
+      web-development module; the adapter is selected at runtime and injected
+      into the canvas store.
+  - uuid: f4b7c2a9
+    relation: depends-on
+    description: The server-adapter calls the web-server's /api/fs/* endpoints at runtime.

@@ -1,0 +1,13 @@
+schema_version: "1"
+uuid: 4a6f8e3b
+submodules:
+  test-playbook: aa000002
+links:
+  - uuid: 4b6a8d2e
+    relation: related-to
+    description: gui/file-sync depends-on uuid-system; file-sync is responsible for
+      keeping the UUID index current when modules are moved or renamed
+layout:
+  stub:aa000002--4a6f8e3b:
+    x: "322.12758347811086"
+    y: "43.18958695277201"

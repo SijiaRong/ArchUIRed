@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 86b720c5
+links:
+  - uuid: 6f1c4a9d
+    relation: implements
+    description: Implements the Selected visual state of the primary-module-card component.

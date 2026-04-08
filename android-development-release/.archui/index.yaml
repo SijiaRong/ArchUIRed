@@ -1,0 +1,19 @@
+schema_version: 1
+uuid: 6d3b8a1f
+submodules:
+  android-development: 5a2e7c4b
+  android-release: 9c6f1d3e
+  test-playbook: dd000004
+links:
+  - uuid: 5c9a1e3f
+    relation: implements
+    description: The Android app is a native implementation of the gui module's
+      canvas and component model using Jetpack Compose.
+  - uuid: 2c4d8f1a
+    relation: references
+    description: Reads core filesystem rules to correctly interpret and render the
+      ArchUI module tree on-device.
+  - uuid: 1a5b9c3d
+    relation: references
+    description: References the CLI module for understanding the file-sync and
+      LLM-sync protocol that the Android app participates in.

@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: aa000005
+links:
+  - uuid: 8a4c6e2f
+    relation: implements
+    description: Tests the testing philosophy, cross-platform strategy, and agent
+      verification protocol defined in testing-qa.

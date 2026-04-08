@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: fa000005
+submodules:
+  test-playbook: fa000006
+links:
+  - uuid: 5e2a8f4b
+    relation: references
+    description: The agent session lifecycle (start, module touches, end) that
+      generates these log events is defined in agent-orchestration.

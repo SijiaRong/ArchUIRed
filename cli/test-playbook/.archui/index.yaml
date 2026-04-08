@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: cc000001
+links:
+  - uuid: 1a5b9c3d
+    relation: implements
+    description: Tests the commands and behaviors defined in the CLI module.

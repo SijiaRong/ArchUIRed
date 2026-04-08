@@ -1,0 +1,13 @@
+schema_version: 1
+uuid: 9e5b3a7f
+submodules:
+  test-playbook: cc000005
+links:
+  - uuid: 8b2e4f6d
+    relation: depends-on
+    description: The link entry schema — required fields, optional fields, and their
+      semantics — is defined in core/link-system.
+  - uuid: 4a6f8e3b
+    relation: depends-on
+    description: UUID resolution (checking that a referenced uuid exists in the
+      index) relies on core/uuid-system.

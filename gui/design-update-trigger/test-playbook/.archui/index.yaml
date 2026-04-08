@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 6fdb0a6d
+links:
+  - uuid: 333a9a92
+    relation: implements
+    description: Tests the behaviors described in the Design Update Trigger module.

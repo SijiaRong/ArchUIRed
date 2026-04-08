@@ -1,0 +1,12 @@
+schema_version: 1
+uuid: d1bc98a5
+links:
+  - uuid: 7dbb954d
+    relation: implements
+    description: run-command is the CLI implementation of the module command system defined in core/commands
+  - uuid: 7e70243e
+    relation: depends-on
+    description: run-command invokes core/ai-agent to execute the command skill with the configured provider
+  - uuid: 1a5b9c3d
+    relation: related-to
+    description: run-command is a submodule of the CLI

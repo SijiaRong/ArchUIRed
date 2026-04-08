@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: dd000009
+links:
+  - uuid: 4f9c2a6e
+    relation: implements
+    description: Tests the behaviors and security guarantees defined in
+      electron-development.

@@ -1,0 +1,19 @@
+schema_version: 1
+uuid: 2e7b4f6a
+submodules:
+  cadence: fb000001
+  coordinated-release: fb000003
+  hotfix-policy: fb000005
+  release-history: fb000007
+  test-playbook: ee000007
+links:
+  - uuid: 4c8a5e9d
+    relation: references
+    description: Cadence rules and hotfix policy operate within the versioning
+      contract; consult versioning-strategy before planning any release that
+      changes the MAJOR component.
+  - uuid: 5e2a8f4b
+    relation: references
+    description: Agent orchestration coordinates the multi-agent workflow when a
+      platform release agent needs to signal a coordinated release or
+      schema-sync event to peer agents.

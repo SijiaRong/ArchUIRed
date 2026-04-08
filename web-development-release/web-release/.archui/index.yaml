@@ -1,0 +1,18 @@
+schema_version: 1
+uuid: 2e6b3d1f
+submodules:
+  test-playbook: dd00000a
+links:
+  - uuid: 7a1e5b8d
+    relation: extends
+    description: Web release packages the production output of the web-development workflow.
+  - uuid: f4b7c2a9
+    relation: extends
+    description: Web release bundles the web-server with the built SPA into a Docker
+      image for server-hosted distribution.
+  - uuid: 71e6fea9
+    relation: depends-on
+    description: web-release requires web-test to pass before any build or publish step proceeds
+  - uuid: 120d1668
+    relation: depends-on
+    description: web-release packages the build output produced by web-build into Docker and static bundles

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: aa000003
+links:
+  - uuid: 1d3c7a9e
+    relation: implements
+    description: Tests the frontmatter schema rules defined in readme-schema.

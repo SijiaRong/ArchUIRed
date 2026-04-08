@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: dd000003
+links:
+  - uuid: 1b9e4d7a
+    relation: implements
+    description: Tests the release workflow and checklist steps defined in ios-release.

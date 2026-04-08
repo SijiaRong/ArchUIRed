@@ -1,0 +1,8 @@
+schema_version: 1
+uuid: ee000007
+links:
+  - uuid: 2e7b4f6a
+    relation: implements
+    description: Tests the cadence requirements, hotfix policy, coordinated release
+      file lifecycle, and release history append rules defined in
+      release-calendar.

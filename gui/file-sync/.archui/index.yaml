@@ -1,0 +1,16 @@
+schema_version: "1"
+uuid: 4b6a8d2e
+submodules:
+  immediate-writes: ab000004
+  llm-sync: ab000005
+  test-playbook: bb000006
+links:
+  - uuid: 4a6f8e3b
+    relation: depends-on
+    description: File-sync uses the UUID system to maintain stable module identity
+      across renames and moves, and updates .archui/index.yaml whenever modules
+      are created, moved, or renamed.
+layout:
+  5e2a8f4b:
+    x: "551.7796021945652"
+    y: "90.56068838574275"

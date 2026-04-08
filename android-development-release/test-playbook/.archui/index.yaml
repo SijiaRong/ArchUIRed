@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: dd000004
+links:
+  - uuid: 6d3b8a1f
+    relation: implements
+    description: Tests the scoping, agent boundary, and submodule structure defined
+      in android-development-release.

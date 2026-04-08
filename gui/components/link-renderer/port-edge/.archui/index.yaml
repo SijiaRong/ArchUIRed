@@ -1,0 +1,11 @@
+schema_version: 1
+uuid: 248b1055
+links:
+  - uuid: 2a8e5b3f
+    relation: implements
+    description: Implements the Port Edge case of the parent link-renderer component
+      — the primary edge type in the current model.
+  - uuid: cbdd7351
+    relation: depends-on
+    description: Port edges originate from or terminate at submodule port handles
+      defined by the port-section component.

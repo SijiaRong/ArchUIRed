@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: ca12662f
+links:
+  - uuid: c1c08875
+    relation: implements
+    description: Implements one animation behaviour within the parent animation module.

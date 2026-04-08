@@ -1,0 +1,11 @@
+schema_version: "1"
+uuid: dea03050
+links:
+  - uuid: 2a8e5b3f
+    relation: implements
+    description: Implements the Direct Edge case of the parent link-renderer
+      component for module-level links.
+layout:
+  dea03050:
+    x: "19.65688074863553"
+    y: "-4.914220187158889"

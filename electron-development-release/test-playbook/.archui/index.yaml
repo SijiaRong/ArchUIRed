@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: de000003
+links:
+  - uuid: c7d5e9f1
+    relation: implements
+    description: Tests the structural assumptions and module boundaries of
+      electron-development-release.

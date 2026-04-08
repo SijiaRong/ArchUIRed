@@ -1,0 +1,13 @@
+schema_version: 1
+uuid: 1f9b3a7d
+submodules:
+  test-playbook: aa000006
+links:
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: The contract being tested at every level is defined in
+      filesystem-rules; any rule change there must be reflected in tests here.
+  - uuid: 8d2f6a4e
+    relation: references
+    description: The CLI validator is the cross-cutting test tool that runs at every
+      level of the pyramid as the universal conformance check.

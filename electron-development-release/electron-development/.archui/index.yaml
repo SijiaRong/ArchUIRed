@@ -1,0 +1,16 @@
+schema_version: 1
+uuid: 4f9c2a6e
+submodules:
+  test-playbook: dd000009
+links:
+  - uuid: 7a1e5b8d
+    relation: extends
+    description: Electron development extends the web development module — the React
+      app from web-development runs as-is in the Electron renderer; this module
+      only covers the Electron-specific shell, IPC bridge, and native
+      integrations.
+  - uuid: 9e2b5d7c
+    relation: references
+    description: The Electron main process implements the authoritative filesystem
+      read/write operations defined by core/filesystem-rules, since it has
+      unrestricted Node.js fs access unlike the browser renderer.

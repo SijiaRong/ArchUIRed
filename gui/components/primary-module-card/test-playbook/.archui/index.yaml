@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: bb000003
+links:
+  - uuid: 6f1c4a9d
+    relation: implements
+    description: Tests the behaviors described in the Primary Module Card module.

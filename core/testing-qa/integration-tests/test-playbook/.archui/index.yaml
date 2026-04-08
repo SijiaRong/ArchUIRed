@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: aa000007
+links:
+  - uuid: 5d2e8c4a
+    relation: implements
+    description: Tests that the seven canonical integration test cases defined in
+      integration-tests are correctly implemented and enforced on all platforms.

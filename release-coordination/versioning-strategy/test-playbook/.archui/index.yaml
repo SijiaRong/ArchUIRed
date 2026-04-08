@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: ee000006
+links:
+  - uuid: 4c8a5e9d
+    relation: implements
+    description: Tests the semver contract, tag naming conventions, MAJOR version
+      lifecycle, and pre-release suffix rules defined in versioning-strategy.

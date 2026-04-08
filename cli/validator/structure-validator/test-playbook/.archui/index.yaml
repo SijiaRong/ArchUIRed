@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: cc000003
+links:
+  - uuid: 3c7e1b5a
+    relation: implements
+    description: Tests the structural layout rules enforced by the
+      structure-validator module.

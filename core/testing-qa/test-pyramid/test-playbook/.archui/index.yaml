@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: aa000006
+links:
+  - uuid: 1f9b3a7d
+    relation: implements
+    description: Tests the four-level pyramid structure, coverage targets, and
+      platform ownership requirements defined in test-pyramid.

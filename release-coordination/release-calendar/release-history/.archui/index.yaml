@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: fb000007
+submodules:
+  test-playbook: fb000008
+links:
+  - uuid: 4c8a5e9d
+    relation: references
+    description: The schema_version field in each history entry corresponds to the
+      MAJOR component of the schema/vX tag current at release time, as defined
+      in versioning-strategy.

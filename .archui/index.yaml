@@ -1,0 +1,18 @@
+schema_version: "1"
+uuid: 7f3a1b9e
+submodules:
+  core: 2c4d8f1a
+  gui: 5c9a1e3f
+  cli: 1a5b9c3d
+  ios-development-release: 4e1a7b3c
+  android-development-release: 6d3b8a1f
+  web-development-release: e3a1f8b2
+  electron-development-release: c7d5e9f1
+  agent-orchestration: 5e2a8f4b
+  release-coordination: 6b3d7f1e
+  operations: 4d9a2c6f
+  test-playbook: ff000001
+layout:
+  1a5b9c3d:
+    x: "1110.1210876394587"
+    y: "-219.2145822649496"

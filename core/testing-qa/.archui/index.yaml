@@ -1,0 +1,16 @@
+schema_version: 1
+uuid: 8a4c6e2f
+submodules:
+  test-pyramid: 1f9b3a7d
+  integration-tests: 5d2e8c4a
+  agent-verification: 7a3f1b9e
+  test-playbook: aa000005
+links:
+  - uuid: 2c4d8f1a
+    relation: depends-on
+    description: Testing rules and conventions are grounded in the core module's
+      filesystem rules and ArchUI structural contracts.
+  - uuid: 1a5b9c3d
+    relation: related-to
+    description: The CLI is the primary conformance verification tool; its validate
+      command is central to the test strategy.

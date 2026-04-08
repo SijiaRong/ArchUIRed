@@ -1,0 +1,27 @@
+schema_version: "1"
+uuid: 6b3d7f1e
+submodules:
+  versioning-strategy: 4c8a5e9d
+  release-calendar: 2e7b4f6a
+  test-playbook: ee000005
+links:
+  - uuid: 4e1a7b3c
+    relation: references
+    description: iOS platform release process governed by the cross-platform
+      versioning contract defined here.
+  - uuid: 6d3b8a1f
+    relation: references
+    description: Android platform release process governed by the cross-platform
+      versioning contract defined here.
+  - uuid: e3a1f8b2
+    relation: references
+    description: Web platform release process governed by the cross-platform
+      versioning contract defined here.
+  - uuid: c7d5e9f1
+    relation: references
+    description: Electron platform release process governed by the cross-platform
+      versioning contract defined here.
+layout:
+  4c8a5e9d:
+    x: "-47.26871698455008"
+    y: "71.47952324492942"

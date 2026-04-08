@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: ab000014
+links:
+  - uuid: ab000004
+    relation: implements
+    description: Tests the immediate write operations defined in immediate-writes.

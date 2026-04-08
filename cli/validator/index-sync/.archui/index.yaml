@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: 2f8c6d4b
+submodules:
+  test-playbook: cc000006
+links:
+  - uuid: 4a6f8e3b
+    relation: depends-on
+    description: The index format, uuid uniqueness rules, and the registry contract
+      are defined in core/uuid-system.

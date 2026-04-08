@@ -1,0 +1,14 @@
+schema_version: 1
+uuid: ab000005
+submodules:
+  test-playbook: ab000015
+links:
+  - uuid: 4b6a8d2e
+    relation: extends
+    description: LLM sync is the deferred half of the file-sync write strategy,
+      handling cross-file propagation that immediate writes cannot determine
+      locally.
+  - uuid: 5e2a8f4b
+    relation: references
+    description: Agent orchestration governs when and how LLM sync agents are
+      dispatched within the sync flow.

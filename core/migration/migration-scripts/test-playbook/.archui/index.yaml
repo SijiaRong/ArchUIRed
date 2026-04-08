@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: ab000011
+links:
+  - uuid: ab000001
+    relation: implements
+    description: Tests the migration script conventions defined in migration-scripts.

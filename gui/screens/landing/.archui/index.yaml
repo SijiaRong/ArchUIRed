@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: bc31e2f1
+links:
+  - uuid: 537c63d3
+    relation: transitions-to
+    description: When the user selects or creates a project, the app transitions to
+      the canvas screen (idle state) with that project loaded.

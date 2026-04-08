@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 4406b752
+links:
+  - uuid: 6f1c4a9d
+    relation: implements
+    description: Implements the Modified visual state of the primary-module-card component.

@@ -1,0 +1,14 @@
+schema_version: 1
+uuid: 4ccc342f
+submodules:
+  selection-controller: "15670566"
+links:
+  - uuid: 537c63d3
+    relation: depends-on
+    description: detail-panel is rendered inside the canvas screen in the node-selected state
+  - uuid: 6f1c4a9d
+    relation: depends-on
+    description: detail-panel reads module-node's accent color index to tint the selected module's title
+  - uuid: cf028a7e
+    relation: implements
+    description: detail-panel is the concrete component that fulfills the detail panel described in canvas/node-selected

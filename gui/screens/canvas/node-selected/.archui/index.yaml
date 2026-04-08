@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: cf028a7e
+links:
+  - uuid: c14c91a5
+    relation: transitions-to
+    description: Clicking empty canvas space deselects the node and returns to idle state.
+  - uuid: b0628346
+    relation: transitions-to
+    description: Double-clicking the selected node (or clicking its drill-in icon)
+      transitions to drilled state with that module as the new root.

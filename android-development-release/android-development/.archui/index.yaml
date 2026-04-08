@@ -1,0 +1,17 @@
+schema_version: 1
+uuid: 5a2e7c4b
+submodules:
+  test-playbook: dd000005
+links:
+  - uuid: 537c63d3
+    relation: implements
+    description: Implements the gui/screens/canvas interaction model — pan, zoom,
+      node rendering, and drill-down navigation — natively in Jetpack Compose.
+  - uuid: 7e3f1c9a
+    relation: references
+    description: Pulls design tokens (color, typography, spacing) from the
+      design-system module via Figma MCP to drive MaterialTheme configuration.
+  - uuid: 1d3c7a9e
+    relation: references
+    description: Reads the README schema to know how to parse YAML frontmatter and
+      body from any module's README.md encountered at runtime.

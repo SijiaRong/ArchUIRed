@@ -1,0 +1,13 @@
+schema_version: 1
+uuid: f691889c
+links:
+  - uuid: 3ccb57fd
+    relation: implements
+    description: Implements the color section of the foundations token vocabulary.
+  - uuid: 6f1c4a9d
+    relation: related-to
+    description: Module-node uses surface, text, status, and interactive color
+      tokens for all its visual states.
+  - uuid: 2a8e5b3f
+    relation: related-to
+    description: Link-renderer uses edge color tokens to style each relation type.

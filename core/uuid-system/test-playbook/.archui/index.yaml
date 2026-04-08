@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: aa000002
+links:
+  - uuid: 4a6f8e3b
+    relation: implements
+    description: Tests the UUID assignment, index management, and link-stability
+      behaviors defined in uuid-system.

@@ -1,0 +1,22 @@
+schema_version: 1
+uuid: f4b7c2a9
+submodules:
+  test-playbook: de000001
+links:
+  - uuid: 7a1e5b8d
+    relation: depends-on
+    description: The React SPA (web-development) is served by this server as static
+      files; the server adapter in the SPA calls this server's /api/fs/*
+      endpoints.
+  - uuid: 1a5b9c3d
+    relation: depends-on
+    description: The web-server's /api/sync endpoint shells out to the CLI module's
+      sync command.
+  - uuid: 9e2b5d7c
+    relation: references
+    description: All filesystem operations on the server are bounded by the ArchUI
+      filesystem rules defined in core/filesystem-rules — the server enforces
+      these rules in addition to path security.
+  - uuid: f0e1d2c3
+    relation: implements
+    description: web-server is the concrete implementation of the server-adapter spec — the /api/fs/* endpoints are what ServerAdapter calls at runtime

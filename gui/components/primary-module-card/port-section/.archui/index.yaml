@@ -1,0 +1,12 @@
+schema_version: 1
+uuid: cbdd7351
+submodules:
+  port-row: e83ed7eb
+links:
+  - uuid: 6f1c4a9d
+    relation: implements
+    description: Implements the port section area of the primary-module-card component.
+  - uuid: 5cb39d81
+    relation: depends-on
+    description: Port section renders only submodules that have external links, as
+      determined by the link visibility rules.

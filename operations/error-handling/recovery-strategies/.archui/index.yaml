@@ -1,0 +1,14 @@
+schema_version: 1
+uuid: ab000007
+submodules:
+  test-playbook: ab000017
+links:
+  - uuid: 6c1e8b4a
+    relation: extends
+    description: Recovery strategies are the response layer of the error handling
+      contract — applied after an error is classified by error-taxonomy.
+  - uuid: ab000006
+    relation: depends-on
+    description: Each recovery strategy is keyed to an error category defined in
+      error-taxonomy; the category must be determined before selecting a
+      strategy.

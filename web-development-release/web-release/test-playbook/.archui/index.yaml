@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: dd00000a
+links:
+  - uuid: 2e6b3d1f
+    relation: implements
+    description: Tests the release workflow and checklist steps defined in web-release.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: dd00000b
+links:
+  - uuid: 8d4a7f5c
+    relation: implements
+    description: Tests the release workflow and checklist steps defined in electron-release.

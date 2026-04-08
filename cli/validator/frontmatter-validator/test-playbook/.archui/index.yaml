@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: cc000004
+links:
+  - uuid: 6a4d8f2c
+    relation: implements
+    description: Tests the frontmatter validation rules enforced by the
+      frontmatter-validator module.

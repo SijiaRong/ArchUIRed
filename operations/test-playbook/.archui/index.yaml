@@ -1,0 +1,8 @@
+schema_version: 1
+uuid: ee000008
+links:
+  - uuid: 4d9a2c6f
+    relation: implements
+    description: Tests the cross-cutting operations contracts covering error
+      handling, observability, and logging requirements defined in the
+      operations module.

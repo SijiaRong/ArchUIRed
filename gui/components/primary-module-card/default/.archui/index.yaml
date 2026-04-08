@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: "785e2416"
+links:
+  - uuid: 6f1c4a9d
+    relation: implements
+    description: Implements the Default visual state of both primary and external reference
+      card variants.

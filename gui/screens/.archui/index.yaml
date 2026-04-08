@@ -1,0 +1,13 @@
+schema_version: "1"
+uuid: 855df7a8
+submodules:
+  landing: bc31e2f1
+  canvas: 537c63d3
+links:
+  - uuid: 1ae0b731
+    relation: depends-on
+    description: All screens are composed from components defined in gui/components.
+layout:
+  7a1e5b8d:
+    x: "202.667281834805"
+    y: "406.78788677707536"

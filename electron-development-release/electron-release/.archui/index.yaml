@@ -1,0 +1,14 @@
+schema_version: 1
+uuid: 8d4a7f5c
+submodules:
+  test-playbook: dd00000b
+links:
+  - uuid: 4f9c2a6e
+    relation: extends
+    description: Electron release packages and distributes the artifacts produced by
+      the electron-development workflow.
+  - uuid: 2e6b3d1f
+    relation: references
+    description: The Electron release incorporates the Vite web build (from
+      web-release) as the renderer bundle embedded inside the Electron app
+      package.

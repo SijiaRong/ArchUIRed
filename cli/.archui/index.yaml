@@ -1,0 +1,19 @@
+schema_version: "1"
+uuid: 1a5b9c3d
+submodules:
+  validator: 8d2f6a4e
+  run-command: d1bc98a5
+  test-playbook: cc000001
+links:
+  - uuid: 2c4d8f1a
+    relation: depends-on
+    description: The CLI enforces the rules and schemas defined in core — it has no
+      meaning without core's definitions.
+  - uuid: 5c9a1e3f
+    relation: related-to
+    description: The GUI and CLI are complementary interfaces to the same ArchUI
+      filesystem — humans use the GUI canvas, agents use the CLI validator.
+layout:
+  2c4d8f1a:
+    x: "573.607493915077"
+    y: "-40.064838460105214"

@@ -1,0 +1,11 @@
+schema_version: 1
+uuid: 2de3f47b
+submodules:
+  module-splitter: 633c1dba
+links:
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: conversion output must satisfy filesystem-rules
+  - uuid: 74bec9da
+    relation: depends-on
+    description: conversion triggers walkProject after completion

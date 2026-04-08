@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: cc000002
+links:
+  - uuid: 8d2f6a4e
+    relation: implements
+    description: Tests the orchestration and output behaviors defined in the
+      validator module.

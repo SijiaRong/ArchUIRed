@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: fb000003
+submodules:
+  test-playbook: fb000004
+links:
+  - uuid: 5e2a8f4b
+    relation: references
+    description: Agent orchestration coordinates the multi-agent workflow when
+      platform agents update their readiness gates in the coordinated release
+      file.

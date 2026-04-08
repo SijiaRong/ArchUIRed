@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: 62f8e34e
+links:
+  - uuid: 3ccb57fd
+    relation: implements
+    description: Implements the elevation section of the foundations token vocabulary.
+  - uuid: 6f1c4a9d
+    relation: related-to
+    description: Module-node cards use elevation/card/default and
+      elevation/card/selected for their resting and selected shadow states.

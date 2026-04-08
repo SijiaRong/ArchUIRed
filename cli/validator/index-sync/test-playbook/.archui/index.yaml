@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: cc000006
+links:
+  - uuid: 2f8c6d4b
+    relation: implements
+    description: Tests the index consistency rules enforced by the index-sync module.

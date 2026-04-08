@@ -1,0 +1,15 @@
+schema_version: 1
+uuid: 333a9a92
+submodules:
+  test-playbook: 6fdb0a6d
+links:
+  - uuid: 7e3f1c9a
+    relation: depends-on
+    description: Reads the design system to determine which Figma tokens and
+      components need updating.
+  - uuid: 93ab33c4
+    relation: depends-on
+    description: Uses Figma Integration MCP call patterns to push and pull design changes.
+  - uuid: 5c9a1e3f
+    relation: implements
+    description: Implements the spec-to-design feedback loop for the GUI module.

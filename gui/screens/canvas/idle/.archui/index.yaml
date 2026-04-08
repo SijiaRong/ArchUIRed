@@ -1,0 +1,11 @@
+schema_version: 1
+uuid: c14c91a5
+links:
+  - uuid: cf028a7e
+    relation: transitions-to
+    description: Single-clicking a module node selects it and transitions to
+      node-selected state.
+  - uuid: b0628346
+    relation: transitions-to
+    description: Double-clicking a module node or clicking its drill-in icon
+      transitions to drilled state with that module as the new root.

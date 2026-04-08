@@ -1,0 +1,13 @@
+schema_version: 1
+uuid: 5d2e8c4a
+submodules:
+  test-playbook: aa000007
+links:
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: The test cases directly verify compliance with the filesystem rules
+      defined in this module; any new rule there requires a new test case here.
+  - uuid: 8d2f6a4e
+    relation: depends-on
+    description: Several test cases invoke archui validate or archui index to verify
+      correct CLI behaviour alongside filesystem state.

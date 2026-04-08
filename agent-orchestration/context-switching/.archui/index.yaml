@@ -1,0 +1,14 @@
+schema_version: 1
+uuid: 3b6a4d8c
+submodules:
+  test-playbook: ee000003
+links:
+  - uuid: 7c1d9e3f
+    relation: depends-on
+    description: Context switching builds on the initialization contract defined in
+      agent-context; an agent must understand its own context budget before
+      crossing boundaries.
+  - uuid: 9e2b5d7c
+    relation: references
+    description: Agents crossing into core territory must verify against
+      core/filesystem-rules to avoid violating repository structure constraints.

@@ -1,0 +1,26 @@
+schema_version: 1
+uuid: 3f7b2e9d
+submodules:
+  migration-scripts: ab000001
+  runbooks: ab000002
+  test-playbook: aa000009
+links:
+  - uuid: 1d3c7a9e
+    relation: depends-on
+    description: Migrations operate on README.md frontmatter fields defined by the
+      readme-schema module.
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: Migrations must respect and may update filesystem layout rules
+      defined by the filesystem-rules module.
+  - uuid: 4a6f8e3b
+    relation: depends-on
+    description: UUID format changes are a common source of breaking schema changes
+      handled by this module.
+  - uuid: 8d2f6a4e
+    relation: related-to
+    description: The CLI validator reports schema_version mismatches and gates
+      validation until migration is run.
+  - uuid: 6b3d7f1e
+    relation: references
+    description: Schema version bumps are coordinated as part of the release process.

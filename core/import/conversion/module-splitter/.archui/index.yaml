@@ -1,0 +1,12 @@
+schema_version: 1
+uuid: 633c1dba
+links:
+  - uuid: 9e2b5d7c
+    relation: depends-on
+    description: module-splitter output must satisfy filesystem-rules
+  - uuid: 1d3c7a9e
+    relation: depends-on
+    description: each module README.md must follow the readme-schema
+  - uuid: 4a6f8e3b
+    relation: depends-on
+    description: each module UUID must follow uuid-system rules

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: aa000001
+links:
+  - uuid: 2c4d8f1a
+    relation: implements
+    description: Tests the rules and conventions defined in the core module.

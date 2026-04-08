@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: a1b3c5d7
+links:
+  - uuid: b2c4d6e8
+    relation: related-to
+    description: One of three adapters in the filesystem-adapters group.

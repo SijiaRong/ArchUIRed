@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: ee000005
+links:
+  - uuid: 6b3d7f1e
+    relation: implements
+    description: Tests the release coordination contracts covering platform
+      independence, MAJOR version synchronization, and the schema tag protocol.

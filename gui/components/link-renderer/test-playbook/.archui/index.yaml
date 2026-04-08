@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: bb000004
+links:
+  - uuid: 2a8e5b3f
+    relation: implements
+    description: Tests the behaviors described in the Link Renderer module.

@@ -1,0 +1,21 @@
+schema_version: "1"
+uuid: 8c5f2a6d
+submodules:
+  test-playbook: dd000002
+links:
+  - uuid: 537c63d3
+    relation: implements
+    description: The SwiftUI canvas directly implements the gui/screens/canvas spec
+      — infinite scroll, zoom, node rendering, and drill-down navigation.
+  - uuid: 7e3f1c9a
+    relation: references
+    description: All visual decisions (typography, color, spacing, component shapes)
+      are sourced from gui/design-system via Figma MCP.
+  - uuid: 1d3c7a9e
+    relation: references
+    description: iOS agents read README.md frontmatter (uuid, name, description) to
+      hydrate module nodes in the canvas view.
+layout:
+  8c5f2a6d:
+    x: "680.0059742564833"
+    y: "45.333067810822975"

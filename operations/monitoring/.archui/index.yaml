@@ -1,0 +1,18 @@
+schema_version: 1
+uuid: 2b7d3f5c
+submodules:
+  gui-health: fa000001
+  cli-performance: fa000003
+  agent-observability: fa000005
+  telemetry: fa000007
+  test-playbook: ee00000a
+links:
+  - uuid: 1a5b9c3d
+    relation: references
+    description: CLI validation and index rebuild are the primary performance
+      measurement targets; thresholds defined here apply directly to `archui
+      validate` and `archui index` runtimes.
+  - uuid: 4b6a8d2e
+    relation: references
+    description: GUI canvas frame rate, LLM sync response time, and filesystem watch
+      latency are the primary GUI health signals monitored under this module.

@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: b58443e0
+links:
+  - uuid: 2a8e5b3f
+    relation: implements
+    description: Part of the link-renderer component family, currently inactive.
+  - uuid: 9d4c7e1b
+    relation: depends-on
+    description: Clicking an external reference card triggers navigation to the
+      target module's canvas level, handled by the navigation component.

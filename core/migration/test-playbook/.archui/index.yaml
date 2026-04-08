@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: aa000009
+links:
+  - uuid: 3f7b2e9d
+    relation: implements
+    description: Tests the migration workflow, safety guarantees, and agent
+      instructions defined in the migration module.

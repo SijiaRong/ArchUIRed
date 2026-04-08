@@ -1,0 +1,8 @@
+schema_version: 1
+uuid: e83ed7eb
+submodules:
+  port-handle: b936f200
+links:
+  - uuid: cbdd7351
+    relation: implements
+    description: Port row is the individual list element rendered inside the port section.

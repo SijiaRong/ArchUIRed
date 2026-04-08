@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: aa000008
+links:
+  - uuid: 7a3f1b9e
+    relation: implements
+    description: Tests the self-check protocol, peer verification triggers, and
+      fixture authoring rules defined in agent-verification.

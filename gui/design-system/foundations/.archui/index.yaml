@@ -1,0 +1,23 @@
+schema_version: 1
+uuid: 3ccb57fd
+submodules:
+  color: f691889c
+  typography: 119593de
+  spacing: 938aba01
+  elevation: 62f8e34e
+links:
+  - uuid: 93ab33c4
+    relation: depends-on
+    description: Tokens are defined in Figma and fetched via the figma-integration
+      MCP layer; the Foundations page in the Figma file is the canonical source
+      for all token values.
+  - uuid: 7a1e5b8d
+    relation: related-to
+    description: Web development maps these tokens to CSS custom properties.
+  - uuid: 8c5f2a6d
+    relation: related-to
+    description: iOS development maps these tokens to Swift Color and font extensions.
+  - uuid: 5a2e7c4b
+    relation: related-to
+    description: Android development maps these tokens to Compose MaterialTheme and
+      TextStyle definitions.

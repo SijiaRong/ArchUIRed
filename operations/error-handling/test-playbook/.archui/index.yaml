@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: ee000009
+links:
+  - uuid: 6c1e8b4a
+    relation: implements
+    description: Tests the error categories, recovery strategies, GUI presentation
+      rules, and agent error handling constraints defined in error-handling.

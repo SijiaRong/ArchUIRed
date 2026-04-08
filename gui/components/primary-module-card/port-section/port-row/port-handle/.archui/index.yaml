@@ -1,0 +1,9 @@
+schema_version: 1
+uuid: b936f200
+links:
+  - uuid: e83ed7eb
+    relation: implements
+    description: Port handle is the connection anchor rendered inside a port row.
+  - uuid: 470c4fc8
+    relation: related-to
+    description: Port handle and module handle are the two distinct handle types on the primary card — port handle represents a submodule, module handle represents the focused module itself.

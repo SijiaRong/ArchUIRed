@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: ee000001
+links:
+  - uuid: 5e2a8f4b
+    relation: implements
+    description: Tests the orchestration contracts defined in agent-orchestration,
+      including agent initialization, task handoff, and session state rules.

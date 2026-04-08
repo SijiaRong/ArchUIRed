@@ -1,0 +1,23 @@
+schema_version: "1"
+uuid: 537c63d3
+submodules:
+  idle: c14c91a5
+  node-selected: cf028a7e
+  drilled: b0628346
+links:
+  - uuid: 6f1c4a9d
+    relation: depends-on
+    description: The canvas screen renders module-node components — the primary card
+      for the focused module and small cards for external references.
+  - uuid: 2a8e5b3f
+    relation: depends-on
+    description: The canvas screen renders link-renderer edges between the primary
+      card's submodule ports and external reference cards.
+  - uuid: 9d4c7e1b
+    relation: depends-on
+    description: The canvas screen uses the navigation component to maintain the
+      breadcrumb trail and handle drill-in/back transitions.
+layout:
+  cf028a7e:
+    x: "1076.5330884776915"
+    y: "476.7719985857873"

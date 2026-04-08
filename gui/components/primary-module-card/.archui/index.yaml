@@ -1,0 +1,21 @@
+schema_version: "1"
+uuid: 6f1c4a9d
+submodules:
+  default: "785e2416"
+  selected: 86b720c5
+  modified: 4406b752
+  error: "54534937"
+  port-section: cbdd7351
+  animation: c1c08875
+  test-playbook: bb000003
+  command-bar: e04a0523
+  module-handle: 470c4fc8
+links:
+  - uuid: 1d3c7a9e
+    relation: depends-on
+    description: Module-node reads name, description, submodules, and links from the
+      module's README.md frontmatter to populate its visual fields.
+layout:
+  248b1055:
+    x: "363.1997474895294"
+    y: "-26.57756454764759"

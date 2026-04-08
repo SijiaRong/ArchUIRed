@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: dd000006
+links:
+  - uuid: 9c6f1d3e
+    relation: implements
+    description: Tests the release workflow and checklist steps defined in android-release.

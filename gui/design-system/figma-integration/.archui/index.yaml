@@ -1,0 +1,22 @@
+schema_version: 1
+uuid: 93ab33c4
+links:
+  - uuid: 7e3f1c9a
+    relation: implements
+    description: Provides the concrete MCP connection through which agents consume
+      the design-system spec.
+  - uuid: 8c5f2a6d
+    relation: related-to
+    description: iOS agent reads Figma component specs and generates Swift Color
+      extensions via this integration.
+  - uuid: 5a2e7c4b
+    relation: related-to
+    description: Android agent reads Figma tokens and generates Compose
+      MaterialTheme token files via this integration.
+  - uuid: 7a1e5b8d
+    relation: related-to
+    description: Web agent reads Figma tokens and maps them to CSS custom properties
+      via this integration.
+  - uuid: 4f9c2a6e
+    relation: related-to
+    description: Electron agent inherits the web token mapping via this integration.

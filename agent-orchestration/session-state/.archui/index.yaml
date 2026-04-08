@@ -1,0 +1,14 @@
+schema_version: 1
+uuid: 9f5e2c1b
+submodules:
+  test-playbook: ee000004
+links:
+  - uuid: 4b6a8d2e
+    relation: references
+    description: GUI file-sync reflects the filesystem state that agents write;
+      agents must commit cleanly so file-sync has a consistent view.
+  - uuid: 9e2b5d7c
+    relation: references
+    description: Agents must follow core/filesystem-rules when writing scratch files
+      or committing changes, particularly the constraint that only resources/ is
+      a valid non-module subfolder.

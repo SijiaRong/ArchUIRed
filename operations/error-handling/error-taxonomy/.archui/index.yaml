@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: ab000006
+submodules:
+  test-playbook: ab000016
+links:
+  - uuid: 6c1e8b4a
+    relation: extends
+    description: Error taxonomy is the classification layer of the error handling
+      contract — every error must be assigned to exactly one category before a
+      recovery strategy is applied.

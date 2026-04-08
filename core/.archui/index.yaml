@@ -1,0 +1,27 @@
+schema_version: "1"
+uuid: 2c4d8f1a
+submodules:
+  filesystem-rules: 9e2b5d7c
+  uuid-system: 4a6f8e3b
+  readme-schema: 1d3c7a9e
+  link-system: 8b2e4f6d
+  testing-qa: 8a4c6e2f
+  migration: 3f7b2e9d
+  project-loading: 74bec9da
+  import: f7cbda7f
+  ai-agent: 7e70243e
+  commands: 7dbb954d
+  test-playbook: aa000001
+links:
+  - uuid: 5c9a1e3f
+    relation: related-to
+    description: gui depends-on core; core defines the rules that gui implements and
+      enforces
+  - uuid: 1a5b9c3d
+    relation: related-to
+    description: cli depends-on core; core defines the rules that cli validates and
+      operates on
+layout:
+  4a6f8e3b:
+    x: "302.9793321751129"
+    y: "-176.58942868320307"

@@ -1,0 +1,16 @@
+schema_version: 1
+uuid: 9e4a6c8f
+submodules:
+  log-schema: fc000001
+  log-locations: fc000003
+  log-rotation: fc000005
+  test-playbook: ee00000b
+links:
+  - uuid: 6c1e8b4a
+    relation: references
+    description: Log entries for error conditions must include the `error_category`
+      field using the categories defined in the error-handling module.
+  - uuid: 5e2a8f4b
+    relation: references
+    description: Agent orchestration sessions produce per-session NDJSON log files;
+      the `agent_session_id` field ties all entries for a run together.
