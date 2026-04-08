@@ -2,27 +2,17 @@ import { useState } from 'react'
 import { openDirectory } from '../../filesystem/fsa'
 import serverAdapter from '../../filesystem/serverAdapter'
 import { useCanvasStore } from '../../store/canvas'
-import { createE2eAdapter, E2E_ROOT } from '../../e2e-fixture'
 import s from './OpenFolder.module.css'
 
-function getTheme() {
-  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
-}
-function toggleTheme() {
-  const next = getTheme() === 'dark' ? 'light' : 'dark'
-  document.documentElement.setAttribute('data-theme', next)
+interface OpenFolderProps {
+  theme: 'light' | 'dark'
+  onToggleTheme: () => void
 }
 
-export function OpenFolder() {
-  const setAdapter = useCanvasStore(st => st.setAdapter)
+export function OpenFolder({ theme, onToggleTheme }: OpenFolderProps) {
+  const setAdapter = useCanvasStore(s => s.setAdapter)
   const [serverUrl, setServerUrl] = useState(import.meta.env.VITE_SERVER_URL ?? 'http://localhost:3001')
   const [showUrl, setShowUrl] = useState(false)
-  const [theme, setTheme] = useState<'dark' | 'light'>(getTheme)
-
-  function handleToggleTheme() {
-    toggleTheme()
-    setTheme(getTheme())
-  }
 
   async function handleFsa() {
     try {
@@ -38,31 +28,39 @@ export function OpenFolder() {
     await setAdapter(serverAdapter, '.', 'server')
   }
 
-  function handleDemo() {
-    setAdapter(createE2eAdapter(), E2E_ROOT, 'mem')
-  }
-
   return (
     <div className={s.root}>
-      <button className={s.themeToggle} onClick={handleToggleTheme} title="Toggle light/dark mode">
-        {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+      <button className={s.themeBtn} onClick={onToggleTheme}>
+        {theme === 'light' ? 'Switch to dark' : 'Switch to light'}
       </button>
 
-      <div className={s.logo}>ArchUI</div>
-      <div className={s.subtitle}>Knowledge canvas for humans & AI agents</div>
+      <div className={s.hero}>
+        <div className={s.logoMark} />
+        <div className={s.logo}>ArchUI</div>
+        <div className={s.subtitle}>Canvas-first knowledge workspace for humans and AI agents.</div>
+      </div>
 
       <div className={s.card}>
-        <button className={s.btn} onClick={handleServer}>
-          Connect to local server
+        <div className={s.cardKicker}>Deep Honey / Lake Workspace</div>
+        <h1>Open a project and step into the graph.</h1>
+        <p>
+          This first wave focuses on the canvas workspace, so the entry page stays intentionally light
+          while the workbench carries the visual identity.
+        </p>
+
+        <div className={s.actionGrid}>
+          <button className={s.btnPrimary} onClick={handleServer}>
+            Connect to local server
+          </button>
+          <button className={s.btnSecondary} onClick={handleFsa}>
+            Open folder in Chrome or Edge
+          </button>
+        </div>
+
+        <button className={s.inlineBtn} onClick={() => setShowUrl(v => !v)}>
+          {showUrl ? 'Hide server URL' : 'Show server URL'}
         </button>
-        <span className={s.divider}>or</span>
-        <button className={`${s.btn} ${s.btnSecondary}`} onClick={handleFsa}>
-          Open folder (FSA — Chrome/Edge)
-        </button>
-        <span className={s.divider}>or</span>
-        <button className={`${s.btn} ${s.btnDemo}`} onClick={handleDemo}>
-          Load demo project
-        </button>
+
         {showUrl && (
           <div className={s.urlRow}>
             <input
@@ -73,13 +71,6 @@ export function OpenFolder() {
             />
           </div>
         )}
-        <button
-          className={`${s.btn} ${s.btnSecondary}`}
-          style={{ fontSize: '11px', padding: '4px 0' }}
-          onClick={() => setShowUrl(v => !v)}
-        >
-          {showUrl ? 'Hide server URL' : 'Change server URL'}
-        </button>
       </div>
     </div>
   )

@@ -1,9 +1,22 @@
 import { parse as parseYaml } from 'yaml'
-import type { ArchModule, ChildModule, FsAdapter, IndexYaml, LayoutFile } from '../types'
+import type { ArchModule, ChildModule, FsAdapter, IndexYaml, LayoutFile, ProjectIndexEntry } from '../types'
 import { parseReadme } from './parseReadme'
 
 function join(...parts: string[]): string {
   return parts.join('/').replace(/\/+/g, '/').replace(/\/$/, '') || '/'
+}
+
+function normalizeSubmodules(submodules: IndexYaml['submodules']): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(submodules ?? {}).map(([folderName, uuid]) => [folderName, String(uuid)]),
+  )
+}
+
+function normalizeLinks(links: IndexYaml['links']): ChildModule['links'] {
+  return (links ?? []).map(link => ({
+    ...link,
+    uuid: String(link.uuid),
+  }))
 }
 
 /**
@@ -25,8 +38,8 @@ export async function loadModule(adapter: FsAdapter, modulePath: string): Promis
     index = parseYaml(indexContent) as IndexYaml
   } catch { /* ignore */ }
 
-  const submodules = index.submodules ?? {}
-  const links      = index.links ?? []
+  const submodules = normalizeSubmodules(index.submodules)
+  const links = normalizeLinks(index.links)
 
   // Read centralized layout
   let globalLayout: LayoutFile = {}
@@ -46,13 +59,22 @@ export async function loadModule(adapter: FsAdapter, modulePath: string): Promis
     Object.entries(submodules).map(async ([folderName, uuid]) => {
       const childPath = join(modulePath, folderName)
       const childReadme = await adapter.readFile(join(childPath, 'README.md')).catch(() => '')
+      const childIndexContent = await adapter.readFile(join(childPath, '.archui/index.yaml')).catch(() => '')
       const childMeta = parseReadme(childReadme) ?? { name: folderName, description: '' }
+      let childIndex: IndexYaml = { schema_version: '1', uuid }
+      try {
+        childIndex = parseYaml(childIndexContent) as IndexYaml
+      } catch {
+        // fall back to the parent-declared uuid when the child index is unreadable
+      }
       return {
         folderName,
         uuid,
         path: childPath,
         name: childMeta.name,
         description: childMeta.description,
+        submoduleCount: Object.keys(normalizeSubmodules(childIndex.submodules)).length,
+        links: normalizeLinks(childIndex.links),
       }
     })
   )
@@ -67,6 +89,57 @@ export async function loadModule(adapter: FsAdapter, modulePath: string): Promis
     layout,
     children,
   }
+}
+
+async function scanModule(
+  adapter: FsAdapter,
+  modulePath: string,
+  parentPath: string | null,
+): Promise<ProjectIndexEntry[]> {
+  const readmeContent = await adapter.readFile(join(modulePath, 'README.md')).catch(() => '')
+  const indexContent  = await adapter.readFile(join(modulePath, '.archui/index.yaml')).catch(() => '')
+
+  const meta = parseReadme(readmeContent) ?? {
+    name: modulePath.split('/').pop() ?? modulePath,
+    description: '',
+  }
+
+  let index: IndexYaml = { schema_version: '1', uuid: '' }
+  try {
+    index = parseYaml(indexContent) as IndexYaml
+  } catch {
+    // leave the entry skeletal when the index cannot be parsed
+  }
+
+  const entry: ProjectIndexEntry = {
+    uuid: String(index.uuid ?? ''),
+    path: modulePath,
+    parentPath,
+    name: meta.name,
+    description: meta.description,
+    submodules: normalizeSubmodules(index.submodules),
+    links: normalizeLinks(index.links),
+  }
+
+  const descendants = await Promise.all(
+    Object.keys(entry.submodules).map(folderName =>
+      scanModule(adapter, join(modulePath, folderName), modulePath),
+    ),
+  )
+
+  return [entry, ...descendants.flat()]
+}
+
+export async function buildProjectIndex(
+  adapter: FsAdapter,
+  rootPath: string,
+): Promise<Record<string, ProjectIndexEntry>> {
+  const entries = await scanModule(adapter, rootPath, null)
+  return Object.fromEntries(
+    entries
+      .filter(entry => entry.uuid)
+      .map(entry => [entry.uuid, entry] satisfies [string, ProjectIndexEntry]),
+  )
 }
 
 /**

@@ -42,6 +42,18 @@ export interface ChildModule {
   path: string
   name: string
   description: string
+  submoduleCount: number
+  links: ModuleLink[]
+}
+
+export interface ProjectIndexEntry {
+  uuid: string
+  path: string
+  parentPath: string | null
+  name: string
+  description: string
+  submodules: Record<string, string>
+  links: ModuleLink[]
 }
 
 /** A directory entry returned by the server /api/fs/list */

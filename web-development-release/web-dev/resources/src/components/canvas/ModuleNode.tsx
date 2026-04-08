@@ -1,41 +1,47 @@
+import type { CSSProperties } from 'react'
 import { Handle, Position } from '@xyflow/react'
 import type { NodeProps } from '@xyflow/react'
-import type { ChildModule } from '../../types'
+import type { ProjectIndexEntry } from '../../types'
 import s from './ModuleNode.module.css'
 
 export interface ModuleNodeData {
-  child: ChildModule
+  entry: ProjectIndexEntry
+  variant: 'primary' | 'child'
   submoduleCount: number
+  linkCount: number
+  accentIndex: number
 }
 
 export function ModuleNode({ data, selected }: NodeProps & { data: ModuleNodeData }) {
-  const { child } = data
-
-  // Truncate UUID to 8 chars for display
-  const shortUuid = child.uuid.length > 8 ? child.uuid.slice(0, 8) + '…' : child.uuid
+  const { entry, variant, submoduleCount, linkCount, accentIndex } = data
+  const style = {
+    ['--node-accent' as string]: `var(--accent-${accentIndex})`,
+  } as CSSProperties
 
   return (
-    <div className={`${s.node} ${selected ? s.selected : ''}`}>
-      <Handle type="target" position={Position.Left} className={s.handle} />
+    <div
+      className={`${s.node} ${variant === 'primary' ? s.nodePrimary : s.nodeChild} ${selected ? s.nodeSelected : ''}`}
+      style={style}
+      data-node-variant={variant}
+    >
+      <Handle type="target" position={Position.Left} className={`${s.handle} ${s.handleLeft}`} />
 
-      {/* Header — 36px */}
-      <div className={s.header}>
-        <span className={s.statusDot} />
-        <span className={s.name} title={child.name}>{child.name}</span>
-        <span className={s.drillIn}>↗</span>
+      <div className={s.chrome}>
+        <div className={s.eyebrow}>{variant === 'primary' ? 'Focused module' : 'Submodule'}</div>
+        <div className={s.name} title={entry.name}>{entry.name}</div>
+        <div className={s.uuid}>{entry.uuid}</div>
       </div>
 
-      {/* UUID row */}
-      <div className={s.uuid}>{shortUuid}</div>
+      {entry.description && (
+        <div className={s.desc}>{entry.description}</div>
+      )}
 
-      {/* Body — 52px */}
-      <div className={s.body}>
-        {child.description && (
-          <p className={s.desc}>{child.description}</p>
-        )}
+      <div className={s.metaRow}>
+        <div className={s.badge}>{submoduleCount} submodules</div>
+        <div className={s.badge}>{linkCount} links</div>
       </div>
 
-      <Handle type="source" position={Position.Right} className={s.handle} />
+      <Handle type="source" position={Position.Right} className={`${s.handle} ${s.handleRight}`} />
     </div>
   )
 }

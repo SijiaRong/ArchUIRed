@@ -2,34 +2,56 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 0 12px;
-  height: 36px;
-  background: var(--bg-crust);
-  border-bottom: 1px solid var(--bg-surface0);
+  padding: 0 18px;
+  min-height: 52px;
+  background: color-mix(in srgb, var(--surface-panel) 90%, transparent);
+  border-bottom: 1px solid var(--line-default);
   overflow-x: auto;
   flex-shrink: 0;
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-soft);
+  z-index: 10;
 }
-.nav::-webkit-scrollbar { display: none; }
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
 
 .crumb {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   white-space: nowrap;
 }
 
 .btn {
   background: none;
   border: none;
-  color: var(--overlay1);
+  color: var(--text-tertiary);
   cursor: pointer;
-  font-size: 0.8rem;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  transition: color .15s, background .15s;
+  font-size: 0.82rem;
+  padding: 8px 10px;
+  border-radius: var(--radius-pill);
+  transition: color .15s ease, background .15s ease;
 }
-.btn:hover { color: var(--text); background: var(--bg-surface0); }
-.btnActive { color: var(--text); font-weight: 500; }
-.btnActive:hover { cursor: default; background: none; }
 
-.sep { color: var(--overlay0); font-size: 0.75rem; user-select: none; }
+.btn:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--brand-lake) 8%, var(--surface-raised));
+}
+
+.btnActive {
+  color: var(--text-primary);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--brand-honey) 9%, transparent);
+}
+
+.btnActive:hover {
+  cursor: default;
+}
+
+.sep {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  user-select: none;
+}

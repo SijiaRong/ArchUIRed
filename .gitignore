@@ -8,6 +8,7 @@ build/
 # Test output
 test-results/
 playwright-report/
+web-development-release/web-dev/resources/e2e/
 
 # OS files
 .DS_Store
