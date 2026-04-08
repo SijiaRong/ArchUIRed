@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 29efc897
+links:
+  - uuid: ab000004
+    relation: related-to
+    description: Memory node for the Immediate Writes module.

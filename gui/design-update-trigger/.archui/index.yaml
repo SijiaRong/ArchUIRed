@@ -1,6 +1,7 @@
 schema_version: 1
 uuid: 333a9a92
 submodules:
+  memory: bd8725fb
   design-update-trigger-harness: 6fdb0a6d
 links:
   - uuid: 7e3f1c9a

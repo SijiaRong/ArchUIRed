@@ -1,5 +1,9 @@
 schema_version: 1
 uuid: d02900a5
+submodules:
+  harness: 15e6f5aa
+  memory: b2531bc9
+
 links:
   - uuid: 9d4c7e1b
     relation: implements

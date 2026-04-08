@@ -1,6 +1,7 @@
 schema_version: 1
 uuid: ab000004
 submodules:
+  memory: 29efc897
   immediate-writes-harness: ab000014
 links:
   - uuid: 4b6a8d2e

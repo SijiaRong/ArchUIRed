@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 8ad82794
+links:
+  - uuid: ca12662f
+    relation: related-to
+    description: Memory node for the Primary Module Card — Title Reveal module.

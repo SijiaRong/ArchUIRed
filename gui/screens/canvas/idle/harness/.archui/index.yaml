@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 22179406
+links:
+  - uuid: c14c91a5
+    relation: implements
+    description: Tests the behaviour and constraints defined in Canvas — Idle State.

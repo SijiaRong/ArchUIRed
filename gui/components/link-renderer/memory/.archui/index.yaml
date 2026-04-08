@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 4802bfb1
+links:
+  - uuid: 2a8e5b3f
+    relation: related-to
+    description: Memory node for the Link Renderer module.

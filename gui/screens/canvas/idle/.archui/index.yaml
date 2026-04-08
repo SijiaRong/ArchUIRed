@@ -1,5 +1,9 @@
 schema_version: 1
 uuid: c14c91a5
+submodules:
+  harness: 22179406
+  memory: 58a8c1d6
+
 links:
   - uuid: cf028a7e
     relation: transitions-to

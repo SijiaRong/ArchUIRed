@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: f965dc89
+links:
+  - uuid: cf028a7e
+    relation: implements
+    description: Tests the behaviour and constraints defined in Canvas — Node Selected State.

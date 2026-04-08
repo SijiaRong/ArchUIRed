@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 539de789
+links:
+  - uuid: dea03050
+    relation: implements
+    description: Tests the behaviour and constraints defined in Link Renderer — Direct Edge.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: b263bff0
+links:
+  - uuid: 4ccc342f
+    relation: related-to
+    description: Memory node for the Detail Panel module.

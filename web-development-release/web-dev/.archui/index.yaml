@@ -1,6 +1,7 @@
 schema_version: "1"
 uuid: 7a1e5b8d
 submodules:
+  memory: 8410d281
   filesystem-adapters: b2c4d6e8
   web-dev-harness: dd000008
 links:

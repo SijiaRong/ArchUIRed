@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 45c1e618
+links:
+  - uuid: "54534937"
+    relation: related-to
+    description: Memory node for the Primary Module Card — Error State module.

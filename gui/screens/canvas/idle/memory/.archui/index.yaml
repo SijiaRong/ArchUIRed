@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 58a8c1d6
+links:
+  - uuid: c14c91a5
+    relation: related-to
+    description: Memory node for the Canvas — Idle State module.

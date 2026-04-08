@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: ede3a622
+links:
+  - uuid: 62f8e34e
+    relation: implements
+    description: Tests the behaviour and constraints defined in Elevation Tokens.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 3a492a2c
+links:
+  - uuid: "785e2416"
+    relation: related-to
+    description: Memory node for the Primary Module Card — Default State module.

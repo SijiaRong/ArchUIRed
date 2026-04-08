@@ -1,6 +1,8 @@
 schema_version: "1"
 uuid: 537c63d3
 submodules:
+  harness: 9e08ef31
+  memory: 6eb3f075
   idle: c14c91a5
   node-selected: cf028a7e
   drilled: b0628346

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 9efd90d2
+links:
+  - uuid: cf028a7e
+    relation: related-to
+    description: Memory node for the Canvas — Node Selected State module.

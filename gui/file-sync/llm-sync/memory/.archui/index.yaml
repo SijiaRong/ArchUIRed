@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: c8319cf8
+links:
+  - uuid: ab000005
+    relation: related-to
+    description: Memory node for the LLM Sync module.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 15e6f5aa
+links:
+  - uuid: d02900a5
+    relation: implements
+    description: Tests the behaviour and constraints defined in Navigation — Breadcrumb.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: c25f7a98
+links:
+  - uuid: 248b1055
+    relation: implements
+    description: Tests the behaviour and constraints defined in Link Renderer — Port Edge.

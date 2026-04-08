@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: da042af6
+links:
+  - uuid: 93ab33c4
+    relation: implements
+    description: Tests the behaviour and constraints defined in Figma Integration.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: f0e207fd
+links:
+  - uuid: 62f8e34e
+    relation: related-to
+    description: Memory node for the Elevation Tokens module.

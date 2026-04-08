@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: c8f3cb42
+links:
+  - uuid: 4ccc342f
+    relation: implements
+    description: Tests the behaviour and constraints defined in Detail Panel.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 3f2d5721
+links:
+  - uuid: b0628346
+    relation: related-to
+    description: Memory node for the Canvas — Drilled State module.

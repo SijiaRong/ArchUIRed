@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: be6ff265
+links:
+  - uuid: 6f1c4a9d
+    relation: related-to
+    description: Memory node for the Primary Module Card module.

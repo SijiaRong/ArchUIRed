@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 9e08ef31
+links:
+  - uuid: 537c63d3
+    relation: implements
+    description: Tests the behaviour and constraints defined in Canvas Screen.

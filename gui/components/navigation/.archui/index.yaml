@@ -1,6 +1,7 @@
 schema_version: 1
 uuid: 9d4c7e1b
 submodules:
+  memory: dd13e513
   breadcrumb: d02900a5
   navigation-harness: bb000005
 links:

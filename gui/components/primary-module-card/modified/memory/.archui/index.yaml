@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: cb631ebd
+links:
+  - uuid: 4406b752
+    relation: related-to
+    description: Memory node for the Primary Module Card — Modified State module.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 0ddce102
+links:
+  - uuid: f691889c
+    relation: implements
+    description: Tests the behaviour and constraints defined in Color Tokens.

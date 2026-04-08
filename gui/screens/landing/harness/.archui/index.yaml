@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 5eb9ab49
+links:
+  - uuid: bc31e2f1
+    relation: implements
+    description: Tests the behaviour and constraints defined in Landing Screen.

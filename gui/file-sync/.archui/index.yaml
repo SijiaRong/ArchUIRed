@@ -1,6 +1,7 @@
 schema_version: "1"
 uuid: 4b6a8d2e
 submodules:
+  memory: 24e353be
   immediate-writes: ab000004
   llm-sync: ab000005
   file-sync-harness: bb000006

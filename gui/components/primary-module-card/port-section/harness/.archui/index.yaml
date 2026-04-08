@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 2568fb78
+links:
+  - uuid: cbdd7351
+    relation: implements
+    description: Tests the behaviour and constraints defined in Primary Module Card — Port Section.

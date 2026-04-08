@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: ddfc363e
+links:
+  - uuid: b58443e0
+    relation: related-to
+    description: Memory node for the Link Renderer — External Stub (Deprecated) module.

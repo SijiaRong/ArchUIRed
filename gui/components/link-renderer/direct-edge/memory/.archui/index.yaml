@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 530853ee
+links:
+  - uuid: dea03050
+    relation: related-to
+    description: Memory node for the Link Renderer — Direct Edge module.

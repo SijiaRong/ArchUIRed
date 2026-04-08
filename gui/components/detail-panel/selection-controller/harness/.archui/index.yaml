@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 306ee46b
+links:
+  - uuid: "15670566"
+    relation: implements
+    description: Tests the behaviour and constraints defined in Selection Controller.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: c1d55076
+links:
+  - uuid: 938aba01
+    relation: related-to
+    description: Memory node for the Spacing & Dimension Tokens module.

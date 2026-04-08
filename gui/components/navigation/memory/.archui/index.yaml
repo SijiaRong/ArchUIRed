@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: dd13e513
+links:
+  - uuid: 9d4c7e1b
+    relation: related-to
+    description: Memory node for the Navigation module.

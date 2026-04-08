@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: bc84951f
+links:
+  - uuid: 119593de
+    relation: implements
+    description: Tests the behaviour and constraints defined in Typography Tokens.

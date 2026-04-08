@@ -1,6 +1,7 @@
 schema_version: "1"
 uuid: 1a5b9c3d
 submodules:
+  memory: 5fabb4cf
   validator: 8d2f6a4e
   run-command: d1bc98a5
   cli-harness: cc000001

@@ -1,6 +1,7 @@
 schema_version: 1
 uuid: 8a4c6e2f
 submodules:
+  memory: 8db3e5a8
   test-pyramid: 1f9b3a7d
   integration-tests: 5d2e8c4a
   agent-verification: 7a3f1b9e

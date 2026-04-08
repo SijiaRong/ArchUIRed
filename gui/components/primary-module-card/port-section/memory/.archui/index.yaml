@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: a6ae3883
+links:
+  - uuid: cbdd7351
+    relation: related-to
+    description: Memory node for the Primary Module Card — Port Section module.

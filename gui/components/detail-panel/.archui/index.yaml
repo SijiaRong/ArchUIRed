@@ -1,6 +1,8 @@
 schema_version: 1
 uuid: 4ccc342f
 submodules:
+  harness: c8f3cb42
+  memory: b263bff0
   selection-controller: "15670566"
 links:
   - uuid: 537c63d3

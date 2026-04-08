@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 5fabb4cf
+links:
+  - uuid: 1a5b9c3d
+    relation: related-to
+    description: Memory node for the CLI module.

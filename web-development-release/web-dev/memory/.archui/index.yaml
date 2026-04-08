@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 8410d281
+links:
+  - uuid: 7a1e5b8d
+    relation: related-to
+    description: Memory node for the Web Dev module.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: fafe9348
+links:
+  - uuid: "785e2416"
+    relation: implements
+    description: Tests the behaviour and constraints defined in Primary Module Card — Default State.

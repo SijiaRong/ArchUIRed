@@ -1,6 +1,8 @@
 schema_version: 1
 uuid: cbdd7351
 submodules:
+  harness: 2568fb78
+  memory: a6ae3883
   port-row: e83ed7eb
 links:
   - uuid: 6f1c4a9d

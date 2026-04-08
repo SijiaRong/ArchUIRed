@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: b2531bc9
+links:
+  - uuid: d02900a5
+    relation: related-to
+    description: Memory node for the Navigation — Breadcrumb module.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 3818a21c
+links:
+  - uuid: 93ab33c4
+    relation: related-to
+    description: Memory node for the Figma Integration module.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 72893923
+links:
+  - uuid: bc31e2f1
+    relation: related-to
+    description: Memory node for the Landing Screen module.

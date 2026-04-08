@@ -1,3 +1,7 @@
 schema_version: 1
 uuid: "15670566"
+submodules:
+  harness: 306ee46b
+  memory: ce6764ea
+
 links: []

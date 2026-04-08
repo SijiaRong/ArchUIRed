@@ -1,6 +1,7 @@
 schema_version: "1"
 uuid: 2a8e5b3f
 submodules:
+  memory: 4802bfb1
   direct-edge: dea03050
   port-edge: 248b1055
   external-stub: b58443e0

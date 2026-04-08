@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: c68a1d09
+links:
+  - uuid: 938aba01
+    relation: implements
+    description: Tests the behaviour and constraints defined in Spacing & Dimension Tokens.

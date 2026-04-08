@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: deb49cc6
+links:
+  - uuid: 86b720c5
+    relation: related-to
+    description: Memory node for the Primary Module Card — Selected State module.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: ea2a9ccc
+links:
+  - uuid: 119593de
+    relation: related-to
+    description: Memory node for the Typography Tokens module.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 3d3c6550
+links:
+  - uuid: f691889c
+    relation: related-to
+    description: Memory node for the Color Tokens module.

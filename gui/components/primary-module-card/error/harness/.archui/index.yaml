@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: e1da86d8
+links:
+  - uuid: "54534937"
+    relation: implements
+    description: Tests the behaviour and constraints defined in Primary Module Card — Error State.

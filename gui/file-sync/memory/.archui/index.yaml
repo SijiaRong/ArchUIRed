@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 24e353be
+links:
+  - uuid: 4b6a8d2e
+    relation: related-to
+    description: Memory node for the File Sync module.

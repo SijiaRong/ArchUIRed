@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 2c01e0e2
+links:
+  - uuid: 86b720c5
+    relation: implements
+    description: Tests the behaviour and constraints defined in Primary Module Card — Selected State.

@@ -1,6 +1,7 @@
 schema_version: "1"
 uuid: 6f1c4a9d
 submodules:
+  memory: be6ff265
   default: "785e2416"
   selected: 86b720c5
   modified: 4406b752

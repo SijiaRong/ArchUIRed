@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: bdeae3be
+links:
+  - uuid: ca12662f
+    relation: implements
+    description: Tests the behaviour and constraints defined in Primary Module Card — Title Reveal.

@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: 6eb3f075
+links:
+  - uuid: 537c63d3
+    relation: related-to
+    description: Memory node for the Canvas Screen module.

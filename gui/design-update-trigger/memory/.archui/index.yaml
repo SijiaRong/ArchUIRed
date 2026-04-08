@@ -1,0 +1,6 @@
+schema_version: 1
+uuid: bd8725fb
+links:
+  - uuid: 333a9a92
+    relation: related-to
+    description: Memory node for the Design Update Trigger module.
