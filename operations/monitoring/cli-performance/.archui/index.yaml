@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: fa000003
 submodules:
-  test-playbook: fa000004
+  cli-performance-harness: fa000004
 links:
   - uuid: 1a5b9c3d
     relation: references

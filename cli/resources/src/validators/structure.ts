@@ -9,10 +9,10 @@ export function validateStructure(rootPath: string, isRoot = true): Violation[] 
   const violations: Violation[] = []
   const abs = path.resolve(rootPath)
 
-  // Check README.md exists
-  const readmePath = path.join(abs, 'README.md')
-  const skillPath  = path.join(abs, 'SKILL.md')
-  if (!fs.existsSync(readmePath) && !fs.existsSync(skillPath)) {
+  // Check identity document exists (README.md, SKILL.md, HARNESS.md, SPEC.md, or MEMORY.md)
+  const IDENTITY_DOCS = ['README.md', 'SKILL.md', 'HARNESS.md', 'SPEC.md', 'MEMORY.md']
+  const hasIdentityDoc = IDENTITY_DOCS.some(doc => fs.existsSync(path.join(abs, doc)))
+  if (!hasIdentityDoc) {
     violations.push({ ruleId: 'missing-readme', filePath: rootPath, message: 'Module folder has no README.md or SKILL.md' })
   }
 
@@ -25,11 +25,32 @@ export function validateStructure(rootPath: string, isRoot = true): Violation[] 
 
   // Read index.yaml to get declared submodules
   let index: IndexYaml = {}
+  let rawIndex: Record<string, unknown> = {}
   try {
-    index = parseYaml(fs.readFileSync(indexPath, 'utf8')) as IndexYaml ?? {}
+    rawIndex = parseYaml(fs.readFileSync(indexPath, 'utf8')) as Record<string, unknown> ?? {}
+    index = rawIndex as IndexYaml
   } catch {
     violations.push({ ruleId: 'invalid-index-yaml', filePath: indexPath, message: 'Failed to parse .archui/index.yaml as YAML' })
     return violations
+  }
+
+  // Check for forbidden 'layout' field in index.yaml
+  if ('layout' in rawIndex) {
+    violations.push({
+      ruleId: 'index/forbidden-layout-field',
+      filePath: indexPath,
+      message: 'index.yaml must not contain a "layout" section — canvas layout belongs in .archui/layout.yaml',
+    })
+  }
+
+  // Check .archui/layout.yaml exists
+  const layoutPath = path.join(abs, '.archui', 'layout.yaml')
+  if (!fs.existsSync(layoutPath)) {
+    violations.push({
+      ruleId: 'structure/missing-layout',
+      filePath: path.join(rootPath, '.archui', 'layout.yaml'),
+      message: 'missing .archui/layout.yaml — canvas layout file is required',
+    })
   }
 
   const declaredSubmodules = new Set(Object.keys(index.submodules ?? {}))

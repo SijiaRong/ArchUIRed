@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 333a9a92
 submodules:
-  test-playbook: 6fdb0a6d
+  design-update-trigger-harness: 6fdb0a6d
 links:
   - uuid: 7e3f1c9a
     relation: depends-on

@@ -3,7 +3,7 @@ uuid: c7d5e9f1
 submodules:
   electron-development: 4f9c2a6e
   electron-release: 8d4a7f5c
-  test-playbook: de000003
+  electron-development-release-harness: de000003
 links:
   - uuid: 5c9a1e3f
     relation: implements

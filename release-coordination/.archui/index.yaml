@@ -3,7 +3,7 @@ uuid: 6b3d7f1e
 submodules:
   versioning-strategy: 4c8a5e9d
   release-calendar: 2e7b4f6a
-  test-playbook: ee000005
+  release-coordination-harness: ee000005
 links:
   - uuid: 4e1a7b3c
     relation: references

@@ -3,7 +3,7 @@ uuid: 3f7b2e9d
 submodules:
   migration-scripts: ab000001
   runbooks: ab000002
-  test-playbook: aa000009
+  migration-harness: aa000009
 links:
   - uuid: 1d3c7a9e
     relation: depends-on

@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: fa000005
 submodules:
-  test-playbook: fa000006
+  agent-observability-harness: fa000006
 links:
   - uuid: 5e2a8f4b
     relation: references

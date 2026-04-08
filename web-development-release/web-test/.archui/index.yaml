@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 71e6fea9
 submodules:
-  test-playbook: 31febe91
+  web-test-harness: 31febe91
 links:
   - uuid: 7a1e5b8d
     relation: implements

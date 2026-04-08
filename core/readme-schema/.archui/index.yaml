@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 1d3c7a9e
 submodules:
-  test-playbook: aa000003
+  readme-schema-harness: aa000003
 links:
   - uuid: 537c63d3
     relation: related-to

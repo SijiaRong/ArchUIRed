@@ -1,7 +1,7 @@
 schema_version: "1"
 uuid: 4c8a5e9d
 submodules:
-  test-playbook: ee000006
+  versioning-strategy-harness: ee000006
 links:
   - uuid: 1b9e4d7a
     relation: references

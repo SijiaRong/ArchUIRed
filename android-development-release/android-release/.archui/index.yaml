@@ -1,4 +1,4 @@
 schema_version: 1
 uuid: 9c6f1d3e
 submodules:
-  test-playbook: dd000006
+  android-release-harness: dd000006

@@ -5,7 +5,7 @@ submodules:
   frontmatter-validator: 6a4d8f2c
   link-validator: 9e5b3a7f
   index-sync: 2f8c6d4b
-  test-playbook: cc000002
+  validator-harness: cc000002
 links:
   - uuid: 1a5b9c3d
     relation: extends

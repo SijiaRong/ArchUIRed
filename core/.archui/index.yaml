@@ -11,7 +11,7 @@ submodules:
   import: f7cbda7f
   ai-agent: 7e70243e
   commands: 7dbb954d
-  test-playbook: aa000001
+  core-harness: aa000001
   schema: cd7d3790
   adoption: b7ba3280
 links:

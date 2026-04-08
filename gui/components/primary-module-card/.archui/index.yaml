@@ -7,7 +7,7 @@ submodules:
   error: "54534937"
   port-section: cbdd7351
   animation: c1c08875
-  test-playbook: bb000003
+  primary-module-card-harness: bb000003
   command-bar: e04a0523
   module-handle: 470c4fc8
 links:

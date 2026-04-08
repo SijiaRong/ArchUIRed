@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: fc000001
 submodules:
-  test-playbook: fc000002
+  log-schema-harness: fc000002
 links:
   - uuid: 6c1e8b4a
     relation: references

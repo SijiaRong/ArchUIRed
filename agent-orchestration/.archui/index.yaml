@@ -4,7 +4,7 @@ submodules:
   agent-context: 7c1d9e3f
   context-switching: 3b6a4d8c
   session-state: 9f5e2c1b
-  test-playbook: ee000001
+  agent-orchestration-harness: ee000001
 links:
   - uuid: 2c4d8f1a
     relation: depends-on

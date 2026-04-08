@@ -1,4 +1,4 @@
 schema_version: 1
 uuid: fc000005
 submodules:
-  test-playbook: fc000006
+  log-rotation-harness: fc000006

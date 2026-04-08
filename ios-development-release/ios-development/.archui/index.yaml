@@ -1,7 +1,7 @@
 schema_version: "1"
 uuid: 8c5f2a6d
 submodules:
-  test-playbook: dd000002
+  ios-development-harness: dd000002
 links:
   - uuid: 537c63d3
     relation: implements

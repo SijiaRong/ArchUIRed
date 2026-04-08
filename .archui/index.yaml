@@ -11,5 +11,5 @@ submodules:
   agent-orchestration: 5e2a8f4b
   release-coordination: 6b3d7f1e
   operations: 4d9a2c6f
-  test-playbook: ff000001
+  ArchUIRed-harness: ff000001
   hackathon: aa100001

@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: fb000003
 submodules:
-  test-playbook: fb000004
+  coordinated-release-harness: fb000004
 links:
   - uuid: 5e2a8f4b
     relation: references

@@ -4,7 +4,7 @@ submodules:
   log-schema: fc000001
   log-locations: fc000003
   log-rotation: fc000005
-  test-playbook: ee00000b
+  logging-harness: ee00000b
 links:
   - uuid: 6c1e8b4a
     relation: references

@@ -6,7 +6,7 @@ submodules:
   file-sync: 4b6a8d2e
   design-system: 7e3f1c9a
   design-update-trigger: 333a9a92
-  test-playbook: bb000001
+  gui-harness: bb000001
 links:
   - uuid: 2c4d8f1a
     relation: depends-on

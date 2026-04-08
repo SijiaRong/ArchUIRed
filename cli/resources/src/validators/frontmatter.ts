@@ -32,30 +32,33 @@ export function validateFrontmatter(rootPath: string): Violation[] {
     }
   }
 
-  // Check README.md frontmatter
-  const readmePath = path.join(abs, 'README.md')
-  if (fs.existsSync(readmePath)) {
-    const content = fs.readFileSync(readmePath, 'utf8')
+  // Check identity document frontmatter (README.md, SKILL.md, HARNESS.md, SPEC.md, MEMORY.md)
+  const IDENTITY_DOCS = ['README.md', 'SKILL.md', 'HARNESS.md', 'SPEC.md', 'MEMORY.md']
+  for (const docName of IDENTITY_DOCS) {
+    const docPath = path.join(abs, docName)
+    if (!fs.existsSync(docPath)) continue
+    const content = fs.readFileSync(docPath, 'utf8')
     const fm = extractFrontmatter(content)
     if (!fm) {
-      violations.push({ ruleId: 'invalid-frontmatter', filePath: readmePath, message: 'README.md has no valid YAML frontmatter block' })
+      violations.push({ ruleId: 'invalid-frontmatter', filePath: docPath, message: `${docName} has no valid YAML frontmatter block` })
     } else {
       if (typeof fm['name'] !== 'string' || !fm['name'].trim()) {
-        violations.push({ ruleId: 'missing-name', filePath: readmePath, message: 'README.md frontmatter is missing required field: name' })
+        violations.push({ ruleId: 'missing-name', filePath: docPath, message: `${docName} frontmatter is missing required field: name` })
       }
       if (typeof fm['description'] !== 'string' || !fm['description'].trim()) {
-        violations.push({ ruleId: 'missing-description', filePath: readmePath, message: 'README.md frontmatter is missing required field: description' })
+        violations.push({ ruleId: 'missing-description', filePath: docPath, message: `${docName} frontmatter is missing required field: description` })
       }
       for (const forbidden of FORBIDDEN_IN_README) {
         if (Object.prototype.hasOwnProperty.call(fm, forbidden)) {
           violations.push({
             ruleId: 'forbidden-frontmatter-field',
-            filePath: readmePath,
-            message: `README.md frontmatter must not contain "${forbidden}" — move it to .archui/index.yaml`,
+            filePath: docPath,
+            message: `${docName} frontmatter must not contain "${forbidden}" — move it to .archui/index.yaml`,
           })
         }
       }
     }
+    break // only check the first identity doc found
   }
 
   // Recurse

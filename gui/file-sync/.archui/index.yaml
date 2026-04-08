@@ -3,7 +3,7 @@ uuid: 4b6a8d2e
 submodules:
   immediate-writes: ab000004
   llm-sync: ab000005
-  test-playbook: bb000006
+  file-sync-harness: bb000006
 links:
   - uuid: 4a6f8e3b
     relation: depends-on

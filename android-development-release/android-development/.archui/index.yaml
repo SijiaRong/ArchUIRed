@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 5a2e7c4b
 submodules:
-  test-playbook: dd000005
+  android-development-harness: dd000005
 links:
   - uuid: 537c63d3
     relation: implements

@@ -5,7 +5,7 @@ submodules:
   port-edge: 248b1055
   external-stub: b58443e0
   visibility-rules: 5cb39d81
-  test-playbook: bb000004
+  link-renderer-harness: bb000004
 links:
   - uuid: 8b2e4f6d
     relation: depends-on

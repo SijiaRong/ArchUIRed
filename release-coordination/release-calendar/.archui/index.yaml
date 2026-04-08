@@ -5,7 +5,7 @@ submodules:
   coordinated-release: fb000003
   hotfix-policy: fb000005
   release-history: fb000007
-  test-playbook: ee000007
+  release-calendar-harness: ee000007
 links:
   - uuid: 4c8a5e9d
     relation: references

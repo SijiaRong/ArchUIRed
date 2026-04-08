@@ -4,7 +4,7 @@ submodules:
   foundations: 3ccb57fd
   figma-integration: 93ab33c4
   harness: d6b68f01
-  test-playbook: bb000007
+  design-system-harness: bb000007
 links:
   - uuid: 8c5f2a6d
     relation: related-to

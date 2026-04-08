@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: fb000005
 submodules:
-  test-playbook: fb000006
+  hotfix-policy-harness: fb000006
 links:
   - uuid: 4c8a5e9d
     relation: references

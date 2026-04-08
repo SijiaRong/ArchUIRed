@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 7a3f1b9e
 submodules:
-  test-playbook: aa000008
+  agent-verification-harness: aa000008
 links:
   - uuid: 5e2a8f4b
     relation: references

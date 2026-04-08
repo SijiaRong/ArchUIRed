@@ -1,4 +1,4 @@
 schema_version: 1
 uuid: fa000007
 submodules:
-  test-playbook: fa000008
+  telemetry-harness: fa000008

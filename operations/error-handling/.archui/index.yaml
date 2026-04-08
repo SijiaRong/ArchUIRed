@@ -3,7 +3,7 @@ uuid: 6c1e8b4a
 submodules:
   error-taxonomy: ab000006
   recovery-strategies: ab000007
-  test-playbook: ee000009
+  error-handling-harness: ee000009
 links:
   - uuid: 1a5b9c3d
     relation: references

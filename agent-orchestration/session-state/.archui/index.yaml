@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 9f5e2c1b
 submodules:
-  test-playbook: ee000004
+  session-state-harness: ee000004
 links:
   - uuid: 4b6a8d2e
     relation: references

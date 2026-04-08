@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 2f8c6d4b
 submodules:
-  test-playbook: cc000006
+  index-sync-harness: cc000006
 links:
   - uuid: 4a6f8e3b
     relation: depends-on

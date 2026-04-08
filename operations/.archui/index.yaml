@@ -4,7 +4,7 @@ submodules:
   error-handling: 6c1e8b4a
   monitoring: 2b7d3f5c
   logging: 9e4a6c8f
-  test-playbook: ee000008
+  operations-harness: ee000008
 links:
   - uuid: 4b6a8d2e
     relation: references

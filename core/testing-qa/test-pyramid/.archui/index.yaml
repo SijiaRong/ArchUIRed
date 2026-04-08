@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 1f9b3a7d
 submodules:
-  test-playbook: aa000006
+  test-pyramid-harness: aa000006
 links:
   - uuid: 9e2b5d7c
     relation: depends-on

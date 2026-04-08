@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: ab000002
 submodules:
-  test-playbook: ab000012
+  runbooks-harness: ab000012
 links:
   - uuid: 3f7b2e9d
     relation: extends

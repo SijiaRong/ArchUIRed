@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: fa000001
 submodules:
-  test-playbook: fa000002
+  gui-health-harness: fa000002
 links:
   - uuid: 4b6a8d2e
     relation: references

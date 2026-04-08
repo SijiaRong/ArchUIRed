@@ -3,7 +3,7 @@ uuid: 4e1a7b3c
 submodules:
   ios-development: 8c5f2a6d
   ios-release: 1b9e4d7a
-  test-playbook: dd000001
+  ios-development-release-harness: dd000001
 links:
   - uuid: 5c9a1e3f
     relation: implements

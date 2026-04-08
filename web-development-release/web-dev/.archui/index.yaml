@@ -2,7 +2,7 @@ schema_version: "1"
 uuid: 7a1e5b8d
 submodules:
   filesystem-adapters: b2c4d6e8
-  test-playbook: dd000008
+  web-dev-harness: dd000008
 links:
   - uuid: 537c63d3
     relation: implements

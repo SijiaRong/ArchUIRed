@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 9e5b3a7f
 submodules:
-  test-playbook: cc000005
+  link-validator-harness: cc000005
 links:
   - uuid: 8b2e4f6d
     relation: depends-on

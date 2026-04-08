@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: f4b7c2a9
 submodules:
-  test-playbook: de000001
+  web-server-harness: de000001
 links:
   - uuid: 7a1e5b8d
     relation: depends-on

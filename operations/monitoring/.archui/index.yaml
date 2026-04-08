@@ -5,7 +5,7 @@ submodules:
   cli-performance: fa000003
   agent-observability: fa000005
   telemetry: fa000007
-  test-playbook: ee00000a
+  monitoring-harness: ee00000a
 links:
   - uuid: 1a5b9c3d
     relation: references

@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: fb000001
 submodules:
-  test-playbook: fb000002
+  cadence-harness: fb000002
 links:
   - uuid: 4c8a5e9d
     relation: references

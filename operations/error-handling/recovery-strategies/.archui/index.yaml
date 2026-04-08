@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: ab000007
 submodules:
-  test-playbook: ab000017
+  recovery-strategies-harness: ab000017
 links:
   - uuid: 6c1e8b4a
     relation: extends

@@ -4,7 +4,7 @@ submodules:
   test-pyramid: 1f9b3a7d
   integration-tests: 5d2e8c4a
   agent-verification: 7a3f1b9e
-  test-playbook: aa000005
+  testing-qa-harness: aa000005
 links:
   - uuid: 2c4d8f1a
     relation: depends-on

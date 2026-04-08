@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 4f9c2a6e
 submodules:
-  test-playbook: dd000009
+  electron-development-harness: dd000009
 links:
   - uuid: 7a1e5b8d
     relation: extends

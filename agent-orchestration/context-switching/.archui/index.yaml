@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 3b6a4d8c
 submodules:
-  test-playbook: ee000003
+  context-switching-harness: ee000003
 links:
   - uuid: 7c1d9e3f
     relation: depends-on

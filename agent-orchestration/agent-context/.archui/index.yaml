@@ -1,7 +1,7 @@
 schema_version: 1
 uuid: 7c1d9e3f
 submodules:
-  test-playbook: ee000002
+  agent-context-harness: ee000002
 links:
   - uuid: 1d3c7a9e
     relation: depends-on

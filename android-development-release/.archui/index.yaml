@@ -3,7 +3,7 @@ uuid: 6d3b8a1f
 submodules:
   android-development: 5a2e7c4b
   android-release: 9c6f1d3e
-  test-playbook: dd000004
+  android-development-release-harness: dd000004
 links:
   - uuid: 5c9a1e3f
     relation: implements

@@ -5,6 +5,7 @@ export type ValidationCode =
   | 'undeclared-subfolder'
   | 'missing-submodule-folder'
   | 'structure/missing-layout'
+  | 'index/forbidden-layout-field'
   | 'index-submodule-missing-on-disk'
   | 'undeclared-directory-in-index'
   | 'missing-uuid'
