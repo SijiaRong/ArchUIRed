@@ -1,0 +1,43 @@
+provenance:
+  curatedAt: 2026-04-09T03:10:00+08:00
+  command: npm run sync:design-docs
+  sources:
+    - gui/screens/canvas/SPEC.md
+    - gui/design-system/visual-orchestration/README.md
+copy:
+  intro:
+    kicker: Deep Honey Workspace
+    emptyTitle: Open a workspace
+    emptyDescription: Pick a local ArchUI project to step into the graph.
+  toolbar:
+    newChild: New child
+    reload: Reload
+    themeToggle:
+      toDark: Dark mode
+      toLight: Light mode
+    commandMenu: Command menu
+  metrics:
+    submodules: Submodules
+    externals: Visible externals
+    theme: Theme
+  breadcrumb:
+    ariaLabel: Breadcrumb
+  selectionHint:
+    title: Click a card to inspect it.
+    body: Double-click any visible module to drill into that workspace.
+  loading: Loading workspace...
+  emptyState:
+    title: No submodules yet
+    body: Create the first child module to start composing this workspace.
+  placeholder:
+    unknownModuleName: Unknown module
+    unknownModuleDescription: This module UUID is not currently resolvable in the project index.
+  contextMenu:
+    openModule: Open module
+    newChildModule: New child module
+    reloadWorkspace: Reload workspace
+  commands:
+    newChildModule: New child module
+    reloadWorkspace: Reload workspace
+    reloadHint: Reload current module
+    openModuleHint: Open module

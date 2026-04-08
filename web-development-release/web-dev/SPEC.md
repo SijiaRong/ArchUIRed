@@ -82,17 +82,36 @@ The shared SPA uses a four-lane typography model so the brand wordmark can carry
 
 ## Figma Token Sync
 
-Design tokens live in Figma. Pull the latest tokens into `resources/src/design-tokens.css`:
+Design tokens live in Figma, but the web app never hand-edits token values. The committed Figma export snapshot is `gui/design-system/foundations/web-token-export.yaml`, and `sync:figma` renders it into `resources/src/design-tokens.generated.css`:
 
 ```bash
 npm run sync:figma
 ```
 
-## Visual Orchestration Contract
+## Design Doc Sync Contract
 
-The web frontend does not translate reference UIs directly into React components. Any redesign driven by browser inspection, Playwright capture, or external inspiration must first be normalized in `gui/design-system/visual-orchestration`, then reflected in Figma, and only then implemented in the shared SPA.
+Screen copy, panel labels, and default workspace layout constants also come from document-layer exports, not from React components. The committed sources are:
 
-This contract is especially important for Web and Electron because they share the same presentation layer. Canvas density, panel hierarchy, node emphasis, and edge readability changes should be implemented once in the shared React source and allowed to flow into Electron automatically unless the redesign touches native-shell behavior.
+- `gui/screens/landing/web-copy.yaml`
+- `gui/screens/canvas/web-copy.yaml`
+- `gui/components/detail-panel/web-copy.yaml`
+- `gui/components/primary-module-card/web-copy.yaml`
+- `gui/components/link-renderer/web-semantics.yaml`
+- `gui/design-system/visual-orchestration/web-layout.yaml`
+
+Generate their web-facing artifacts with:
+
+```bash
+npm run sync:design-docs
+```
+
+The shared SPA consumes only:
+
+- `resources/src/design-tokens.generated.css`
+- `resources/src/generated/workspace-content.generated.ts`
+- `resources/src/generated/workspace-layout.generated.ts`
+
+Use `npm run verify:design-sync` in CI or before review to ensure the generated artifacts match the checked-in document sources. Component code may keep runtime algorithms, navigation wiring, and data loading logic, but it must not hardcode visual token values, workspace copy, or default orchestration constants.
 
 ## Visual Orchestration Contract
 

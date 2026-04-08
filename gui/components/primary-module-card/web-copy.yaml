@@ -1,0 +1,15 @@
+provenance:
+  curatedAt: 2026-04-09T03:10:00+08:00
+  command: npm run sync:design-docs
+  sources:
+    - gui/components/primary-module-card/SPEC.md
+copy:
+  eyebrow:
+    primary: Focused module
+    child: Submodule
+  externalEyebrow:
+    incoming: Incoming reference
+    external: External reference
+  badges:
+    submodulesSuffix: submodules
+    linksSuffix: links

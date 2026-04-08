@@ -22,9 +22,9 @@ For the current workspace refresh, typography is split into four semantic lanes 
 
 ## Design Change Workflow
 
-Design changes are made in Figma first. An agent then loads `figma-integration` for MCP call patterns, fetches the updated `Foundations` page, and regenerates token mapping files for all affected platforms. Regenerated files are committed and validated by platform CI. For structural component changes, relevant platform files are updated with agent assistance using the Figma MCP component spec. Never hand-edit generated token files.
+Design changes are made in Figma first. An agent then loads `figma-integration` for MCP call patterns, fetches the updated `Foundations` page, writes the checked-in export snapshot (`gui/design-system/foundations/web-token-export.yaml` for the web wave), and regenerates platform mapping files from that snapshot. Regenerated files are committed and validated by platform CI. For structural component changes, relevant platform files are updated with agent assistance using the Figma MCP component spec. Never hand-edit generated token files.
 
-Reference UIs discovered through browser inspection or reverse-engineering do not bypass this flow. Their output is first normalized into `visual-orchestration`, then translated into Figma updates, and only then propagated into platform code.
+Reference UIs discovered through browser inspection or reverse-engineering do not bypass this flow. Their output is first normalized into `visual-orchestration`, then translated into Figma updates, then reflected in document-layer exports for screens and components, and only then propagated into platform code.
 
 ## Workspace Composition
 
