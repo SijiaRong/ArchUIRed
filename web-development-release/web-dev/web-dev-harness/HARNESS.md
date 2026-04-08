@@ -47,12 +47,12 @@ This playbook verifies the web development module's key behaviors: the filesyste
 
 ### Group 3: Figma MCP design token sync
 
-[init] The Figma MCP server is running and reachable at the configured VITE_FIGMA_MCP_ENDPOINT. The current src/design-tokens.css is present but out of date relative to the Figma file.
+[init] The Figma MCP server is running and reachable at the configured VITE_FIGMA_MCP_ENDPOINT. The checked-in `gui/design-system/foundations/web-token-export.yaml` snapshot and generated `src/design-tokens.generated.css` are both present but out of date relative to the Figma file.
 
 [action] Run the npm run sync:figma command.
-[eval] The command contacts the Figma MCP server, fetches updated design tokens, and overwrites src/design-tokens.css with the new values. Vite HMR picks up the change and the UI reflects updated colors or spacing without a manual refresh.
+[eval] The command refreshes the checked-in token export snapshot and regenerates `src/design-tokens.generated.css` with the new values. Vite HMR picks up the change and the UI reflects updated colors or spacing without a manual refresh.
 
-[end] Restore the original src/design-tokens.css. Stop the Figma MCP server.
+[end] Restore the original `gui/design-system/foundations/web-token-export.yaml` and `src/design-tokens.generated.css`. Stop the Figma MCP server.
 
 ---
 

@@ -1,0 +1,21 @@
+provenance:
+  curatedAt: 2026-04-09T03:10:00+08:00
+  command: npm run sync:design-docs
+  sources:
+    - gui/screens/landing/SPEC.md
+copy:
+  brandWordmark: ArchUI
+  subtitle: Canvas-first knowledge workspace for humans and AI agents.
+  themeToggle:
+    toLight: Switch to light
+    toDark: Switch to dark
+  card:
+    kicker: Deep Honey / Lake Workspace
+    title: Open a project and step into the graph.
+    body: This first wave focuses on the canvas workspace, so the entry page stays intentionally light while the workbench carries the visual identity.
+  actions:
+    connectServer: Connect to local server
+    openFolder: Open folder in Chrome or Edge
+    showServerUrl: Show server URL
+    hideServerUrl: Hide server URL
+    serverUrlPlaceholder: http://localhost:3001

@@ -9,4 +9,4 @@ The landing screen is displayed on first launch and whenever no project is open.
 
 The screen shows a centered wordmark, a grid of recent project cards (each displaying the project name and path), and two primary action buttons: "Open Folder…" to load an existing ArchUI project, and "New Project" to scaffold a fresh one. All three paths lead to the canvas/idle state.
 
-Screen layout diagram and interaction table are in `resources/layout-and-interactions.md`.
+Screen layout diagram and interaction table are in `resources/layout-and-interactions.md`. The committed web copy export for this screen is `web-copy.yaml`; web implementation must consume the generated artifact derived from that file rather than hardcoding landing copy in React.

@@ -8,6 +8,10 @@ links:
     relation: depends-on
     description: Reads the design system to determine which Figma tokens and
       components need updating.
+  - uuid: 68885b70
+    relation: depends-on
+    description: Reads the workspace composition grammar before turning external
+      reference evidence into Figma and code updates.
   - uuid: 93ab33c4
     relation: depends-on
     description: Uses Figma Integration MCP call patterns to push and pull design changes.

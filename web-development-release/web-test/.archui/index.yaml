@@ -6,6 +6,10 @@ links:
   - uuid: 7a1e5b8d
     relation: implements
     description: web-test implements the test coverage for the web-development React app
+  - uuid: 68885b70
+    relation: depends-on
+    description: Screenshot coverage follows the workspace states and panel layouts
+      defined by visual-orchestration.
   - uuid: f4b7c2a9
     relation: implements
     description: web-test implements the test coverage for the web-server Express API

@@ -20,4 +20,4 @@ Each category has a dedicated submodule with full token specifications and platf
 
 ## Figma Source
 
-The canonical source is the `Foundations` page in the Figma file (key `beEbYQhz9LBLHrAj2eGyft`). Tokens are organised into three variable collections (`Color`, `Spacing`, `Dimension`) plus local text styles and effect styles.
+The canonical source is the `Foundations` page in the Figma file (key `beEbYQhz9LBLHrAj2eGyft`). Tokens are organised into three variable collections (`Color`, `Spacing`, `Dimension`) plus local text styles and effect styles. Platform implementations consume checked-in export snapshots such as `web-token-export.yaml`; those snapshots are regenerated from Figma and then rendered into platform-native artifacts.

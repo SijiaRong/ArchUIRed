@@ -11,10 +11,24 @@ web-development-release/web-dev:
   - package.json
   - src/vite-env.d.ts
   - src/main.tsx
+  - src/font-faces.css
   - src/App.tsx
   - src/types.ts
-  - src/design-tokens.css
+  - src/design-tokens.generated.css
+  - src/generated/workspace-content.generated.ts
+  - src/generated/workspace-layout.generated.ts
   - src/global.css
+  - src/assets/fonts/lexend/Lexend-Regular.woff2
+  - src/assets/fonts/lexend/Lexend-Medium.woff2
+  - src/assets/fonts/lexend/Lexend-SemiBold.woff2
+  - src/assets/fonts/inter/Inter-Regular.woff2
+  - src/assets/fonts/inter/Inter-Medium.woff2
+  - src/assets/fonts/inter/Inter-SemiBold.woff2
+  - src/assets/fonts/inter/Inter-Bold.woff2
+  - src/assets/fonts/sora/Sora-SemiBold.woff2
+  - src/assets/fonts/sora/Sora-Bold.woff2
+  - src/assets/fonts/syne/Syne-Bold.woff2
+  - src/assets/fonts/syne/Syne-ExtraBold.woff2
   - src/testHook.ts
   - src/filesystem/serverAdapter.ts
   - src/filesystem/loadProject.ts
@@ -37,6 +51,8 @@ web-development-release/web-dev:
   - src/store/canvas.ts
   - src/components/canvas/CanvasPage.tsx
   - src/components/canvas/CanvasPage.module.css
+  - src/components/canvas/DetailPanel.tsx
+  - src/components/canvas/DetailPanel.module.css
   - src/components/canvas/ModuleNode.tsx
   - src/components/canvas/ModuleNode.module.css
   - src/components/canvas/LinkEdge.tsx

@@ -1,92 +1,30 @@
 #!/usr/bin/env node
-/**
- * token-lint.mjs — Static analysis for design-token violations.
- *
- * Scans src/**\/*.{css,tsx,ts} for hardcoded values that bypass the
- * design-token vocabulary defined in design-tokens.css.
- *
- * Based on: gui/design-system/harness/token-lint/README.md
- *
- * Exit code:
- *   0 — no violations
- *   1 — violations found (fails CI)
- */
 
 import { readFileSync, readdirSync, statSync } from 'fs'
-import { join, extname } from 'path'
+import { extname, join, relative } from 'path'
 import { fileURLToPath } from 'url'
+import { readYamlFromRepo } from './design-source.mjs'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const SRC_DIR = join(__dirname, '..', 'src')
-
-// ─── Allowed files (token definitions themselves are exempt) ──────────────
-const EXEMPT_FILES = new Set([
-  'design-tokens.css',   // the source of truth — hardcoded values are expected here
-  'e2e-fixture.ts',      // test fixture — contains YAML strings, not CSS
+const GENERATED_MARKER = 'AUTO-GENERATED FILE. DO NOT EDIT.'
+const EXEMPT_RELATIVE_PATHS = new Set([
+  'design-tokens.generated.css',
+  'e2e-fixture.ts',
 ])
-
-// ─── Legal typography token sizes (px) ────────────────────────────────────
-const VALID_FONT_SIZES_PX = new Set([11, 12, 13, 14, 22])   // from typography token table
-
-// ─── Legal border-radius values (px) ──────────────────────────────────────
-const VALID_RADII_PX = new Set([3, 4, 8, 50])   // 3=scrollbar thumb, 4=border-radius-small, 8=card, 50%=circle
-
-// ─── Legal spacing values (multiples of 4px up to 48px) ───────────────────
-const VALID_SPACING_PX = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28, 32, 36, 40, 48])
-
-// ─── Violation rules ───────────────────────────────────────────────────────
-
-/** @type {Array<{name:string, pattern:RegExp, check?:(m:RegExpMatchArray,line:string)=>boolean, message:string}>} */
-const RULES = [
-  {
-    name: 'hardcoded-hex',
-    pattern: /#([0-9a-fA-F]{3,8})\b/g,
-    // Exempt: hex values inside CSS variable definitions (--color-xxx: #value)
-    // Exempt: hex values inside SVG arrowhead color maps (object literals where
-    //         CSS var() is not usable — SVG <marker> fill must be a literal color)
-    check: (_m, line) => {
-      const trimmed = line.trim()
-      // Allow hex inside token definition lines (--xxx: #value)
-      if (/--[\w-]+\s*:\s*#/.test(trimmed)) return false
-      // Allow hex as a value in object literal lines: 'key': '#hex'
-      if (/['"`][^'"`]+['"`]\s*:\s*['"`]#/.test(trimmed)) return false
-      // Allow hex in const/let declarations used as SVG fill literals
-      if (/const\s+\w+\s*=\s*['"`]#/.test(trimmed)) return false
-      // Allow hex inside rgba() which is caught separately
-      return true
-    },
-    message: 'Hardcoded hex color — use a CSS token variable instead',
-  },
-  {
-    name: 'hardcoded-rgba',
-    pattern: /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)/g,
-    check: (_m, line) => {
-      const trimmed = line.trim()
-      // Allow rgba in token definition lines
-      if (/--[\w-]+\s*:/.test(trimmed)) return false
-      // Allow the specific interactive overlays and known shadow values
-      // (these are defined inline in the design tokens, not component code)
-      return true
-    },
-    message: 'Hardcoded rgba color — use a CSS token variable instead',
-  },
-  {
-    name: 'out-of-vocab-font-size',
-    // Matches: font-size: 15px (not in typography token table)
-    pattern: /font-size\s*:\s*(\d+)px/g,
-    check: (m) => !VALID_FONT_SIZES_PX.has(parseInt(m[1], 10)),
-    message: 'Font size not in typography token table — use a defined typography token',
-  },
-  {
-    name: 'out-of-vocab-border-radius',
-    // Matches: border-radius: 15px
-    pattern: /border-radius\s*:\s*(\d+)px/g,
-    check: (m) => !VALID_RADII_PX.has(parseInt(m[1], 10)),
-    message: 'Border radius not in token table — use --dimension-border-radius-card or --dimension-border-radius-small',
-  },
+const VALID_FONT_SIZES_PX = new Set([11, 12, 13, 14, 22])
+const VALID_RADII_PX = new Set([3, 4, 8, 50])
+const ALLOWED_COMPONENT_NUMERIC_CONSTANTS = new Set(['ACCENT_COUNT'])
+const DESIGN_COPY_SOURCE_PATHS = [
+  'gui/screens/landing/web-copy.yaml',
+  'gui/screens/canvas/web-copy.yaml',
+  'gui/components/detail-panel/web-copy.yaml',
+  'gui/components/primary-module-card/web-copy.yaml',
 ]
 
-// ─── File walker ───────────────────────────────────────────────────────────
+function toPosix(value) {
+  return value.replace(/\\/g, '/')
+}
 
 function walk(dir) {
   const results = []
@@ -103,40 +41,131 @@ function walk(dir) {
   return results
 }
 
-// ─── Main ──────────────────────────────────────────────────────────────────
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function collectStringValues(value, target) {
+  if (typeof value === 'string') {
+    target.push(value)
+    return
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectStringValues(item, target)
+    return
+  }
+  if (value && typeof value === 'object') {
+    for (const nested of Object.values(value)) collectStringValues(nested, target)
+  }
+}
+
+function buildDesignCopyMatchers() {
+  const literals = []
+  for (const sourcePath of DESIGN_COPY_SOURCE_PATHS) {
+    const document = readYamlFromRepo(sourcePath)
+    collectStringValues(document.copy, literals)
+  }
+
+  return [...new Set(literals.filter(literal => literal.length >= 3))].map(literal => ({
+    literal,
+    patterns: [
+      new RegExp(`(['"\`])${escapeRegExp(literal)}\\1`),
+      new RegExp(`>${escapeRegExp(literal)}<`),
+    ],
+  }))
+}
+
+const DESIGN_COPY_MATCHERS = buildDesignCopyMatchers()
+
+const RULES = [
+  {
+    name: 'hardcoded-hex',
+    pattern: /#([0-9a-fA-F]{3,8})\b/g,
+    check: (_match, line) => !/--[\w-]+\s*:\s*#/.test(line.trim()),
+    message: 'Hardcoded hex color. Use a generated design token.',
+  },
+  {
+    name: 'hardcoded-rgba',
+    pattern: /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)/g,
+    check: (_match, line) => !/--[\w-]+\s*:/.test(line.trim()),
+    message: 'Hardcoded rgba color. Use a generated design token.',
+  },
+  {
+    name: 'out-of-vocab-font-size',
+    pattern: /font-size\s*:\s*(\d+)px/g,
+    check: match => !VALID_FONT_SIZES_PX.has(Number.parseInt(match[1], 10)),
+    message: 'Font size is outside the approved typography token table.',
+  },
+  {
+    name: 'out-of-vocab-border-radius',
+    pattern: /border-radius\s*:\s*(\d+)px/g,
+    check: match => !VALID_RADII_PX.has(Number.parseInt(match[1], 10)),
+    message: 'Border radius is outside the approved token table.',
+  },
+]
+
+function recordViolation(relPath, lineNumber, ruleName, matchedText, message) {
+  console.error(`[token-lint] ${relPath}:${lineNumber}  [${ruleName}]  ${matchedText}`)
+  console.error(`             -> ${message}`)
+  return 1
+}
 
 let violations = 0
-const files = walk(SRC_DIR)
 
-for (const filePath of files) {
-  const fileName = filePath.split('/').pop()
-  if (EXEMPT_FILES.has(fileName)) continue
-
+for (const filePath of walk(SRC_DIR)) {
+  const relPath = toPosix(relative(SRC_DIR, filePath))
   const content = readFileSync(filePath, 'utf8')
-  const lines = content.split('\n')
+  if (EXEMPT_RELATIVE_PATHS.has(relPath) || relPath.startsWith('generated/') || content.includes(GENERATED_MARKER)) {
+    continue
+  }
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
+  const lines = content.split('\n')
+  const isComponentSource = relPath.startsWith('components/') && ['.ts', '.tsx'].includes(extname(filePath))
+
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index]
+
     for (const rule of RULES) {
       const pattern = new RegExp(rule.pattern.source, rule.pattern.flags)
-      let m
-      while ((m = pattern.exec(line)) !== null) {
-        const shouldFlag = rule.check ? rule.check(m, line) : true
-        if (shouldFlag) {
-          const rel = filePath.replace(SRC_DIR + '/', '')
-          console.error(`[token-lint] ${rel}:${i + 1}  [${rule.name}]  ${m[0]}`)
-          console.error(`             → ${rule.message}`)
-          violations++
+      let match
+      while ((match = pattern.exec(line)) !== null) {
+        if (!rule.check || rule.check(match, line)) {
+          violations += recordViolation(relPath, index + 1, rule.name, match[0], rule.message)
         }
+      }
+    }
+
+    if (!isComponentSource) continue
+
+    const numericConstantMatch = line.match(/^\s*const\s+([A-Z][A-Z0-9_]+)\s*=\s*(-?\d+(?:\.\d+)?)/)
+    if (numericConstantMatch && !ALLOWED_COMPONENT_NUMERIC_CONSTANTS.has(numericConstantMatch[1])) {
+      violations += recordViolation(
+        relPath,
+        index + 1,
+        'hardcoded-layout-constant',
+        numericConstantMatch[0].trim(),
+        'Move default workspace layout constants into generated design-doc artifacts.',
+      )
+    }
+
+    for (const matcher of DESIGN_COPY_MATCHERS) {
+      if (matcher.patterns.some(pattern => pattern.test(line))) {
+        violations += recordViolation(
+          relPath,
+          index + 1,
+          'hardcoded-design-copy',
+          matcher.literal,
+          'Component copy must come from generated workspace-content artifacts.',
+        )
       }
     }
   }
 }
 
 if (violations === 0) {
-  console.log('[token-lint] ✓ No violations found.')
+  console.log('[token-lint] No violations found.')
   process.exit(0)
-} else {
-  console.error(`\n[token-lint] ✗ ${violations} violation(s). Fix before committing.`)
-  process.exit(1)
 }
+
+console.error(`\n[token-lint] ${violations} violation(s). Fix before committing.`)
+process.exit(1)

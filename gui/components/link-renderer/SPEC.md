@@ -1,41 +1,52 @@
 ---
 name: Link Renderer
-description: "Renders directional edges between sibling module cards on the canvas. Cross-hierarchy links are not drawn; they are surfaced in the detail panel only."
+description: "Renders directional edges on the canvas in two categories — direct edges between the primary card's module-level handles and external cards, and port edges between submodule port handles and external cards — with clear arrowheads and a same-card rendering rule."
 ---
 
 ## Overview
 
-The link-renderer draws directed edges between module cards at the current canvas level. Only **sibling-to-sibling** edges are drawn — both the source card and the target card must be direct children of the current canvas module.
+The link-renderer draws all directed edges on the canvas. Edges fall into two categories based on which handle they originate from or terminate at on the primary card:
 
-Cross-hierarchy links (where the target is outside the current level) are intentionally omitted from the canvas. They are fully accessible in the detail panel's **LINK TO** and **LINKED BY** sections when a card is selected.
+1. **Direct edges** — connect the primary card's module-level handles (on the description section) to external reference cards. These represent links owned by the focused module itself.
+2. **Port edges** — connect submodule port handles (in the port section) to external reference cards. These represent links owned by the focused module's submodules.
 
 ## Edge Resolution
 
-For each module card at the current level, its `links` array is scanned:
+### Module-level links (→ direct edges)
 
-- If the link's target UUID is a sibling (also a child of the current module), draw an edge from the source card to the target card.
-- If the link's target UUID is outside the current level, **do not draw an edge**. The link is still present in the data model and visible in the detail panel.
+The focused module's own `links` array is scanned. For each entry:
 
-## Port Handles
+- **Outgoing:** target UUID resolves to an external module → edge from the module source handle (▶, right side of description section) to the external card.
+- **Incoming:** reverse lookup finds external modules that link to the focused module's UUID → edge from the external card to the module target handle (◀, left side of description section).
 
-Each card exposes:
+Module-level handles are only rendered when at least one direct edge exists in that direction. No links = no handles on the description section.
 
-- A **module-level target handle** (◀, left edge) — receives edges from siblings that link to this module.
-- A **module-level source handle** (▶, right edge) — emits edges to siblings this module links to.
-- **Per-link source port handles** (▶, right edge, one per `links` entry) — allows edges to originate from a specific link row, enabling visual disambiguation when a card has multiple outgoing links.
+### Submodule-level links (→ port edges)
+
+For each direct submodule of the focused module, its `links` array is scanned:
+
+- **Outgoing:** target UUID resolves to an external module → edge from the submodule's source port (▶) to the external card.
+- **Incoming:** reverse lookup finds external modules that link to this submodule → edge from the external card to the submodule's target port (◀).
 
 ## Arrow Direction
 
-Every edge has a directional arrowhead pointing toward the **target** (the module being linked TO).
+Every edge has a clear directional arrowhead pointing toward the **passive (target) end** — the module being linked TO.
 
-## Same-Level Rendering Rule
+## Same-Card Rendering Rule
 
-When a link points to a module outside the current level, no edge and no stub card is rendered. The user navigates to the appropriate level to see both endpoints as sibling cards, at which point the edge becomes visible.
+When both endpoints of a link resolve to handles on the same card, the link is **not drawn** at this canvas level. This is a rendering-only decision — the underlying link data is perfectly valid. Submodules may freely link to siblings, to their parent, or vice versa. These links are:
+
+- A link from the focused module to one of its own submodules → both ends on the primary card → **not drawn** here.
+- A link between two submodules of the focused module → both ends on the primary card → **not drawn** here.
+
+Such links become visible as cross-card edges when the user drills into the appropriate module.
 
 ## Edge Styling
 
-Each edge is styled by its `relation` value — stroke weight, dash pattern, and color vary by relation type. The `relation` value appears as a label pill at the midpoint of the edge. The `description` field appears as a hover tooltip. Full styling reference is in `resources/edge-reference.md`.
+Each edge is styled by its `relation` value — stroke weight, dash pattern, and color vary by relation type. The `relation` field appears as a label at the midpoint of the edge. The `description` field appears as a hover tooltip. Full styling reference is in `resources/edge-reference.md`.
 
 ## Design System
 
-All visual properties — color, typography, spacing, and elevation — must use semantic tokens from the Design System (`gui/design-system/`). Do not use raw hex, pixel, or opacity values in implementations.
+All visual properties — color, typography, spacing, and elevation — must use semantic tokens from the Design System (`gui/design-system/`). Do not use raw hex, pixel, or opacity values in implementations. Consult `gui/design-system/foundations/color/resources/token-table.md`, `gui/design-system/foundations/typography/resources/token-table.md`, `gui/design-system/foundations/spacing/resources/token-table.md`, and `gui/design-system/foundations/elevation/resources/token-table.md` for the complete token vocabulary.
+
+The committed web semantics export for relation defaults is `web-semantics.yaml`; React code must use the generated artifact rather than inventing fallback relation labels inline.

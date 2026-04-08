@@ -90,10 +90,52 @@ Every module generating React source files must follow these conventions so `web
 - **No direct I/O** — always use the `FsAdapter` abstraction, never `window.fs` or `fs` directly
 - **Serialisable props** — React Flow nodes receive only serialisable props; interactions through Zustand
 
+## Typography Contract
+
+The shared SPA uses a four-lane typography model so the brand wordmark can carry more personality while structural headings stay clean and sans-serif:
+
+- `--font-wordmark` - the `ArchUI` brand wordmark. This lane is self-hosted and maps to `Syne`.
+- `--font-heading-sans` - system headlines such as landing hero text, canvas intro titles, node names, and detail-panel primary headings. This lane is self-hosted and maps to `Sora`.
+- `--font-sans` - ordinary UI English. This lane is self-hosted and maps to `Lexend`.
+- `--font-mono` - UUIDs and identifier-like text. This lane is unchanged.
+
+`--font-display` remains as an alias to `--font-heading-sans` for compatibility, but new component work should choose between `--font-wordmark`, `--font-heading-sans`, `--font-sans`, and `--font-mono` explicitly. Do not hardcode `Segoe UI`, `Aptos`, or other generic system UI fonts in component CSS.
+
 ## Figma Token Sync
 
-Design tokens live in Figma. Pull the latest tokens into `resources/src/design-tokens.css`:
+Design tokens live in Figma, but the web app never hand-edits token values. The committed Figma export snapshot is `gui/design-system/foundations/web-token-export.yaml`, and `sync:figma` renders it into `resources/src/design-tokens.generated.css`:
 
 ```bash
 npm run sync:figma
 ```
+
+## Design Doc Sync Contract
+
+Screen copy, panel labels, and default workspace layout constants also come from document-layer exports, not from React components. The committed sources are:
+
+- `gui/screens/landing/web-copy.yaml`
+- `gui/screens/canvas/web-copy.yaml`
+- `gui/components/detail-panel/web-copy.yaml`
+- `gui/components/primary-module-card/web-copy.yaml`
+- `gui/components/link-renderer/web-semantics.yaml`
+- `gui/design-system/visual-orchestration/web-layout.yaml`
+
+Generate their web-facing artifacts with:
+
+```bash
+npm run sync:design-docs
+```
+
+The shared SPA consumes only:
+
+- `resources/src/design-tokens.generated.css`
+- `resources/src/generated/workspace-content.generated.ts`
+- `resources/src/generated/workspace-layout.generated.ts`
+
+Use `npm run verify:design-sync` in CI or before review to ensure the generated artifacts match the checked-in document sources. Component code may keep runtime algorithms, navigation wiring, and data loading logic, but it must not hardcode visual token values, workspace copy, or default orchestration constants.
+
+## Visual Orchestration Contract
+
+The web frontend does not translate reference UIs directly into React components. Any redesign driven by browser inspection, Playwright capture, or external inspiration must first be normalized in `gui/design-system/visual-orchestration`, then reflected in Figma, and only then implemented in the shared SPA.
+
+This contract is especially important for Web and Electron because they share the same presentation layer. Canvas density, panel hierarchy, node emphasis, and edge readability changes should be implemented once in the shared React source and allowed to flow into Electron automatically unless the redesign touches native-shell behavior.

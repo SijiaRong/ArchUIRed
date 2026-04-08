@@ -1,33 +1,57 @@
-/* Breadcrumb sits inside the topbar — no background/border of its own */
 .nav {
   display: flex;
   align-items: center;
   gap: 2px;
+  padding: 0 18px;
+  min-height: 52px;
+  background: color-mix(in srgb, var(--surface-panel) 90%, transparent);
+  border-bottom: 1px solid var(--line-default);
   overflow-x: auto;
-  flex: 1;
-  min-width: 0;
+  flex-shrink: 0;
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-soft);
+  z-index: 10;
 }
-.nav::-webkit-scrollbar { display: none; }
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
 
 .crumb {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   white-space: nowrap;
 }
 
 .btn {
   background: none;
   border: none;
-  color: var(--color-text-secondary);
+  color: var(--text-tertiary);
   cursor: pointer;
-  font: 400 13px/18px 'Inter', system-ui, sans-serif;
-  padding: 2px var(--spacing-2);
-  border-radius: var(--dimension-border-radius-small);
-  transition: color 0.15s, background 0.15s;
+  font-size: 0.82rem;
+  padding: 8px 10px;
+  border-radius: var(--radius-pill);
+  transition: color .15s ease, background .15s ease;
 }
-.btn:hover { color: var(--color-text-primary); background: var(--color-interactive-hover); }
-.btnActive { color: var(--color-text-accent); font-weight: 500; cursor: default; }
-.btnActive:hover { background: none; }
 
-.sep { color: var(--color-text-tertiary); font-size: 12px; user-select: none; }
+.btn:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--brand-lake) 8%, var(--surface-raised));
+}
+
+.btnActive {
+  color: var(--text-primary);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--brand-honey) 9%, transparent);
+}
+
+.btnActive:hover {
+  cursor: default;
+}
+
+.sep {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  user-select: none;
+}

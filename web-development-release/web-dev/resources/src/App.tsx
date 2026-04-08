@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useCanvasStore, detectServerRoot } from './store/canvas'
 import serverAdapter from './filesystem/serverAdapter'
 import { OpenFolder } from './components/ui/OpenFolder'
@@ -6,35 +6,70 @@ import { CanvasPage } from './components/canvas/CanvasPage'
 import { installTestHook } from './testHook'
 import { createE2eAdapter, E2E_ROOT } from './e2e-fixture'
 
-// Install E2E test hook in dev / test builds
 if (import.meta.env.DEV || import.meta.env.MODE === 'test') {
   installTestHook()
 }
 
-export default function App() {
-  const rootPath     = useCanvasStore(s => s.rootPath)
-  const setAdapter   = useCanvasStore(s => s.setAdapter)
-  const fsMode       = useCanvasStore(s => s.fsMode)
+type ThemeMode = 'light' | 'dark'
 
-  // ?e2e=1 — load fixture data for Playwright visual snapshot tests
+function getSearchParams(): URLSearchParams {
+  if (typeof window === 'undefined') return new URLSearchParams()
+  return new URLSearchParams(window.location.search)
+}
+
+function getInitialTheme(): ThemeMode {
+  const params = getSearchParams()
+  const forcedTheme = params.get('theme')
+  if (forcedTheme === 'light' || forcedTheme === 'dark') return forcedTheme
+  const stored = window.localStorage.getItem('archui-theme')
+  if (stored === 'light' || stored === 'dark') return stored
+  return 'light'
+}
+
+export default function App() {
+  const rootPath = useCanvasStore(s => s.rootPath)
+  const setAdapter = useCanvasStore(s => s.setAdapter)
+  const fsMode = useCanvasStore(s => s.fsMode)
+  const [theme, setTheme] = useState<ThemeMode>(getInitialTheme)
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.theme = theme
+      window.localStorage.setItem('archui-theme', theme)
+    }
+  }, [theme])
+
   useEffect(() => {
     if (rootPath !== null) return
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('e2e') === '1') {
-      setAdapter(createE2eAdapter(), E2E_ROOT, 'mem')
+
+    const params = getSearchParams()
+    const wantsFixture = params.get('e2e') === '1' || params.get('fixture') === '1'
+    if (wantsFixture) {
+      const loadFixture = async () => {
+        if (typeof window !== 'undefined' && window.__archui?.loadFixture) {
+          await window.__archui.loadFixture()
+          return
+        }
+        await setAdapter(createE2eAdapter(), E2E_ROOT, 'mem')
+      }
+      void loadFixture()
       return
     }
-  }, [rootPath, setAdapter])
 
-  // Auto-connect when running in server mode (served by our Node server)
-  useEffect(() => {
-    if (fsMode === 'server' && rootPath === null) {
-      detectServerRoot().then(root => {
-        setAdapter(serverAdapter, root, 'server')
+    if (fsMode === 'server') {
+      void detectServerRoot().then(root => {
+        if (root) {
+          void setAdapter(serverAdapter, root, 'server')
+        }
       })
     }
   }, [fsMode, rootPath, setAdapter])
 
-  if (rootPath === null) return <OpenFolder />
-  return <CanvasPage />
+  const toggleTheme = () => setTheme(value => value === 'light' ? 'dark' : 'light')
+
+  if (rootPath === null) {
+    return <OpenFolder theme={theme} onToggleTheme={toggleTheme} />
+  }
+
+  return <CanvasPage theme={theme} onToggleTheme={toggleTheme} />
 }

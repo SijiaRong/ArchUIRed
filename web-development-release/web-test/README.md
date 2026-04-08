@@ -26,6 +26,11 @@ Web Test is the quality gate between development and release. It runs after both
   - Create and rename a module
   - Link two modules
   - Run a command (mock AI agent response)
+- Playwright screenshot assertions covering the approved workspace compositions:
+  - Idle canvas with dense external-card layout
+  - Selected primary card with detail panel visible
+  - Drilled canvas with breadcrumb return context and active edges
+  - Self-hosted font rendering may use a tiny `maxDiffPixels` tolerance so sub-pixel antialiasing noise does not mask real layout regressions
 
 ## Running Tests
 
@@ -38,6 +43,8 @@ npm run test:all       # all three layers in sequence
 ## Pass Criteria
 
 All three layers must pass before any release build proceeds. Test failures block `web-release`.
+
+Visual redesigns do not count as complete until screenshot baselines are refreshed from an approved Figma update and the resulting Playwright comparisons pass in the shared Web/Electron SPA.
 
 ## Implements
 

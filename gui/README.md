@@ -13,6 +13,8 @@ The GUI does not own the data. The filesystem is always the source of truth. The
 
 The GUI is implemented separately for each target platform: Web (React + canvas rendering), Electron (Web implementation with local filesystem access), iOS (native SwiftUI canvas with Metal rendering), and Android (native Jetpack Compose canvas with custom drawing). All platforms conform to the same ArchUI filesystem spec defined in `core` and share a single Figma design source of truth.
 
+That shared design source now includes both token foundations and workspace orchestration rules, so large visual refactors can be staged semantically before platform code is touched.
+
 ## Key Principles
 
 The canvas is cosmetic; the filesystem is canonical. Card positions are stored as display hints in `.archui/layout.yaml` and do not affect the module hierarchy. Human edits to README.md files are first-class — the GUI detects changes via file-watching and re-renders affected cards with no "GUI mode" lock. LLM sync is on-demand, keeping the LLM out of the hot path and giving humans control over when AI assistance is applied.

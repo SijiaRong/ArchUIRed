@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './design-tokens.css'
+import './font-faces.css'
+import './design-tokens.generated.css'
 import './global.css'
 import App from './App'
 

@@ -69,3 +69,5 @@ External card positions are stored in `.archui/layout.yaml` relative to the pare
 ## Design System
 
 All visual properties — color, typography, spacing, and elevation — must use semantic tokens from the Design System (`gui/design-system/`). Do not use raw hex, pixel, or opacity values in implementations. Consult `gui/design-system/foundations/color/resources/token-table.md`, `gui/design-system/foundations/typography/resources/token-table.md`, `gui/design-system/foundations/spacing/resources/token-table.md`, and `gui/design-system/foundations/elevation/resources/token-table.md` for the complete token vocabulary.
+
+The committed web copy export for card semantics is `web-copy.yaml`; node eyebrow labels and card badge nouns must flow through the generated artifact rather than being hardcoded in React node components.

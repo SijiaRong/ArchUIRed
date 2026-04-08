@@ -102,3 +102,5 @@ If the target is already visible at the current canvas level, skip steps 2–4 a
 ## Design System
 
 All visual properties — color, typography, spacing, and elevation — must use semantic tokens from the Design System (`gui/design-system/`). Do not use raw hex, pixel, or opacity values in implementations. Consult `gui/design-system/foundations/color/resources/token-table.md`, `gui/design-system/foundations/typography/resources/token-table.md`, `gui/design-system/foundations/spacing/resources/token-table.md`, and `gui/design-system/foundations/elevation/resources/token-table.md` for the complete token vocabulary.
+
+The committed web copy export for this component is `web-copy.yaml`; React code must consume the generated detail-panel content artifact rather than embedding labels, section titles, or fallback strings directly in component files.
