@@ -4,76 +4,118 @@ You are converting an existing software project into a valid ArchUI-compliant mo
 
 ---
 
+## Table of Contents
+
+| Section | Line | Description |
+|---------|------|-------------|
+| [Overview](#overview) | 18 | What this command does and how it's structured |
+| [Hard Constraints](#hard-constraints) | 28 | Non-negotiable rules — read before starting |
+| [Module Decomposition Principles](#module-decomposition-principles) | 42 | What becomes a module, naming, depth, links |
+| [Phase 1: Scaffold](#phase-1-scaffold-modules) | 97 | Create modules from project directories |
+| [Phase 2: Archive Resources](#phase-2-archive-resources) | 163 | Move non-spec files into `resources/` |
+| [Phase 3: Validate](#phase-3-validate) | 227 | Run CLI validator and fix errors |
+| [Phase 4: Multi-Agent Completion](#phase-4-multi-agent-completion) | 248 | Parallel submodule, link, and documentation enrichment |
+| [Phase 5: Clean Up](#phase-5-clean-up) | 345 | Remove temporary files |
+
+---
+
+## Overview
+
+This workflow converts an arbitrary software project into ArchUI's filesystem-first module structure. It proceeds in five phases:
+
+1. **Scaffold** — scan the project, create modules with identity documents and `.archui/` metadata
+2. **Archive** — relocate non-spec files into `resources/` directories, promote identity document types
+3. **Validate** — run the CLI validator, fix all errors
+4. **Complete** — spawn sub-agents for submodule registration, link inference, and documentation enrichment
+5. **Clean up** — remove temporary conversion artifacts
+
+---
+
+## Hard Constraints
+
+These rules are absolute. Violating any of them corrupts the module graph.
+
+- **Never** modify files already inside an existing `resources/` directory — only move new files in
+- **Never** change an existing UUID in any `.archui/index.yaml`
+- **Never** add `uuid`, `submodules`, or `links` to identity document frontmatter — these belong only in `.archui/index.yaml`
+- `description` must be a single sentence with no line breaks
+- All UUIDs must be 8 lowercase hex characters (e.g., `a3f2b1c9`) — never RFC 4122 format
+- Use `README.md` as the initial identity document; after resource archival, promote to `SPEC.md`, `HARNESS.md`, or `MEMORY.md` per Phase 2 — never leave a module with `resources/` as a generic `README.md`
+
+---
+
 ## Module Decomposition Principles
 
-Before creating any files, read the project structure and understand what each directory does. Then apply these principles to decide what becomes a module:
+Before creating any files, read the project structure and understand what each directory does. Then apply these principles.
 
-### What to make a module
+### What becomes a module
 
-- A directory that represents a **coherent, nameable concept** — something you could describe in one sentence
-- A directory that other parts of the project depend on, or that has its own lifecycle
-- A directory that a new team member would think of as "a thing" (e.g., "the CLI", "the API layer", "the auth module")
+- A directory representing a **coherent, nameable concept** — something describable in one sentence
+- A directory other parts of the project depend on, or that has its own lifecycle
+- A directory a new team member would think of as "a thing" (e.g., "the CLI", "the API layer", "the auth module")
 
-### What NOT to make a module
+### What does NOT become a module
 
-- Pure implementation detail folders that are not meaningful on their own: `utils/`, `helpers/`, `types/`, `constants/` — unless they represent a distinct library boundary
+- Pure implementation detail: `utils/`, `helpers/`, `types/`, `constants/` — unless they represent a distinct library boundary
 - Build artifacts: `dist/`, `build/`, `out/`, `.next/`, `coverage/`
 - Dependency folders: `node_modules/`, `vendor/`
 - Hidden infrastructure: `.git/`, `.cache/`, `__pycache__/`
-- The `resources/` folder inside any ArchUI module (reserved by ArchUI)
+- The `resources/` folder inside any ArchUI module (reserved)
 
 ### Naming rules
 
-- `name`: Human-readable, 2–4 words, Title Case — e.g. "CLI Init Command", "Auth Service", "User Profile API"
-- `description`: One sentence, present tense, describes **purpose** not implementation — e.g. "Handles user authentication and session management." NOT "Contains auth.ts and session.ts."
+- **`name`**: Human-readable, 2–4 words, Title Case — e.g. "CLI Init Command", "Auth Service"
+- **`description`**: One sentence, present tense, describes **purpose** not implementation — e.g. "Handles user authentication and session management." NOT "Contains auth.ts and session.ts."
 
 ### Depth guidance
 
-- **Depth 1 first**: Start by making every meaningful top-level directory a module. These are your primary boundaries.
-- **Go deeper selectively**: Only create child modules inside a top-level module if that module is large enough that its subdirectories are themselves independently meaningful. Rule of thumb: if you'd describe a subdirectory to a new team member as "the X part of Y", it deserves its own module.
+- **Depth 1 first**: Make every meaningful top-level directory a module.
+- **Go deeper selectively**: Only create child modules when a subdirectory is independently meaningful. Rule of thumb: if you'd describe it as "the X part of Y", it deserves its own module.
 - **Avoid over-splitting**: A module with only one or two source files rarely needs child modules.
 
 ### Link inference rules
 
 After creating all modules, look for relationships:
-- If module A imports from module B → `A depends-on B`
-- If module A is the test suite for module B → `A implements B`  
-- If module A is built on top of module B's API → `A extends B`
-- If module A just references module B for documentation → `A references B`
-- Loose coupling without clear direction → `related-to`
+
+| Signal | Relation |
+|--------|----------|
+| Module A imports from module B | `depends-on` |
+| Module A is the test suite for module B | `implements` |
+| Module A is built on top of module B's API | `extends` |
+| Module A references module B for documentation | `references` |
+| Loose coupling without clear direction | `related-to` |
 
 Only add links you are confident about. Do not fabricate links.
 
 ---
 
-## Execution Workflow
+## Phase 1: Scaffold Modules
 
-### Step 1: Read the Conversion Plan or Scan the Project Tree
+### Step 1.1 — Read conversion plan or scan project
 
 Read `.archui/conversion-plan.yaml` from the project root if it exists — this file was generated by the CLI pre-scan and lists candidate folders with inferred names, descriptions, and README states. Use it as a starting point, but read actual folder contents to improve quality.
 
-If `.archui/conversion-plan.yaml` does not exist, scan the project tree directly from `{{project.root}}` to understand its structure. Candidate folders: any folder not in the skip list (`node_modules`, `.git`, `.archui`, `resources`, `dist`, `build`, `.next`, `__pycache__`, `vendor`, `.cache`, `coverage`, `out`, `tmp`).
+If `.archui/conversion-plan.yaml` does not exist, scan the project tree directly from `{{project.root}}`. Skip: `node_modules`, `.git`, `.archui`, `resources`, `dist`, `build`, `.next`, `__pycache__`, `vendor`, `.cache`, `coverage`, `out`, `tmp`.
 
-### Step 2: For Each Candidate Module
+### Step 1.2 — Create each module
 
-#### 2a. Determine Final Name and Description
+For each candidate module:
 
-- Read the actual folder (README.md, package.json, key source files) to understand what it does
-- Apply the naming rules above
-- Improve the pre-scan's `inferred_name` and `inferred_description` based on real content
+**a) Determine name and description**
 
-#### 2b. Apply the README Merge Rule
+Read the actual folder (README.md, package.json, key source files) to understand what it does. Apply the naming rules above. Improve pre-scan inferences based on real content.
 
-Based on `readme_state` in the conversion plan:
+**b) Apply the README merge rule**
 
 | `readme_state` | Action |
 |---|---|
 | `"missing"` | Create `README.md` with frontmatter only (`name` + `description`) |
-| `"no-frontmatter"` | Prepend the frontmatter block; preserve existing body verbatim |
-| `"partial"` | Patch only the missing field(s); preserve everything else |
-| `"complete"` | Leave the file completely untouched |
+| `"no-frontmatter"` | Prepend frontmatter block; preserve existing body verbatim |
+| `"partial"` | Patch only missing field(s); preserve everything else |
+| `"complete"` | Leave untouched |
 
-**Prepend format** (for `no-frontmatter`):
+Prepend format (for `no-frontmatter`):
+
 ```
 ---
 name: <name>
@@ -83,9 +125,9 @@ description: <description>
 <original README body, unchanged>
 ```
 
-The description when prepending must be derived from the actual content — read the file to write a quality sentence.
+The description must be derived from actual content — read the file to write a quality sentence.
 
-#### 2c. Write `.archui/index.yaml`
+**c) Write `.archui/index.yaml`**
 
 ```yaml
 schema_version: 1
@@ -97,7 +139,7 @@ links: []
 Generate: `openssl rand -hex 4`
 Verify uniqueness: `grep -r "<uuid>" . --include="*.yaml"` — if found, regenerate.
 
-#### 2d. Write `.archui/layout.yaml`
+**d) Write `.archui/layout.yaml`**
 
 ```yaml
 nodes: {}
@@ -106,9 +148,9 @@ viewport:
   pan: {x: 0, y: 0}
 ```
 
-### Step 3: Register Child Modules in Parent
+### Step 1.3 — Register in parent
 
-For each module created, add it to the parent's `.archui/index.yaml` submodules map:
+Add each new module to the parent's `.archui/index.yaml` submodules map:
 
 ```yaml
 submodules:
@@ -116,17 +158,19 @@ submodules:
 ```
 
 Update the parent's `.archui/layout.yaml` to the parent form:
+
 ```yaml
 layout:
   <parent-uuid>:
     x: "0"
     y: "0"
 ```
+
 (The GUI will update positions when first opened.)
 
-### Step 4: Infer and Write Cross-Module Links
+### Step 1.4 — Infer cross-module links
 
-After all modules are created, scan for dependencies (see link inference rules above). For each confident link, add to the source module's `.archui/index.yaml`:
+After all modules are created, scan for dependencies (see link inference rules). For each confident link, add to the source module's `.archui/index.yaml`:
 
 ```yaml
 links:
@@ -135,71 +179,72 @@ links:
     description: <one-sentence explanation>
 ```
 
-### Step 5: Archive Non-Spec Files into Resources
+---
 
-After all modules are created, every non-natural-language file in the project must live inside a module's `resources/` directory. Natural-language files are identity documents (`README.md`, `SPEC.md`, `HARNESS.md`, `MEMORY.md`, `SKILL.md`) and `.archui/` metadata — everything else is a resource.
+## Phase 2: Archive Resources
 
-#### 5a. Scan for Unarchived Files
+After scaffolding, every non-identity file must live inside a module's `resources/` directory.
 
-Walk the entire project tree. For each file that is NOT one of:
+### Step 2.1 — Scan for unarchived files
+
+Walk the entire project tree. Flag any file that is NOT one of:
+
 - An identity document (`README.md`, `SPEC.md`, `HARNESS.md`, `MEMORY.md`, `SKILL.md`)
 - An `.archui/` metadata file (`index.yaml`, `layout.yaml`, `commands/*.md`)
 - Inside a `resources/` directory already
 - Inside a skip directory (`node_modules`, `.git`, `dist`, `build`, `.next`, `__pycache__`, `vendor`, `.cache`, `coverage`, `out`, `tmp`)
 
-...flag it as an unarchived resource.
+### Step 2.2 — Match to owning module
 
-#### 5b. Match Each File to Its Owning Module
+- `<module-path>/foo.ts` belongs to the module at `<module-path>/`
+- `<module-path>/utils/helper.ts` (non-module subdirectory) belongs to the nearest ancestor module
 
-For each unarchived file, determine which module it belongs to:
-- A file at `<module-path>/foo.ts` belongs to the module at `<module-path>/`
-- A file in a non-module subdirectory (e.g. `<module-path>/utils/helper.ts`) belongs to the nearest ancestor module
+### Step 2.3 — Relocate into `resources/`
 
-#### 5c. Relocate into Resources
+Move each file into its owning module's `resources/`, preserving relative path:
 
-Move each unarchived file into its owning module's `resources/` directory, preserving the relative path within the module:
-- `my-module/src/index.ts` → `my-module/resources/src/index.ts`
-- `my-module/package.json` → `my-module/resources/package.json`
-- `my-module/utils/helper.ts` → `my-module/resources/utils/helper.ts`
+| Original | Destination |
+|----------|-------------|
+| `my-module/src/index.ts` | `my-module/resources/src/index.ts` |
+| `my-module/package.json` | `my-module/resources/package.json` |
+| `my-module/utils/helper.ts` | `my-module/resources/utils/helper.ts` |
 
-Use `git mv` if inside a git repository to preserve history.
+Use `git mv` inside a git repository to preserve history.
 
-#### 5d. Handle Orphan Files — Refine Module Decomposition
+### Step 2.4 — Handle orphan files
 
-If a file has no suitable owning module (it sits at a level where the nearest module is the project root and the file clearly belongs to a more specific domain):
+If a file has no suitable owning module (the nearest module is the project root and the file belongs to a more specific domain):
 
-1. **Do not dump it into the root module's `resources/`.** This means the earlier decomposition missed a boundary.
-2. Create a new module for the orphan's directory — apply the same module creation rules from Step 2 (name, description, UUID, `index.yaml`, `layout.yaml`, register in parent).
-3. Then archive the file into the new module's `resources/`.
+1. Create a new module for the orphan's directory (apply full Step 1.2 workflow)
+2. Archive the file into the new module's `resources/`
 
 Repeat until every non-spec file is inside some module's `resources/`.
 
-#### 5e. Promote Identity Document Type
+### Step 2.5 — Promote identity document type
 
-Once a module has a `resources/` directory, its identity document type must match the nature of those resources. A `README.md` (generic fallback) is only correct for modules with no resources or with purely generic content.
+Once a module has `resources/`, its identity document type must match the resources' nature:
 
-| Resources content | Correct identity type | Required submodules |
+| Resources content | Identity type | Required submodules |
 |---|---|---|
-| Source code, configs, implementation files | `SPEC.md` | Must create `<name>-harness/` with `HARNESS.md` (one link → parent SPEC). May create `<name>-memory/` with `MEMORY.md`. |
-| Test code, test fixtures, test configs | `HARNESS.md` | None (HARNESS is a leaf with exactly one link to its parent SPEC) |
-| Logs, session records, accumulated knowledge | `MEMORY.md` | None (MEMORY links only to its parent SPEC) |
-| Mixed or unclear | `SPEC.md` | Same as source code row — default to SPEC when in doubt |
+| Source code, configs, implementation files | `SPEC.md` | Must create `<name>-harness/` (HARNESS.md + link → parent SPEC). May create `<name>-memory/` (MEMORY.md). |
+| Test code, test fixtures, test configs | `HARNESS.md` | None (leaf with one link to parent SPEC) |
+| Logs, session records, accumulated knowledge | `MEMORY.md` | None (links only to parent SPEC) |
+| Mixed or unclear | `SPEC.md` | Same as source code — default to SPEC when in doubt |
 
 **Promotion workflow:**
 
-1. For each module that now has `resources/`, classify its resource content using the table above.
-2. If the module currently has `README.md` but should be a different type:
-   - Rename the identity document: `git mv README.md SPEC.md` (or `HARNESS.md`, `MEMORY.md`)
-   - Preserve all frontmatter and body content — only the filename changes.
+1. Classify resource content using the table above
+2. Rename: `git mv README.md SPEC.md` (or `HARNESS.md`, `MEMORY.md`) — preserve all frontmatter and body
 3. If promoted to `SPEC.md`, create the required HARNESS submodule:
-   - Create `<module-name>-harness/` directory
-   - Write `HARNESS.md` with frontmatter (`name`, `description`)
-   - Write `.archui/index.yaml` with a new UUID, empty submodules, and exactly one link to the parent SPEC's UUID with `relation: implements`
+   - Create `<module-name>-harness/` with `HARNESS.md` (frontmatter: `name`, `description`)
+   - Write `.archui/index.yaml` with new UUID, empty submodules, one link to parent SPEC (`relation: implements`)
    - Write `.archui/layout.yaml` (leaf form)
-   - Register the harness in the parent SPEC's `.archui/index.yaml` submodules map
-4. Optionally create `<module-name>-memory/` submodule (same pattern, with `MEMORY.md` and a link to parent SPEC).
+   - Register in parent's submodules map
+4. Optionally create `<module-name>-memory/` (same pattern, `MEMORY.md`, link to parent SPEC)
 
-### Step 6: Validate and Fix
+---
+
+## Phase 3: Validate
 
 ```bash
 archui validate .
@@ -211,130 +256,90 @@ Read all ERROR lines. Fix each one:
 |---|---|
 | `links/dangling-uuid` | Remove the link or add the missing target module |
 | `archui/undeclared-subfolder` | Add the folder to its parent's `submodules` map |
-| `frontmatter/missing-field` | Add missing `name` or `description` to the identity document |
+| `frontmatter/missing-field` | Add missing `name` or `description` |
 | `archui/missing-file` | Create `.archui/index.yaml` in the folder |
-| `spec/missing-harness` | SPEC module is missing its required HARNESS submodule — create `<name>-harness/` with `HARNESS.md` and link to parent SPEC |
+| `spec/missing-harness` | Create `<name>-harness/` with `HARNESS.md` and link to parent SPEC |
 
 Re-run after each fix round. Continue until zero ERRORs.
 
-### Step 7: Multi-Agent Submodule Completion
+---
 
-Spawn one sub-agent per top-level module directory. Each sub-agent is responsible for auditing and completing the `submodules` maps within its assigned subtree.
+## Phase 4: Multi-Agent Completion
 
-**Sub-agent task per top-level module `<module-path>/`:**
+This phase spawns parallel sub-agents per top-level module. Each phase below runs to completion before the next starts. After each phase, the orchestrating agent runs `archui validate .` over the full project.
 
-1. Walk the entire directory tree under `<module-path>/`, collecting every subfolder that has a `.archui/index.yaml`.
-2. For each such subfolder, read its parent's `.archui/index.yaml` and check whether the subfolder's `folder-name → uuid` entry is present in the parent's `submodules` map.
-3. For any missing entry, add it:
+### 4.1 — Submodule Registration
+
+**Per sub-agent (`<module-path>/`):**
+
+1. Walk the directory tree, collecting every subfolder with `.archui/index.yaml`
+2. For each, check whether `folder-name → uuid` exists in the parent's `submodules` map
+3. Add any missing entries:
    ```yaml
    submodules:
-     <folder-name>: <child-uuid>   # uuid read from child's .archui/index.yaml
+     <folder-name>: <child-uuid>
    ```
-4. After all missing entries are added, re-run `archui validate .` scoped to that module subtree and fix any `archui/undeclared-subfolder` or `archui/submodule-not-found` errors that remain.
+4. Run `archui validate .` scoped to the subtree; fix `archui/undeclared-subfolder` or `archui/submodule-not-found` errors
 
-**Coordination rule:** Sub-agents work in parallel across top-level modules. No two sub-agents touch the same `index.yaml` file. After all sub-agents complete, the orchestrating agent runs `archui validate .` over the full project and fixes any residual errors before proceeding.
+**Coordination:** Sub-agents work in parallel. No two sub-agents touch the same `index.yaml`.
 
-### Step 8: Multi-Agent Link Completion
+### 4.2 — Link Inference
 
-Spawn one sub-agent per top-level module directory. Each sub-agent is responsible for inferring and completing the `links` arrays within its assigned subtree.
+**Per sub-agent (`<module-path>/`):**
 
-**Sub-agent task per top-level module `<module-path>/`:**
-
-1. Walk every module under `<module-path>/` and read its identity document and `.archui/index.yaml`.
-2. For each module, scan its `resources/` directory (if present) for import statements, package dependencies, and references to other modules:
-   - Source imports (e.g. `import ... from '../../other-module'`)
-   - Package.json `dependencies` / `devDependencies` that correspond to sibling modules
-   - Explicit cross-module references in prose (identity documents)
-3. For each detected relationship, locate the target module's UUID from its `.archui/index.yaml`.
-4. If a link to that UUID is not already present in the source module's `links` array, add it using the appropriate relation from the vocabulary:
+1. Walk every module; read identity document and `.archui/index.yaml`
+2. Scan `resources/` for import statements, package dependencies, and cross-module references
+3. For each detected relationship, locate the target UUID and add if not already present:
    ```yaml
    links:
      - uuid: <target-uuid>
-       relation: depends-on   # or implements | extends | references | related-to
+       relation: depends-on
        description: <one-sentence reason>
    ```
-5. Apply the link inference rules: only add links you are confident about. Do not fabricate links for vague or indirect relationships.
-6. After completing link additions, run `archui validate .` scoped to the subtree and fix any `links/dangling-uuid` errors.
+4. Apply link inference rules — only add confident links
+5. Run `archui validate .` scoped to subtree; fix `links/dangling-uuid` errors
 
-**Coordination rule:** Sub-agents work in parallel. Links are directional — each sub-agent only adds outbound links from modules in its own subtree. After all sub-agents complete, the orchestrating agent runs `archui validate .` over the full project and fixes any residual errors before proceeding.
+**Coordination:** Sub-agents work in parallel. Each only adds outbound links from its own subtree.
 
-### Step 9: Multi-Agent Documentation Enrichment
+### 4.3 — Documentation Enrichment
 
-Spawn one sub-agent per top-level module directory. Each sub-agent is responsible for enriching the body of every identity document within its assigned subtree so that the documentation is genuinely useful — not just a name and a one-sentence description stub.
+**Per sub-agent (`<module-path>/`):**
 
-**Sub-agent task per top-level module `<module-path>/`:**
+1. Walk every module; classify documentation state:
+   - **Stub** — body empty or < 3 sentences → must enrich
+   - **Partial** — body exists but lacks key sections → fill gaps
+   - **Complete** → leave unchanged
 
-1. Walk every module under `<module-path>/` and read its identity document and `.archui/index.yaml`.
+2. For stub/partial modules, write or expand using the appropriate template:
 
-2. For each module, classify its current documentation state:
-   - **Stub** — body is empty or shorter than three sentences → must enrich
-   - **Partial** — body exists but lacks key sections (Overview, architecture, sub-module summary) → fill gaps
-   - **Complete** — body covers purpose, design decisions, and sub-module structure adequately → leave unchanged
+   **`README.md` / `SPEC.md`:**
+   - **Overview** — what, why, what problem (2–4 sentences)
+   - **Design** — key decisions, constraints, implementation approach summary
+   - **Sub-modules** — one sentence per child from `.archui/index.yaml` submodules
+   - **Dependencies** — one sentence per link explaining the relationship
 
-3. For stub and partial modules, write or expand the identity document body using the following structure:
+   **`HARNESS.md`:**
+   - **Overview** — what this harness tests (2–3 sentences)
+   - **Test Approach** — scenarios covered, acceptance criteria, verification method
 
-   **For `README.md` and `SPEC.md` (generic and spec modules):**
-   ```markdown
-   ## Overview
+   **`MEMORY.md`:**
+   - **Overview** — what knowledge this module records (2–3 sentences)
 
-   [What this module does, why it exists, what problem it solves — 2–4 sentences.]
+3. **Content quality rules:**
+   - Third-person present tense: "This module validates…"
+   - Every sentence must add information beyond the module name
+   - Do not reproduce source code — describe the design
+   - If `resources/` exists, read representative files for accurate facts
+   - Omit a section rather than writing "TODO" or "See code"
+   - 3–6 sentences per section
+   - If body exceeds 300 lines, prepend a table of contents with line numbers
 
-   ## Design
+4. **Never modify frontmatter.** Only the markdown body below the closing `---` is in scope.
 
-   [Key design decisions, constraints, or architectural choices. If the module has resources/, summarise the implementation approach without reproducing code. If the module is purely conceptual, describe the model.]
-
-   ## Sub-modules
-
-   [For each direct child module listed in .archui/index.yaml submodules, one sentence describing its role.]
-
-   ## Dependencies
-
-   [For each link in .archui/index.yaml links, one sentence explaining why this module depends on or relates to the target.]
-   ```
-
-   **For `HARNESS.md` (test harness modules):**
-   ```markdown
-   ## Overview
-
-   [What this harness tests, and how it verifies the parent SPEC — 2–3 sentences.]
-
-   ## Test Approach
-
-   [The testing strategy: what scenarios are covered, what acceptance criteria are checked, how results are verified.]
-   ```
-
-   **For `MEMORY.md` (persistent memory modules):**
-   ```markdown
-   ## Overview
-
-   [What accumulated knowledge or session state this memory module records — 2–3 sentences.]
-   ```
-
-4. **Content quality rules:**
-   - Write in third-person present tense: "This module validates…" not "I will validate…"
-   - Every sentence must add information not already implied by the module name
-   - Do not reproduce source code, config files, or file listings — describe the design, not the contents
-   - If `resources/` exists for this module, read representative files to extract accurate architectural facts before writing
-   - Omit a section entirely rather than writing a placeholder like "TODO" or "See code"
-   - Keep each section concise: aim for 3–6 sentences per section, not exhaustive prose
-
-5. **Progressive disclosure rule:** If a module's identity document body exceeds 300 lines after enrichment, prepend a table of contents with line numbers immediately after the frontmatter block.
-
-6. **Frontmatter must not change:** Never modify `name`, `description`, or any other frontmatter field. Only the markdown body below the closing `---` fence is within scope.
-
-**Coordination rule:** Sub-agents work in parallel across top-level modules. After all sub-agents complete, the orchestrating agent runs `archui validate .` to confirm no frontmatter was corrupted, then proceeds.
-
-### Step 10: Clean Up
-
-Delete `.archui/conversion-plan.yaml` — it is a temporary file and should not be committed.
+**Coordination:** Sub-agents work in parallel. After completion, orchestrating agent validates that no frontmatter was corrupted.
 
 ---
 
-## Hard Constraints
+## Phase 5: Clean Up
 
-- **Never** modify files that are already inside an existing `resources/` directory — only move new files in
-- **Never** change an existing UUID in any `.archui/index.yaml`
-- **Never** add `uuid`, `submodules`, or `links` to README.md frontmatter — these belong only in `.archui/index.yaml`
-- `description` must be a single sentence with no line breaks
-- All UUIDs must be 8 lowercase hex characters (e.g., `a3f2b1c9`) — never RFC 4122 format
-- Use `README.md` as the initial identity document for all modules. After resource archival, promote to `SPEC.md`, `HARNESS.md`, or `MEMORY.md` per Step 5e — never leave a module with `resources/` as a generic `README.md`
+Delete `.archui/conversion-plan.yaml` — it is a temporary file and should not be committed.
