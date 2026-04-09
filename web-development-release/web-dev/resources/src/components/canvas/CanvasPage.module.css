@@ -38,28 +38,33 @@
   top: var(--canvas-intro-top);
   left: var(--canvas-intro-left);
   max-width: var(--canvas-intro-max-width);
-  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 22px 18px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--line-default);
-  background: color-mix(in srgb, var(--surface-panel) 86%, transparent);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--surface-panel) 92%, var(--canvas-bg));
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(8px);
   z-index: 12;
 }
 
 .canvasIntro h1 {
-  font-family: var(--font-heading-sans);
-  font-size: 1.7rem;
-  font-weight: 700;
-  line-height: 1.08;
+  margin: 0;
+  font-family: var(--font-wordmark);
+  font-size: clamp(2rem, 3vw, 2.9rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.07em;
   color: var(--text-primary);
-  margin-top: 8px;
 }
 
 .canvasIntro p {
-  margin-top: 10px;
+  margin: 0;
+  max-width: 34ch;
   font-size: 0.92rem;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--text-secondary);
 }
 
@@ -138,26 +143,35 @@
   position: absolute;
   right: var(--canvas-selection-hint-right);
   bottom: var(--canvas-selection-hint-bottom);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 14px 16px;
-  border-radius: var(--radius-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--line-default);
-  background: color-mix(in srgb, var(--surface-panel) 86%, transparent);
-  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--surface-overlay) 92%, var(--canvas-bg));
+  color: var(--text-tertiary);
   z-index: 12;
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(8px);
+  max-width: calc(100% - 56px);
 }
 
 .selectionHint strong {
-  color: var(--text-primary);
-  font-size: 0.86rem;
+  color: var(--text-secondary);
+  font-size: 0.77rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .selectionHint span {
-  font-size: 0.78rem;
+  font-size: 0.77rem;
+  white-space: nowrap;
+}
+
+.selectionHintDivider {
+  color: var(--text-muted);
+  transform: translateY(-1px);
 }
 
 .controls {
@@ -253,8 +267,11 @@
   }
 
   .selectionHint {
+    gap: 6px;
     right: var(--canvas-selection-hint-mobile-right);
     left: var(--canvas-selection-hint-mobile-left);
     bottom: var(--canvas-selection-hint-mobile-bottom);
+    justify-content: center;
+    flex-wrap: wrap;
   }
 }

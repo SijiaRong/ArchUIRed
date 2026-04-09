@@ -1,94 +1,172 @@
-.root {
-  position: relative;
+/* ─── Scroll root ─────────────────────────────────────────────────────────── */
+
+.scrollRoot {
+  height: 100vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+}
+
+/* ─── Shared section base ─────────────────────────────────────────────────── */
+
+.sectionHero,
+.sectionManifesto,
+.sectionValue,
+.sectionWhyNow,
+.sectionCta {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  padding: 48px 24px;
-  background:
-    radial-gradient(circle at 20% 18%, color-mix(in srgb, var(--brand-honey) 18%, transparent), transparent 28%),
-    radial-gradient(circle at 78% 12%, color-mix(in srgb, var(--brand-lake) 18%, transparent), transparent 22%),
-    linear-gradient(180deg, var(--bg-base), color-mix(in srgb, var(--surface-canvas) 92%, var(--bg-base)));
-  color: var(--text);
-  gap: 30px;
+  padding: 80px 24px;
+  position: relative;
+  isolation: isolate;
+  scroll-snap-align: start;
 }
 
-.topActions {
+/* ─── Animation states ────────────────────────────────────────────────────── */
+
+/* clip-path reveal: headings slide up from clipped state */
+.revealClip {
+  clip-path: inset(0% 0 0 0) !important;
+  opacity: 1 !important;
+}
+
+.valueHeading,
+.whyNowHeading,
+.manifestoDeclaration {
+  clip-path: inset(100% 0 0 0);
+  opacity: 0;
+  transition:
+    clip-path 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s ease;
+}
+
+/* fade + slide: body text and cards */
+.fadeSlide {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.capabilityCard,
+.timelineItem,
+.card,
+.valueSubheading,
+.sectionLabel {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+/* plain reveal for kicker labels */
+.revealUp {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* ─── Breathing ambient orbs ─────────────────────────────────────────────── */
+
+@keyframes breatheHoney {
+  0%, 100% { transform: scale(1)    translate(0, 0);    opacity: 0.30; }
+  50%       { transform: scale(1.5)  translate(4%, 3%);  opacity: 0.50; }
+}
+
+@keyframes breatheLake {
+  0%, 100% { transform: scale(1)    translate(0, 0);    opacity: 0.22; }
+  50%       { transform: scale(1.4)  translate(-3%, 4%); opacity: 0.38; }
+}
+
+@keyframes breatheLakeAlt {
+  0%, 100% { transform: scale(1)    translate(0, 0);    opacity: 0.20; }
+  50%       { transform: scale(1.3)  translate(4%, -3%); opacity: 0.34; }
+}
+
+.sectionHero::before,
+.sectionHero::after,
+.sectionManifesto::before,
+.sectionManifesto::after,
+.sectionValue::before,
+.sectionValue::after,
+.sectionWhyNow::before,
+.sectionWhyNow::after,
+.sectionCta::before,
+.sectionCta::after {
+  content: '';
   position: absolute;
-  top: 24px;
-  right: 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 0;
+  will-change: transform, opacity;
 }
 
-.langBtn,
-.themeBtn {
-  border: 1px solid var(--line-default);
-  background: color-mix(in srgb, var(--surface-overlay) 88%, transparent);
-  color: var(--text-secondary);
-  border-radius: var(--radius-pill);
-  padding: 9px 14px;
-  cursor: pointer;
-  transition: transform .14s ease, color .14s ease, border-color .14s ease;
+.heroInner,
+.scrollHint,
+.manifestoInner,
+.valueInner,
+.whyNowInner,
+.card {
+  position: relative;
+  z-index: 1;
 }
 
-.langBtn {
-  font-family: var(--font-heading-sans);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  min-width: 42px;
-  text-align: center;
+/* ─── Word token animation ────────────────────────────────────────────────── */
+
+@keyframes wordFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.langBtn:hover,
-.themeBtn:hover {
-  transform: translateY(-1px);
-  color: var(--text-primary);
-  border-color: color-mix(in srgb, var(--brand-lake) 28%, var(--line-default));
+.wordToken {
+  display: inline-block;
+  opacity: 0;
+  animation: wordFadeIn 0.45s ease forwards;
+  white-space: pre;
 }
 
-.logoMark {
-  width: 56px;
-  height: 56px;
-  filter: drop-shadow(0 8px 20px color-mix(in srgb, var(--brand-honey) 28%, transparent));
+.wordAccent {
+  color: var(--brand-honey);
 }
 
-.hero {
+/* ─── Section 1: Hero ─────────────────────────────────────────────────────── */
+
+.sectionHero {
+  background: linear-gradient(180deg, var(--bg-base), color-mix(in srgb, var(--surface-canvas) 92%, var(--bg-base)));
+  color: var(--text);
+  overflow: hidden;
+}
+
+.sectionHero::before {
+  width: 55%; height: 55%;
+  left: -5%; top: -5%;
+  background: color-mix(in srgb, var(--brand-honey) 35%, transparent);
+  animation: breatheHoney 8s ease-in-out infinite;
+}
+
+.sectionHero::after {
+  width: 50%; height: 50%;
+  right: -5%; top: -5%;
+  background: color-mix(in srgb, var(--brand-lake) 28%, transparent);
+  animation: breatheLake 11s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+.heroInner {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  text-align: center;
 }
 
-.logoRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  position: relative;
-}
-
-.logoRow .logoMark {
-  margin-left: -70px;
-}
-
-.wordmark {
-  font-family: var(--font-wordmark);
-  font-size: clamp(2rem, 4.5vw, 3rem);
-  font-weight: 800;
-  letter-spacing: -0.06em;
-  line-height: 1;
-  color: var(--text-primary);
-}
-
-.logoFull {
-  display: block;
-  height: 56px;
-  width: auto;
-  max-width: 100%;
-  object-fit: contain;
+.logoMark {
+  width: 72px;
+  height: 72px;
+  filter: drop-shadow(0 8px 20px color-mix(in srgb, var(--brand-honey) 28%, transparent));
 }
 
 .logo {
@@ -103,66 +181,303 @@
 .subtitle {
   max-width: 560px;
   text-align: center;
-  font-family: var(--font-heading-sans);
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--brand-honey);
-  letter-spacing: 0.02em;
-}
-
-.tagline {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  color: var(--text-tertiary);
-  letter-spacing: 0.06em;
-}
-
-.highlights {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  width: min(780px, 100%);
-}
-
-.highlightCard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 20px 18px;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--line-default);
-  background: color-mix(in srgb, var(--surface-panel) 88%, transparent);
-  backdrop-filter: blur(14px);
-  box-shadow: var(--shadow-soft);
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-}
-
-.highlightCard:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-card);
-  border-color: color-mix(in srgb, var(--brand-honey) 28%, var(--line-default));
-}
-
-.highlightIcon {
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-.highlightTitle {
-  font-family: var(--font-heading-sans);
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.highlightDesc {
-  font-size: 0.8rem;
-  line-height: 1.55;
+  font-size: 1rem;
+  font-weight: 500;
   color: var(--text-secondary);
 }
 
+.scrollHint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.4;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ─── Section 2: Manifesto ────────────────────────────────────────────────── */
+
+.sectionManifesto {
+  background: var(--bg-base);
+  color: var(--text);
+  overflow: hidden;
+}
+
+.sectionManifesto::before {
+  width: 60%; height: 60%;
+  right: -10%; bottom: -15%;
+  background: color-mix(in srgb, var(--brand-honey) 20%, transparent);
+  animation: breatheHoney 10s ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+.sectionManifesto::after {
+  width: 45%; height: 45%;
+  left: -8%; top: 10%;
+  background: color-mix(in srgb, var(--brand-lake) 16%, transparent);
+  animation: breatheLakeAlt 13s ease-in-out infinite;
+  animation-delay: -7s;
+}
+
+.manifestoInner {
+  max-width: 780px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.manifestoKicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brand-honey);
+  font-weight: 600;
+}
+
+.manifestoLine {
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  font-family: var(--font-heading-sans);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-primary);
+  margin: 0;
+  min-height: 1.4em;
+}
+
+.manifestoLineMed {
+  font-size: clamp(1.25rem, 2.8vw, 1.8rem);
+  font-family: var(--font-heading-sans);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text-secondary);
+  margin: 0;
+  min-height: 1.4em;
+}
+
+.manifestoDeclaration {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-family: var(--font-heading-sans);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--brand-honey);
+  border-left: 3px solid var(--brand-honey);
+  padding-left: 20px;
+  margin-top: 8px;
+}
+
+/* ─── Section 3: Value Proposition ───────────────────────────────────────── */
+
+.sectionValue {
+  background: color-mix(in srgb, var(--surface-canvas) 96%, var(--brand-honey));
+  color: var(--text);
+  overflow: hidden;
+}
+
+.sectionValue::before {
+  width: 55%; height: 55%;
+  left: -8%; bottom: -10%;
+  background: color-mix(in srgb, var(--brand-honey) 22%, transparent);
+  animation: breatheHoney 9s ease-in-out infinite;
+  animation-delay: -5s;
+}
+
+.sectionValue::after {
+  width: 42%; height: 42%;
+  right: -5%; top: 5%;
+  background: color-mix(in srgb, var(--brand-lake) 20%, transparent);
+  animation: breatheLake 12s ease-in-out infinite;
+  animation-delay: -1s;
+}
+
+.valueInner {
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sectionLabel {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brand-honey);
+  font-weight: 600;
+}
+
+.valueHeading {
+  font-family: var(--font-heading-sans);
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.valueSubheading {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-width: 620px;
+  margin: 0;
+}
+
+.capabilityGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.capabilityCard {
+  padding: 24px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--line-default);
+  background: color-mix(in srgb, var(--surface-panel) 88%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.capabilityIcon {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: var(--brand-honey);
+}
+
+.capabilityTitle {
+  font-family: var(--font-heading-sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.capabilityBody {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ─── Section 4: Why Now ──────────────────────────────────────────────────── */
+
+.sectionWhyNow {
+  background: var(--bg-base);
+  color: var(--text);
+  overflow: hidden;
+}
+
+.sectionWhyNow::before {
+  width: 50%; height: 50%;
+  left: -5%; top: -10%;
+  background: color-mix(in srgb, var(--brand-lake) 22%, transparent);
+  animation: breatheLakeAlt 10s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+.sectionWhyNow::after {
+  width: 45%; height: 45%;
+  right: -8%; bottom: -5%;
+  background: color-mix(in srgb, var(--brand-honey) 18%, transparent);
+  animation: breatheHoney 14s ease-in-out infinite;
+  animation-delay: -8s;
+}
+
+.whyNowInner {
+  max-width: 780px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.whyNowHeading {
+  font-family: var(--font-heading-sans);
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 8px;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line-default);
+}
+
+.timelineItem:last-child {
+  border-bottom: none;
+}
+
+.timelineNum {
+  font-family: var(--font-wordmark);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--brand-honey);
+  letter-spacing: 0.05em;
+  padding-top: 2px;
+  flex-shrink: 0;
+  width: 28px;
+}
+
+.timelineContent {
+  flex: 1;
+}
+
+.timelineTitle {
+  font-family: var(--font-heading-sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+
+.timelineBody {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ─── Section 5: CTA ─────────────────────────────────────────────────────── */
+
+.sectionCta {
+  background: var(--bg-base);
+  overflow: hidden;
+}
+
+.sectionCta::before {
+  width: 65%; height: 65%;
+  left: -10%; bottom: -15%;
+  background: color-mix(in srgb, var(--brand-honey) 25%, transparent);
+  animation: breatheHoney 9s ease-in-out infinite;
+  animation-delay: -6s;
+}
+
+.sectionCta::after {
+  width: 45%; height: 45%;
+  right: -5%; top: 10%;
+  background: color-mix(in srgb, var(--brand-lake) 20%, transparent);
+  animation: breatheLake 13s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
 .card {
-  width: min(780px, 100%);
+  width: min(720px, 100%);
   padding: 30px;
   border-radius: var(--radius-2xl);
   border: 1px solid var(--line-default);
@@ -181,9 +496,9 @@
 .card h1 {
   font-family: var(--font-heading-sans);
   margin-top: 14px;
-  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.08;
   color: var(--text-primary);
 }
 
@@ -236,185 +551,155 @@
   background: color-mix(in srgb, var(--brand-lake) 7%, var(--surface-raised));
 }
 
-.footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-/* ── CLI Section ── */
-
-.cliSection {
-  width: min(780px, 100%);
-  padding: 30px;
-  border-radius: var(--radius-2xl);
-  border: 1px solid var(--line-default);
-  background: color-mix(in srgb, var(--surface-panel) 90%, transparent);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(18px);
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.cliHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.cliTitle {
-  font-family: var(--font-heading-sans);
-  font-size: clamp(1.3rem, 3vw, 1.8rem);
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.cliBody {
-  max-width: 620px;
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.cliCommandRow {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-}
-
-.cliHeroCommand {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px 22px;
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-  border: 1px solid var(--line-subtle);
-  border-right: none;
-  background: color-mix(in srgb, var(--surface-overlay) 60%, transparent);
-}
-
-.cliPrompt {
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--brand-honey);
-  line-height: 1;
-}
-
-.cliCommand {
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  word-break: break-all;
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-}
-
-.copyBtn {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  border: 1px solid var(--line-subtle);
-  border-left: none;
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-  background: color-mix(in srgb, var(--surface-overlay) 60%, transparent);
+.inlineBtn {
+  margin-top: 16px;
+  border: none;
+  background: none;
   color: var(--text-tertiary);
-  font-size: 1.1rem;
   cursor: pointer;
-  transition: color .14s ease, background .14s ease;
-}
-
-.copyBtn:hover {
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--surface-overlay) 80%, transparent);
-}
-
-.copyBtnCopied {
-  color: var(--brand-honey);
-  font-size: 0.72rem;
-  font-family: var(--font-heading-sans);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.cliInstallRow {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border-top: 1px solid var(--line-subtle);
-  padding-top: 18px;
-}
-
-.cliInstallLabel {
-  font-family: var(--font-heading-sans);
   font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  letter-spacing: 0.02em;
 }
 
-.cliInstallCommand {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-  border: 1px solid var(--line-subtle);
-  border-right: none;
-  background: color-mix(in srgb, var(--surface-overlay) 40%, transparent);
+.urlRow {
+  margin-top: 12px;
 }
 
-.cliInstallCommand .cliCommand {
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.teamName {
-  font-family: var(--font-heading-sans);
-  font-size: 0.82rem;
-  font-weight: 700;
+.urlInput {
+  width: 100%;
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--surface-elevated) 92%, transparent);
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
+  outline: none;
 }
 
-.footerDot {
-  color: var(--text-tertiary);
-  font-size: 0.75rem;
+.urlInput:focus {
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-ring) 12%, transparent);
 }
 
-.footerTagline {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  letter-spacing: 0.04em;
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollRoot {
+    scroll-behavior: auto;
+  }
+
+  .sectionHero::before,
+  .sectionHero::after,
+  .sectionManifesto::before,
+  .sectionManifesto::after,
+  .sectionValue::before,
+  .sectionValue::after,
+  .sectionWhyNow::before,
+  .sectionWhyNow::after,
+  .sectionCta::before,
+  .sectionCta::after {
+    animation: none !important;
+    transform: none !important;
+    opacity: 0.24;
+  }
+
+  .scrollHint,
+  .wordToken {
+    animation: none !important;
+  }
+
+  .wordToken {
+    opacity: 1;
+    transform: none;
+  }
+
+  .valueHeading,
+  .whyNowHeading,
+  .manifestoDeclaration,
+  .capabilityCard,
+  .timelineItem,
+  .card,
+  .valueSubheading,
+  .sectionLabel {
+    transition: none !important;
+  }
 }
 
 @media (max-width: 720px) {
+  .sectionHero::before,
+  .sectionHero::after,
+  .sectionManifesto::before,
+  .sectionManifesto::after,
+  .sectionValue::before,
+  .sectionValue::after,
+  .sectionWhyNow::before,
+  .sectionWhyNow::after,
+  .sectionCta::before,
+  .sectionCta::after {
+    filter: blur(82px);
+  }
+
+  .sectionHero::before {
+    width: 48%;
+    height: 48%;
+  }
+
+  .sectionHero::after {
+    width: 44%;
+    height: 44%;
+  }
+
+  .sectionManifesto::before {
+    width: 52%;
+    height: 52%;
+  }
+
+  .sectionManifesto::after {
+    width: 38%;
+    height: 38%;
+  }
+
+  .sectionValue::before {
+    width: 48%;
+    height: 48%;
+  }
+
+  .sectionValue::after {
+    width: 36%;
+    height: 36%;
+  }
+
+  .sectionWhyNow::before {
+    width: 44%;
+    height: 44%;
+  }
+
+  .sectionWhyNow::after {
+    width: 38%;
+    height: 38%;
+  }
+
+  .sectionCta::before {
+    width: 56%;
+    height: 56%;
+  }
+
+  .sectionCta::after {
+    width: 38%;
+    height: 38%;
+  }
+
+  .capabilityGrid {
+    grid-template-columns: 1fr;
+  }
+
   .actionGrid {
     grid-template-columns: 1fr;
   }
 
-  .highlights {
-    grid-template-columns: 1fr;
-  }
-
-  .cliSection {
-    padding: 22px 18px;
-  }
-
-  .cliHeroCommand,
-  .cliInstallCommand {
-    padding: 14px 14px;
+  .sectionHero,
+  .sectionManifesto,
+  .sectionValue,
+  .sectionWhyNow,
+  .sectionCta {
+    padding: 60px 20px;
   }
 }
