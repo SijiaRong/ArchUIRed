@@ -1,5 +1,7 @@
 schema_version: 1
 uuid: 5ae7bd27
+submodules:
+  claude-code-harness: "78d5ffc5"
 links:
   - uuid: 6aea7af7
     relation: depends-on

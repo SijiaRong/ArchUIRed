@@ -1,10 +1,18 @@
+/* ======================================================
+   LinkEdge label pill
+   Token source: gui/components/link-renderer/resources/edge-reference.md
+   ====================================================== */
+
 .label {
-  background: var(--bg-surface0);
-  border: 1px solid var(--bg-surface1);
-  border-radius: var(--radius-xs);
-  padding: 2px 6px;
-  font-size: 0.65rem;
-  color: var(--overlay1);
+  background: color-mix(in srgb, var(--surface-overlay) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--edge-accent) 28%, var(--line-subtle));
+  border-radius: var(--radius-pill);
+  padding: 4px 9px;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--edge-accent) 74%, var(--text-secondary));
   pointer-events: all;
   cursor: default;
+  box-shadow: var(--shadow-float);
 }

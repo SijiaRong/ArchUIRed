@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchUI Web 版本规划</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a2e;
+  --ink-light: #3d3f52;
+  --ink-muted: #7a7d90;
+  --surface: #ffffff;
+  --surface-warm: #fafafa;
+  --surface-cool: #f5f5f5;
+  --border: #e8e8ec;
+  --border-light: #f0f0f2;
+  --accent: #F07040;
+  --accent-soft: rgba(240,112,64,0.06);
+  --accent-dark: #d85a2a;
+  --green: #3a8a5a;
+  --green-soft: #e6f2eb;
+  --blue: #5a7a9a;
+  --blue-soft: #e8eff5;
+  --gold: #c08030;
+  --gold-soft: #faf0dd;
+  --sans: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Utility */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+.section-number {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.section-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1.3;
+  margin-bottom: 20px;
+  color: var(--ink);
+}
+
+.section-desc {
+  font-size: 1.05rem;
+  color: var(--ink-light);
+  max-width: 640px;
+  line-height: 1.8;
+}
+
+section {
+  padding: 100px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* ==================== HERO ==================== */
+.hero {
+  padding: 140px 0 120px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -100px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.hero-title {
+  font-family: var(--sans);
+  font-weight: 900;
+  font-size: clamp(2.8rem, 5vw, 4.2rem);
+  line-height: 1.15;
+  margin-bottom: 28px;
+  letter-spacing: -0.02em;
+}
+
+.hero-title em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.hero-tagline {
+  font-size: 1.2rem;
+  color: var(--ink-light);
+  font-weight: 300;
+  line-height: 1.8;
+  max-width: 600px;
+  margin-bottom: 48px;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 40px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
+
+.hero-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hero-meta-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.hero-meta-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* ==================== POSITIONING ==================== */
+.positioning {
+  background: var(--surface);
+}
+
+.positioning-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.pos-card {
+  padding: 48px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.pos-card:hover {
+  border-color: var(--ink-muted);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+}
+
+.pos-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+}
+
+.pos-card:nth-child(1) .pos-card-icon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.pos-card:nth-child(2) .pos-card-icon {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.pos-card-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.35rem;
+  margin-bottom: 8px;
+}
+
+.pos-card-subtitle {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  margin-bottom: 16px;
+}
+
+.pos-card-desc {
+  color: var(--ink-light);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ==================== USER STORY ==================== */
+.story {
+  background: var(--surface-warm);
+}
+
+.story-flow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 56px;
+  position: relative;
+}
+
+.story-flow::before {
+  content: '';
+  position: absolute;
+  top: 80px;
+  left: 12.5%;
+  right: 12.5%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--border) 0, var(--border) 8px, transparent 8px, transparent 16px);
+}
+
+.story-step {
+  text-align: center;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.story-step-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.story-step:nth-child(1) .story-step-num { background: #fee; color: var(--accent); }
+.story-step:nth-child(2) .story-step-num { background: var(--blue-soft); color: var(--blue); }
+.story-step:nth-child(3) .story-step-num { background: var(--gold-soft); color: var(--gold); }
+.story-step:nth-child(4) .story-step-num { background: var(--green-soft); color: var(--green); }
+
+.story-step-visual {
+  height: 120px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+}
+
+.story-step:nth-child(1) .story-step-visual {
+  background: repeating-linear-gradient(45deg, #fafafa, #fafafa 4px, #f0f0f0 4px, #f0f0f0 8px);
+}
+
+.story-step:nth-child(1) .story-step-visual::after {
+  content: '😫';
+  font-size: 2.4rem;
+  filter: grayscale(0.4);
+}
+
+.story-step:nth-child(2) .story-step-visual {
+  background: linear-gradient(135deg, var(--blue-soft), #f0f4fa);
+}
+
+.story-step:nth-child(2) .story-step-visual::after {
+  content: '🔍';
+  font-size: 2.4rem;
+}
+
+.story-step:nth-child(3) .story-step-visual {
+  background: linear-gradient(135deg, var(--gold-soft), #faf5e8);
+}
+
+.story-step:nth-child(3) .story-step-visual::after {
+  content: '🔄';
+  font-size: 2.4rem;
+}
+
+.story-step:nth-child(4) .story-step-visual {
+  background: linear-gradient(135deg, var(--green-soft), #e8f5ed);
+  border-color: var(--green);
+  border-width: 2px;
+}
+
+.story-step:nth-child(4) .story-step-visual::after {
+  content: '✨';
+  font-size: 2.4rem;
+}
+
+.story-step-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.story-step-desc {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  line-height: 1.6;
+}
+
+.story-arrow {
+  position: absolute;
+  top: 76px;
+  font-size: 1.2rem;
+  color: var(--ink-muted);
+  z-index: 2;
+}
+
+/* ==================== ARCHITECTURE ==================== */
+.arch {
+  background: var(--surface);
+}
+
+.arch-diagram {
+  margin-top: 48px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.arch-layer {
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.arch-layer + .arch-layer {
+  border-top: 1px solid var(--border);
+}
+
+.arch-layer-label {
+  writing-mode: vertical-rl;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  min-width: 24px;
+  text-align: center;
+}
+
+.arch-boxes {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.arch-box {
+  flex: 1;
+  min-width: 160px;
+  padding: 20px 24px;
+  border-radius: 3px;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.arch-box-sub {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 400;
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+.arch-layer:nth-child(1) .arch-box {
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  border: 1px solid rgba(196, 75, 43, 0.15);
+}
+
+.arch-layer:nth-child(2) .arch-box {
+  background: var(--blue-soft);
+  color: var(--blue);
+  border: 1px solid rgba(43, 95, 196, 0.15);
+}
+
+.arch-layer:nth-child(3) .arch-box {
+  background: var(--surface-cool);
+  color: var(--ink-light);
+  border: 1px solid var(--border);
+}
+
+/* ==================== TIMELINE ==================== */
+.timeline {
+  background: var(--surface-warm);
+}
+
+.timeline-track {
+  margin-top: 56px;
+  position: relative;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 28px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item {
+  display: flex;
+  gap: 36px;
+  padding-bottom: 48px;
+  position: relative;
+}
+
+.timeline-item:last-child { padding-bottom: 0; }
+
+.timeline-dot {
+  width: 56px;
+  min-width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-item:nth-child(1) .timeline-dot { background: var(--accent-soft); color: var(--accent); }
+.timeline-item:nth-child(2) .timeline-dot { background: var(--blue-soft); color: var(--blue); }
+.timeline-item:nth-child(3) .timeline-dot { background: var(--green-soft); color: var(--green); border: 2px solid var(--green); }
+.timeline-item:nth-child(4) .timeline-dot { background: var(--gold-soft); color: var(--gold); }
+
+.timeline-content {
+  flex: 1;
+  padding-top: 4px;
+}
+
+.timeline-phase {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+
+.timeline-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.timeline-duration {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  margin-bottom: 12px;
+}
+
+.timeline-tasks {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timeline-tasks li {
+  font-size: 0.82rem;
+  padding: 5px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--ink-light);
+}
+
+.timeline-item:nth-child(3) .timeline-title {
+  color: var(--green);
+}
+
+.timeline-highlight {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 2px;
+  margin-bottom: 12px;
+}
+
+.timeline-item:nth-child(3) .timeline-highlight {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+/* ==================== MARKETPLACE ==================== */
+.marketplace {
+  background: var(--surface);
+}
+
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.market-card {
+  padding: 36px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.market-card:hover {
+  border-color: var(--ink-muted);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+.market-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.market-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.market-card:nth-child(1) .market-card-icon { background: var(--blue-soft); }
+.market-card:nth-child(2) .market-card-icon { background: var(--accent-soft); }
+.market-card:nth-child(3) .market-card-icon { background: var(--green-soft); }
+.market-card:nth-child(4) .market-card-icon { background: var(--gold-soft); }
+
+.market-card-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.market-card-desc {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+}
+
+/* Style variants showcase */
+.variants {
+  margin-top: 56px;
+}
+
+.variants-header {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin-bottom: 24px;
+  color: var(--ink);
+}
+
+.variants-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.variant-card {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.variant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.variant-preview {
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+}
+
+.variant-preview-input {
+  width: 70%;
+  height: 10px;
+  border-radius: 2px;
+  background: rgba(0,0,0,0.08);
+}
+
+.variant-preview-btn {
+  width: 50%;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* Variant 1: Minimal White */
+.variant-card:nth-child(1) .variant-preview {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+.variant-card:nth-child(1) .variant-preview-btn { background: #1a1a1a; }
+.variant-card:nth-child(1) .variant-preview-input { background: #f0f0f0; }
+
+/* Variant 2: Gradient Glass */
+.variant-card:nth-child(2) .variant-preview {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-bottom: none;
+}
+.variant-card:nth-child(2) .variant-preview-input { background: rgba(255,255,255,0.25); }
+.variant-card:nth-child(2) .variant-preview-btn { background: rgba(255,255,255,0.9); }
+
+/* Variant 3: Dark Mode */
+.variant-card:nth-child(3) .variant-preview {
+  background: #1a1a2e;
+  border-bottom: none;
+}
+.variant-card:nth-child(3) .variant-preview-input { background: rgba(255,255,255,0.1); }
+.variant-card:nth-child(3) .variant-preview-btn { background: #e94560; }
+
+/* Variant 4: Warm Earth */
+.variant-card:nth-child(4) .variant-preview {
+  background: #faf5f0;
+  border-bottom: 1px solid #e8dfd5;
+}
+.variant-card:nth-child(4) .variant-preview-input { background: #e8dfd5; }
+.variant-card:nth-child(4) .variant-preview-btn { background: #F07040; }
+
+.variant-label {
+  padding: 12px 16px;
+  font-size: 0.78rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.variant-name { font-weight: 500; }
+
+.variant-tag {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 2px 8px;
+  background: var(--surface-cool);
+  border-radius: 2px;
+  color: var(--ink-muted);
+}
+
+/* ==================== REPLACE FLOW ==================== */
+.replace-flow {
+  margin-top: 56px;
+  padding: 40px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--surface-warm);
+}
+
+.replace-flow-title {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin-bottom: 32px;
+}
+
+.replace-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  justify-content: space-between;
+}
+
+.replace-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.replace-step-box {
+  display: inline-block;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  font-size: 0.82rem;
+  font-weight: 500;
+  min-width: 140px;
+  transition: all 0.3s ease;
+}
+
+.replace-step:nth-child(1) .replace-step-box { border-left: 3px solid var(--accent); }
+.replace-step:nth-child(3) .replace-step-box { border-left: 3px solid var(--blue); }
+.replace-step:nth-child(5) .replace-step-box { border-left: 3px solid var(--gold); }
+.replace-step:nth-child(7) .replace-step-box { border-left: 3px solid var(--green); }
+
+.replace-step-sub {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--ink-muted);
+  display: block;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.replace-arrow {
+  font-family: var(--mono);
+  color: var(--ink-muted);
+  font-size: 1.2rem;
+  flex: 0;
+  padding: 0 8px;
+}
+
+/* ==================== TECH STACK ==================== */
+.techstack {
+  background: var(--surface-warm);
+}
+
+.tech-table {
+  margin-top: 48px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tech-table th,
+.tech-table td {
+  text-align: left;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.tech-table th {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  font-weight: 500;
+  border-bottom: 2px solid var(--border);
+}
+
+.tech-table td:first-child {
+  font-weight: 600;
+  color: var(--ink);
+  width: 20%;
+}
+
+.tech-table td:nth-child(2) {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--accent-dark);
+}
+
+.tech-table td:nth-child(3) {
+  color: var(--ink-light);
+  font-size: 0.85rem;
+}
+
+.tech-table tr:hover td {
+  background: rgba(0,0,0,0.01);
+}
+
+/* ==================== DEMO PRIORITY ==================== */
+.demo {
+  background: var(--surface);
+}
+
+.demo-card {
+  margin-top: 48px;
+  border: 2px solid var(--accent);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.demo-card-header {
+  background: var(--accent);
+  color: white;
+  padding: 20px 36px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.demo-card-body {
+  padding: 40px 36px;
+}
+
+.demo-steps {
+  list-style: none;
+  counter-reset: demo;
+}
+
+.demo-steps li {
+  counter-increment: demo;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.demo-steps li:last-child { border-bottom: none; }
+
+.demo-steps li::before {
+  content: counter(demo);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-steps li strong {
+  color: var(--accent-dark);
+}
+
+.demo-tagline {
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: var(--surface-warm);
+  border-left: 3px solid var(--accent);
+  font-family: var(--sans);
+  font-size: 1.05rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* ==================== FOOTER ==================== */
+.footer {
+  padding: 60px 0;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.footer-logo {
+  font-family: var(--sans);
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.footer-sub {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.1em;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate {
+  opacity: 0;
+  animation: fadeUp 0.6s ease forwards;
+}
+
+.animate-d1 { animation-delay: 0.1s; }
+.animate-d2 { animation-delay: 0.2s; }
+.animate-d3 { animation-delay: 0.3s; }
+.animate-d4 { animation-delay: 0.4s; }
+.animate-d5 { animation-delay: 0.5s; }
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .container { padding: 0 24px; }
+  section { padding: 64px 0; }
+  .hero { padding: 80px 0; }
+  .positioning-grid { grid-template-columns: 1fr; }
+  .story-flow { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .story-flow::before { display: none; }
+  .variants-grid { grid-template-columns: 1fr 1fr; }
+  .market-grid { grid-template-columns: 1fr; }
+  .replace-steps { flex-direction: column; gap: 12px; }
+  .replace-arrow { transform: rotate(90deg); }
+  .hero-meta { flex-wrap: wrap; gap: 24px; }
+  .arch-layer { flex-direction: column; }
+  .arch-layer-label { writing-mode: horizontal-tb; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow animate">Hackathon 2026 // Web 版本规划</div>
+    <h1 class="hero-title animate animate-d1">
+      ArchUI<br><em>Web 版本规划</em>
+    </h1>
+    <p class="hero-tagline animate animate-d2">
+      模块化文档编排系统 — 让文档可复用、可替换，直接生成代码。<br>
+      画布编排知识模块，广场共享设计样式，AI 一键生成。
+    </p>
+    <div class="hero-meta animate animate-d3">
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">团队</span>
+        <span class="hero-meta-value">Arch Park</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">平台</span>
+        <span class="hero-meta-value">Web (React + Express)</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">核心差异</span>
+        <span class="hero-meta-value">模块广场 + 样式替换</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">周期</span>
+        <span class="hero-meta-value">5 ~ 6 周</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POSITIONING -->
+<section class="positioning">
+  <div class="container">
+    <span class="section-number">01 — 产品定位</span>
+    <h2 class="section-title">两个核心价值</h2>
+    <p class="section-desc">ArchUI Web 版围绕两个互相增强的产品支柱构建 — 画布让用户编排自己的模块，广场让用户获取和共享更好的模块。</p>
+    <div class="positioning-grid">
+      <div class="pos-card">
+        <div class="pos-card-icon">
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M17.5 14v7M14 17.5h7"/></svg>
+        </div>
+        <h3 class="pos-card-title">画布编排</h3>
+        <div class="pos-card-subtitle">Canvas Editor</div>
+        <p class="pos-card-desc">节点画布可视化知识模块关系。拖拽连线、无限嵌套、双击钻入。人类在画布上编排，AI agent 按需加载模块上下文生成代码。</p>
+      </div>
+      <div class="pos-card">
+        <div class="pos-card-icon">
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 0 1 4 9 15 15 0 0 1-4 9m0-18a15 15 0 0 0-4 9 15 15 0 0 0 4 9M3 12h18"/></svg>
+        </div>
+        <h3 class="pos-card-title">模块广场</h3>
+        <div class="pos-card-subtitle">Module Marketplace</div>
+        <p class="pos-card-desc">共享、发现、一键替换模块。同一功能多种样式 — 用户不需要从零设计，从广场选一个好看的模块替换进项目，AI 自动重新生成代码。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USER STORY -->
+<section class="story">
+  <div class="container">
+    <span class="section-number">02 — 核心用户故事</span>
+    <h2 class="section-title">从丑到美，一键替换</h2>
+    <p class="section-desc">用户有一个难看的登录页面。在模块广场找到精美的登录模块，一键替换，AI 根据新 spec 重新生成代码 — 立刻得到漂亮的登录页面。</p>
+    <div class="story-flow">
+      <div class="story-step">
+        <div class="story-step-num">01</div>
+        <div class="story-step-visual"></div>
+        <div class="story-step-title">丑陋的登录页</div>
+        <div class="story-step-desc">项目里现有的登录模块，样式粗糙、布局简陋</div>
+      </div>
+      <div class="story-step">
+        <div class="story-step-num">02</div>
+        <div class="story-step-visual"></div>
+        <div class="story-step-title">浏览模块广场</div>
+        <div class="story-step-desc">搜索"登录"，发现多种精美样式的登录模块可供选择</div>
+      </div>
+      <div class="story-step">
+        <div class="story-step-num">03</div>
+        <div class="story-step-visual"></div>
+        <div class="story-step-title">一键替换</div>
+        <div class="story-step-desc">选中新模块，确认替换，UUID 链接自动重绑</div>
+      </div>
+      <div class="story-step">
+        <div class="story-step-num">04</div>
+        <div class="story-step-visual"></div>
+        <div class="story-step-title">AI 重新生成</div>
+        <div class="story-step-desc">AI 根据新模块 spec 重新生成代码，立刻得到漂亮的登录页面</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="arch">
+  <div class="container">
+    <span class="section-number">03 — 系统架构</span>
+    <h2 class="section-title">三层架构</h2>
+    <p class="section-desc">前端负责可视化与交互，后端负责文件系统操作与广场服务，文件系统是唯一数据源。</p>
+    <div class="arch-diagram">
+      <div class="arch-layer">
+        <div class="arch-layer-label">前端</div>
+        <div class="arch-boxes">
+          <div class="arch-box">
+            画布编辑器
+            <span class="arch-box-sub">React Flow + Zustand</span>
+          </div>
+          <div class="arch-box">
+            模块广场
+            <span class="arch-box-sub">搜索 / 浏览 / 对比</span>
+          </div>
+          <div class="arch-box">
+            模块详情 & 预览
+            <span class="arch-box-sub">Markdown 渲染 + 样式预览</span>
+          </div>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-label">后端</div>
+        <div class="arch-boxes">
+          <div class="arch-box">
+            /api/fs/*
+            <span class="arch-box-sub">文件系统 CRUD</span>
+          </div>
+          <div class="arch-box">
+            /api/market/*
+            <span class="arch-box-sub">广场 Registry API</span>
+          </div>
+          <div class="arch-box">
+            /api/sync/*
+            <span class="arch-box-sub">LLM 同步触发</span>
+          </div>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-label">数据</div>
+        <div class="arch-boxes">
+          <div class="arch-box">
+            本地文件系统
+            <span class="arch-box-sub">.archui/ + README.md</span>
+          </div>
+          <div class="arch-box">
+            Git 版本管理
+            <span class="arch-box-sub">git diff → LLM sync</span>
+          </div>
+          <div class="arch-box">
+            广场 Registry
+            <span class="arch-box-sub">GitHub repo / registry.json</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline">
+  <div class="container">
+    <span class="section-number">04 — 实施路线</span>
+    <h2 class="section-title">四阶段推进</h2>
+    <p class="section-desc">从画布 MVP 到模块广场，渐进式交付，每个阶段都有可展示的产出。</p>
+    <div class="timeline-track">
+      <div class="timeline-line"></div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot">P1</div>
+        <div class="timeline-content">
+          <div class="timeline-phase">Phase 1</div>
+          <div class="timeline-title">画布 MVP</div>
+          <div class="timeline-duration">1 周</div>
+          <ul class="timeline-tasks">
+            <li>Landing 页面</li>
+            <li>模块树解析</li>
+            <li>Primary Module Card</li>
+            <li>Link Edge 渲染</li>
+            <li>Drill-down 导航</li>
+            <li>面包屑回溯</li>
+            <li>Detail Panel</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot">P2</div>
+        <div class="timeline-content">
+          <div class="timeline-phase">Phase 2</div>
+          <div class="timeline-title">编辑与同步</div>
+          <div class="timeline-duration">1 周</div>
+          <ul class="timeline-tasks">
+            <li>创建 / 重命名 / 删除模块</li>
+            <li>拖线创建链接</li>
+            <li>布局持久化</li>
+            <li>文件监听</li>
+            <li>LLM Sync 入口</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot">P3</div>
+        <div class="timeline-content">
+          <div class="timeline-phase">Phase 3</div>
+          <div class="timeline-title">模块广场</div>
+          <span class="timeline-highlight">核心差异化</span>
+          <div class="timeline-duration">2 周</div>
+          <ul class="timeline-tasks">
+            <li>广场浏览 & 搜索</li>
+            <li>模块预览页</li>
+            <li>样式变体对比</li>
+            <li>一键拉取模块</li>
+            <li>一键替换模块</li>
+            <li>差异预览</li>
+            <li>UUID 链接自动重绑</li>
+            <li>AI 重新生成触发</li>
+            <li>模块发布</li>
+            <li>版本管理</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot">P4</div>
+        <div class="timeline-content">
+          <div class="timeline-phase">Phase 4</div>
+          <div class="timeline-title">设计打磨与部署</div>
+          <div class="timeline-duration">1 周</div>
+          <ul class="timeline-tasks">
+            <li>Design Token 实现</li>
+            <li>Light / Dark 模式</li>
+            <li>动画与过渡</li>
+            <li>Docker 打包</li>
+            <li>E2E 测试</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- MARKETPLACE DETAIL -->
+<section class="marketplace">
+  <div class="container">
+    <span class="section-number">05 — 模块广场详解</span>
+    <h2 class="section-title">共享、发现、一键替换</h2>
+    <p class="section-desc">模块广场是 ArchUI 区别于所有竞品的关键功能。同一功能、多种样式，用户不需要从零设计。</p>
+
+    <div class="market-grid">
+      <div class="market-card">
+        <div class="market-card-header">
+          <div class="market-card-icon">🔍</div>
+          <div class="market-card-title">浏览与发现</div>
+        </div>
+        <div class="market-card-desc">按领域/标签分类展示模块（登录、支付、鉴权、仪表盘…）。关键词搜索、热度排序、评分筛选。每个模块有结构预览 + 效果截图。</div>
+      </div>
+      <div class="market-card">
+        <div class="market-card-header">
+          <div class="market-card-icon">🔄</div>
+          <div class="market-card-title">一键替换</div>
+        </div>
+        <div class="market-card-desc">选中本地模块 → 选择广场替换模块 → 预览 diff → 确认替换。UUID 链接自动重绑，旧模块归档。AI 根据新 spec 重新生成对应代码。</div>
+      </div>
+      <div class="market-card">
+        <div class="market-card-header">
+          <div class="market-card-icon">📦</div>
+          <div class="market-card-title">发布模块</div>
+        </div>
+        <div class="market-card-desc">选中本地模块树 → 填写标签/分类/截图 → 一键发布到广场。支持版本迭代更新，引用方可选择是否升级到新版本。</div>
+      </div>
+      <div class="market-card">
+        <div class="market-card-header">
+          <div class="market-card-icon">⭐</div>
+          <div class="market-card-title">质量筛选</div>
+        </div>
+        <div class="market-card-desc">使用者评分 + 评论形成社区质量信号。高下载量、高评分模块优先展示。模块作者可获得收益分成。</div>
+      </div>
+    </div>
+
+    <!-- Style Variants -->
+    <div class="variants">
+      <div class="variants-header">同一功能，多种样式 — 以登录页面为例</div>
+      <div class="variants-grid">
+        <div class="variant-card">
+          <div class="variant-preview">
+            <div class="variant-preview-input"></div>
+            <div class="variant-preview-input"></div>
+            <div class="variant-preview-btn"></div>
+          </div>
+          <div class="variant-label">
+            <span class="variant-name">极简白</span>
+            <span class="variant-tag">Minimal</span>
+          </div>
+        </div>
+        <div class="variant-card">
+          <div class="variant-preview">
+            <div class="variant-preview-input"></div>
+            <div class="variant-preview-input"></div>
+            <div class="variant-preview-btn"></div>
+          </div>
+          <div class="variant-label">
+            <span class="variant-name">渐变玻璃</span>
+            <span class="variant-tag">Glass</span>
+          </div>
+        </div>
+        <div class="variant-card">
+          <div class="variant-preview">
+            <div class="variant-preview-input"></div>
+            <div class="variant-preview-input"></div>
+            <div class="variant-preview-btn"></div>
+          </div>
+          <div class="variant-label">
+            <span class="variant-name">暗黑模式</span>
+            <span class="variant-tag">Dark</span>
+          </div>
+        </div>
+        <div class="variant-card">
+          <div class="variant-preview">
+            <div class="variant-preview-input"></div>
+            <div class="variant-preview-input"></div>
+            <div class="variant-preview-btn"></div>
+          </div>
+          <div class="variant-label">
+            <span class="variant-name">暖色自然</span>
+            <span class="variant-tag">Earth</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Replace Flow -->
+    <div class="replace-flow">
+      <div class="replace-flow-title">替换流程</div>
+      <div class="replace-steps">
+        <div class="replace-step">
+          <div class="replace-step-box">
+            选中本地模块
+            <span class="replace-step-sub">login/ (当前)</span>
+          </div>
+        </div>
+        <div class="replace-arrow">→</div>
+        <div class="replace-step">
+          <div class="replace-step-box">
+            广场选择替换
+            <span class="replace-step-sub">浏览 / 对比样式</span>
+          </div>
+        </div>
+        <div class="replace-arrow">→</div>
+        <div class="replace-step">
+          <div class="replace-step-box">
+            预览 Diff & 确认
+            <span class="replace-step-sub">UUID 自动重绑</span>
+          </div>
+        </div>
+        <div class="replace-arrow">→</div>
+        <div class="replace-step">
+          <div class="replace-step-box">
+            AI 重新生成
+            <span class="replace-step-sub">新 spec → 新代码</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section class="techstack">
+  <div class="container">
+    <span class="section-number">06 — 技术栈</span>
+    <h2 class="section-title">技术选型</h2>
+    <table class="tech-table">
+      <thead>
+        <tr>
+          <th>层</th>
+          <th>选型</th>
+          <th>理由</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>框架</td>
+          <td>React 18 + TypeScript</td>
+          <td>Spec 已指定，生态成熟</td>
+        </tr>
+        <tr>
+          <td>画布</td>
+          <td>React Flow</td>
+          <td>节点画布成熟方案，高度可定制</td>
+        </tr>
+        <tr>
+          <td>构建</td>
+          <td>Vite</td>
+          <td>极速 HMR，开发体验最佳</td>
+        </tr>
+        <tr>
+          <td>状态</td>
+          <td>Zustand</td>
+          <td>轻量，适合画布状态管理</td>
+        </tr>
+        <tr>
+          <td>样式</td>
+          <td>CSS Variables + Tailwind</td>
+          <td>Token 驱动，Figma 同步友好</td>
+        </tr>
+        <tr>
+          <td>后端</td>
+          <td>Express</td>
+          <td>文件系统 API + 广场 API，轻量可靠</td>
+        </tr>
+        <tr>
+          <td>广场存储</td>
+          <td>GitHub Repo → 独立服务</td>
+          <td>初期用 Git 做 registry，后期独立</td>
+        </tr>
+        <tr>
+          <td>测试</td>
+          <td>Vitest + Playwright</td>
+          <td>单元测试 + E2E 全覆盖</td>
+        </tr>
+        <tr>
+          <td>部署</td>
+          <td>Docker / 静态 CDN</td>
+          <td>双模式：服务端部署 + 纯前端部署</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- DEMO PRIORITY -->
+<section class="demo">
+  <div class="container">
+    <span class="section-number">07 — 黑客松 Demo 优先级</span>
+    <h2 class="section-title">30 秒讲清核心价值</h2>
+    <p class="section-desc">如果时间紧张，画布 + 模块替换 Demo 是最打动评委的组合。</p>
+    <div class="demo-card">
+      <div class="demo-card-header">Demo 脚本 — 核心流程</div>
+      <div class="demo-card-body">
+        <ol class="demo-steps">
+          <li>打开一个 ArchUI 项目，<strong>画布展示模块关系图</strong> — 节点、连线、层级结构一目了然</li>
+          <li>选中一个<strong>"丑"的登录模块</strong>，右侧 Detail Panel 展示当前 spec 内容</li>
+          <li>点击"从广场替换"，打开<strong>模块广场</strong>，展示多种登录样式变体</li>
+          <li>选择一个精美的登录模块，<strong>预览 diff</strong>，确认替换</li>
+          <li>替换完成，触发 AI Sync — <strong>根据新模块 spec 重新生成代码</strong></li>
+          <li>展示结果：同一个项目，登录页面<strong>从丑陋变漂亮</strong>，只用了 3 次点击</li>
+        </ol>
+        <div class="demo-tagline">
+          "用户不需要从零设计 — 浏览广场，选一个好看的，替换进项目，AI 生成代码，完事。"
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-logo">ArchUI</div>
+    <div class="footer-sub">Arch Park &mdash; Hackathon 2026</div>
+  </div>
+</footer>
+
+<script>
+// Simple scroll-triggered animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('section').forEach(section => {
+  section.style.opacity = '0';
+  section.style.transform = 'translateY(20px)';
+  section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(section);
+});
+
+// Variant card click effect
+document.querySelectorAll('.variant-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.variant-card').forEach(c => c.style.borderColor = '');
+    card.style.borderColor = '#F07040';
+  });
+});
+</script>
+
+</body>
+</html>

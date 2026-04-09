@@ -3,6 +3,8 @@ name: Link Visibility Rules
 description: "Defines which links are rendered on each canvas level — module-level direct edges from the description section handles, submodule port edges from port rows, the same-card rendering rule, and handle visibility conditions."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Scope Rule
 
 Each canvas level renders exactly one primary card (the focused module). Link visibility is determined by two independent scans: one for the focused module's own links (module-level), and one for each submodule's links (submodule-level).

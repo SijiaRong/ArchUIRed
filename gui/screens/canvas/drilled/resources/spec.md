@@ -2,48 +2,92 @@
 
 ## Definition
 
-The drilled state is entered when the user drills into a module (via double-clicking a submodule port row on the primary card, or navigating to a new module). It is the transient state during the canvas transition. It immediately settles into idle (or node-selected if a target card is auto-selected, e.g. after navigating via an external reference card).
+The drilled state is the canvas state immediately after a drill-in action. Structurally the canvas is identical to idle — same layout, same card types, same coordinate system — except:
+
+1. The drilled-into module is now the **primary card**.
+2. The **breadcrumb trail** has grown by one crumb (the drilled module's name).
+3. No card is pre-selected (settled to idle after entry animation).
+4. The canvas for the new level is initialized from `layout.yaml` (or auto-layout if no saved positions exist).
+
+Drilled is a transient label: after the 200ms entry animation completes the state settles to idle (or to node-selected if a target card was auto-selected by the navigation action).
+
+---
 
 ## Entry Animation (200ms total)
 
 ```
-Phase 1 (0–100ms):  Primary card expands to fill viewport.
-                    transform: scale(1) → scale(fills viewport), opacity: 1 → 0.
-Phase 2 (100–200ms): New canvas fades in with the new primary card and its external cards.
-                    opacity: 0 → 1.
+Phase 1 (0 – 100ms)
+  The previously selected (drilled) card expands to fill the viewport.
+  transform: scale(1.0) → scale(K)    where K = viewport_diagonal / card_diagonal,
+                                       clamped to a maximum of 8× to avoid GPU thrashing.
+  opacity:   1.0 → 0.0
+  transform-origin: card centre
+
+Phase 2 (100 – 200ms)
+  The new canvas fades in at the new module level.
+  opacity:   0.0 → 1.0
+  New primary card, external cards, and edges all appear together.
 ```
 
-Implementation note: the "card expands to fill viewport" effect can be approximated with
-a scale transform anchored at the card's center. The exact scale factor = viewport diagonal
-/ card diagonal, clamped to a max of 8× to avoid GPU thrashing.
+The breadcrumb crumb for the new level is appended at the start of Phase 2 (as the new canvas fades in).
 
-## Layout After Drill-In Settles
+---
 
-Identical to idle state layout (see idle/resources/spec.md). No structural difference.
+## Canvas Initialization at New Level
 
-The breadcrumb now shows one additional crumb for the newly drilled module.
+When Phase 2 begins:
 
-## Canvas Initialization
+1. Look up the drilled module UUID as a key in `.archui/layout.yaml`.
+2. **If an entry exists:** restore saved node positions and viewport (`zoom`, `pan`).
+3. **If no entry exists:** run the auto-layout algorithm (see `idle/resources/spec.md` — primary card centred, incoming column left, outgoing column right, 200px gap, 40px vertical spacing). Write the computed positions to `layout.yaml`. Viewport resets to zoom 1.0, pan centred on primary card.
+4. **Partial entry:** If some external card UUIDs are missing from `layout.yaml.nodes`, use auto-layout for those cards only; keep saved positions for all known cards.
 
-When entering a new module canvas after drill-in:
-1. Load external card positions from `.archui/layout.yaml` for this module.
-2. If no positions exist: run auto-layout (columns, see idle spec).
-3. Write auto-generated positions to `layout.yaml`.
-4. Viewport is centered on the primary card (same as idle auto-fit behavior).
+---
 
-## Settling Rules
+## Entry Highlight (Re-orientation Flash)
 
-After the entry animation completes:
-- If triggered by double-click on submodule port row: settle to **idle** (no card selected).
-- If triggered by double-clicking an external reference card: settle to **node-selected** with the target card pre-selected and the detail panel open.
+When drilling in from a selected card (transition from node-selected → drilled), the previously focused module becomes an external reference card at the new level if it is linked from the new primary card. To help re-orient the user, this card displays a brief highlight flash:
+
+- **Animation:** Card border and background pulse to `color/border/focus` (blue) and `color/interactive/selected-bg`, then fade back to default values.
+- **Duration:** 1 second total — 200ms ramp in, 600ms hold, 200ms fade out.
+- **Trigger:** Fires once, immediately when the Phase 2 fade-in completes.
+- **Condition:** Only fires if the previously-focused module is visible as a card at the new level. If it is not visible (not linked from the new primary), no flash occurs.
+
+---
 
 ## Back Navigation
 
-Pressing Escape/Backspace, clicking the back button, or clicking a parent breadcrumb crumb
-returns to the parent canvas in idle state. The previously focused primary card is highlighted
-briefly (pulse animation, 500ms) to help re-orient the user.
+The following inputs return to the parent canvas level:
+
+| Input | Condition | Behaviour |
+|---|---|---|
+| Escape key | No card currently selected | Pop `navStack`. Canvas re-renders at the parent level. Previously-focused module card pulse animation (500ms) to orient user. |
+| Backspace key | No card currently selected, no text input focused | Same as Escape. |
+| Click back arrow (`‹`) in topbar | — | Same as Escape. |
+| Click a parent breadcrumb crumb | Crumb level < current depth | Truncate `navStack` to the crumb's depth. Canvas jumps to that level immediately (no animation). |
+
+If a card is currently selected when Escape is pressed, the first Escape press clears the selection (transitions to idle at the current drilled level). A second Escape then fires back navigation.
+
+---
+
+## Layout After Settling
+
+After the entry animation:
+
+- Canvas is structurally identical to idle. All idle spec rules apply (zoom range, pan behavior, auto-layout algorithm, interaction table).
+- Breadcrumb shows the full ancestry path to the current primary module.
+- `navStack` contains all ancestors from the project root to the current primary module UUID.
+
+---
 
 ## Spacing Constants
 
-All spacing constants for this state are inherited from the idle state spec.
-No unique spacing constants apply to drilled state — it is structurally idle.
+All spacing constants are inherited from the idle state spec. The drilled state introduces no new spacing values.
+
+| Constant | Value | Source |
+|---|---|---|
+| Primary card width | 240px | `dimension/node-width` |
+| External card column gap | 200px | idle spec |
+| External card vertical spacing | 40px | idle spec |
+| Canvas logical size | 4096 × 4096 | idle spec |
+| Default zoom | 1.0× | idle spec |

@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchUI — 画布编辑器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a2e;
+  --ink-light: #3d3f52;
+  --ink-muted: #7a7d90;
+  --ink-faint: #b0b3c0;
+  --surface: #ffffff;
+  --surface-warm: #fafafa;
+  --surface-cool: #f5f5f5;
+  --canvas-bg: #fafafa;
+  --canvas-dot: rgba(240,112,64,0.08);
+  --border: #e8e8ec;
+  --border-light: #f0f0f2;
+  --accent: #F07040;
+  --accent-soft: rgba(240,112,64,0.06);
+  --accent-dark: #d85a2a;
+  --green: #3a8a5a;
+  --green-soft: #e6f2eb;
+  --blue: #5a7a9a;
+  --blue-soft: #e8eff5;
+  --gold: #c08030;
+  --purple: #6a4aaa;
+  --sans: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-card-hover: 0 6px 24px rgba(0,0,0,0.1);
+  --shadow-primary: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+/* ==================== TOP NAV ==================== */
+.topnav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 48px;
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  user-select: none;
+}
+
+.topnav-left { display: flex; align-items: center; gap: 16px; }
+
+.topnav-logo {
+  font-family: var(--sans);
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+.topnav-logo span { color: var(--accent); }
+
+.breadcrumb { display: flex; align-items: center; gap: 0; font-size: 0.78rem; }
+
+.breadcrumb-item {
+  color: var(--ink-muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+.breadcrumb-item:hover { color: var(--ink); background: var(--surface-cool); }
+.breadcrumb-item.current { color: var(--ink); font-weight: 600; }
+
+.breadcrumb-sep {
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+  margin: 0 2px;
+}
+
+.topnav-right { display: flex; align-items: center; gap: 8px; }
+
+.search-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.search-btn:hover { border-color: var(--ink-muted); color: var(--ink-light); }
+.search-btn kbd {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 1px 4px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--surface-cool);
+}
+
+.nav-btn {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+  transition: all 0.15s;
+}
+.nav-btn:hover { border-color: var(--ink-muted); color: var(--ink); }
+
+/* ==================== CANVAS ==================== */
+.canvas-viewport {
+  position: fixed;
+  top: 48px; left: 0; right: 0; bottom: 32px;
+  overflow: hidden;
+  cursor: grab;
+  background: var(--canvas-bg);
+}
+.canvas-viewport:active { cursor: grabbing; }
+.canvas-viewport.dragging-card { cursor: default; }
+
+.canvas-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--canvas-dot) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+.canvas-world {
+  position: absolute;
+  top: 0; left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* SVG edges */
+.edges-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1px; height: 1px;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.edge-path {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: stroke 0.15s;
+}
+
+.edge-path.depends-on { stroke: var(--accent); stroke-opacity: 0.5; }
+.edge-path.implements { stroke: var(--blue); stroke-opacity: 0.5; }
+.edge-path.extends { stroke: var(--green); stroke-opacity: 0.5; }
+.edge-path.references { stroke: var(--gold); stroke-opacity: 0.5; }
+.edge-path.related-to { stroke: var(--ink-muted); stroke-opacity: 0.35; }
+
+.edge-arrow {
+  fill: var(--border);
+}
+.edge-arrow.depends-on { fill: var(--accent); opacity: 0.5; }
+.edge-arrow.implements { fill: var(--blue); opacity: 0.5; }
+.edge-arrow.extends { fill: var(--green); opacity: 0.5; }
+.edge-arrow.references { fill: var(--gold); opacity: 0.5; }
+
+/* ==================== PRIMARY MODULE CARD ==================== */
+.module-card {
+  position: absolute;
+  z-index: 10;
+  transition: box-shadow 0.2s;
+}
+
+.module-card.dragging { z-index: 50; }
+
+.primary-card {
+  width: 380px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow-primary);
+  overflow: visible;
+  position: relative;
+}
+
+.primary-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft), var(--shadow-primary);
+}
+
+/* Module handles */
+.module-handle {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  cursor: crosshair;
+  transition: all 0.15s;
+}
+.module-handle:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-50%) scale(1.2);
+}
+.module-handle.source { right: -8px; }
+.module-handle.target { left: -8px; }
+
+.primary-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.primary-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.primary-name {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.uuid-badge {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--surface-cool);
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.primary-desc {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+}
+
+/* Port section */
+.port-section {
+  padding: 0;
+}
+
+.port-section-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 10px 20px 6px;
+}
+
+.port-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  border-top: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background 0.1s;
+  position: relative;
+}
+
+.port-row:hover { background: var(--surface-warm); }
+
+.port-row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.port-folder-icon {
+  font-size: 0.75rem;
+  opacity: 0.4;
+}
+
+.port-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.port-row-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.port-link-count {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--ink-faint);
+}
+
+.port-handle {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  cursor: crosshair;
+  transition: all 0.15s;
+}
+
+.port-handle:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-50%) scale(1.3);
+}
+
+.port-drilldown {
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  transition: color 0.15s;
+}
+.port-row:hover .port-drilldown { color: var(--accent); }
+
+/* ==================== EXTERNAL REFERENCE CARD ==================== */
+.ext-card {
+  width: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  box-shadow: var(--shadow-card);
+  padding: 14px 16px;
+  cursor: grab;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.ext-card:active { cursor: grabbing; }
+.ext-card:hover { box-shadow: var(--shadow-card-hover); }
+.ext-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft), var(--shadow-card);
+}
+
+.ext-card .module-handle {
+  width: 10px; height: 10px;
+}
+.ext-card .module-handle.target { left: -6px; }
+
+.ext-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 3px;
+}
+
+.ext-uuid {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--ink-faint);
+}
+
+.ext-desc {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* ==================== DETAIL PANEL ==================== */
+.detail-overlay {
+  position: fixed;
+  top: 48px; right: 0; bottom: 32px;
+  width: 380px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.06);
+  z-index: 200;
+  transform: translateX(100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-overlay.open { transform: translateX(0); }
+
+.detail-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.detail-close {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.detail-close:hover { border-color: var(--ink-muted); color: var(--ink); }
+
+.detail-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.detail-uuid {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+}
+
+.detail-body {
+  padding: 20px;
+  flex: 1;
+}
+
+.detail-section {
+  margin-bottom: 20px;
+}
+
+.detail-section-title {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+
+.detail-desc {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+}
+
+.detail-link-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.detail-link-item:hover { border-color: var(--ink-muted); background: var(--surface-warm); }
+
+.detail-link-relation {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.detail-link-relation.depends-on { background: var(--accent-soft); color: var(--accent); }
+.detail-link-relation.implements { background: var(--blue-soft); color: var(--blue); }
+.detail-link-relation.extends { background: var(--green-soft); color: var(--green); }
+.detail-link-relation.references { background: #f8f0dd; color: var(--gold); }
+
+.detail-link-name {
+  font-weight: 500;
+}
+
+.detail-submodules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-submodule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.detail-submodule-row:hover { border-color: var(--accent); background: var(--accent-soft); }
+.detail-submodule-row:hover .port-drilldown { color: var(--accent); }
+
+/* ==================== STATUS BAR ==================== */
+.statusbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 32px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--ink-muted);
+  z-index: 100;
+  user-select: none;
+}
+
+.status-left { display: flex; gap: 16px; }
+.status-right { display: flex; gap: 12px; align-items: center; }
+
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zoom-btn {
+  width: 22px; height: 22px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  transition: all 0.1s;
+}
+.zoom-btn:hover { border-color: var(--ink-muted); color: var(--ink); }
+
+.zoom-level {
+  min-width: 36px;
+  text-align: center;
+  font-size: 0.62rem;
+}
+
+/* ==================== DRILL TRANSITION ==================== */
+.canvas-world.transitioning {
+  transition: opacity 0.2s ease;
+  opacity: 0;
+}
+
+/* ==================== SEARCH MODAL ==================== */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 120px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.search-overlay.open { opacity: 1; pointer-events: auto; }
+
+.search-modal {
+  width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+  overflow: hidden;
+  transform: translateY(-8px);
+  transition: transform 0.15s;
+}
+.search-overlay.open .search-modal { transform: translateY(0); }
+
+.search-modal-input {
+  width: 100%;
+  padding: 16px 20px;
+  border: none;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  outline: none;
+  background: transparent;
+}
+.search-modal-input::placeholder { color: var(--ink-faint); }
+
+.search-results {
+  border-top: 1px solid var(--border-light);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.1s;
+}
+.search-result-item:hover { background: var(--surface-cool); }
+
+.search-result-icon { font-size: 0.8rem; opacity: 0.4; }
+.search-result-name { font-size: 0.88rem; font-weight: 500; }
+.search-result-path { font-family: var(--mono); font-size: 0.65rem; color: var(--ink-muted); margin-left: auto; }
+
+/* ==================== TOAST ==================== */
+.toast {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 8px 18px;
+  background: var(--ink);
+  color: white;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  opacity: 0;
+  transition: all 0.25s;
+  z-index: 300;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="topnav-left">
+    <div class="topnav-logo">Arch<span>UI</span></div>
+    <div class="breadcrumb" id="breadcrumb"></div>
+  </div>
+  <div class="topnav-right">
+    <button class="search-btn" onclick="openSearch()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      搜索模块
+      <kbd>⌘K</kbd>
+    </button>
+    <button class="nav-btn" title="广场" onclick="window.open('marketplace-demo.html','_blank')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 0 1 4 9 15 15 0 0 1-4 9m0-18a15 15 0 0 0-4 9 15 15 0 0 0 4 9M3 12h18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- CANVAS -->
+<div class="canvas-viewport" id="viewport">
+  <div class="canvas-grid" id="canvasGrid"></div>
+  <svg class="edges-layer" id="edgesLayer">
+    <defs>
+      <marker id="arrow-default" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 4 L 0 8 z" class="edge-arrow"/>
+      </marker>
+      <marker id="arrow-depends" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 4 L 0 8 z" class="edge-arrow depends-on"/>
+      </marker>
+      <marker id="arrow-implements" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 4 L 0 8 z" class="edge-arrow implements"/>
+      </marker>
+      <marker id="arrow-extends" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 4 L 0 8 z" class="edge-arrow extends"/>
+      </marker>
+      <marker id="arrow-references" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 4 L 0 8 z" class="edge-arrow references"/>
+      </marker>
+    </defs>
+  </svg>
+  <div class="canvas-world" id="world"></div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-overlay" id="detailPanel">
+  <div class="detail-header">
+    <div>
+      <div class="detail-title" id="detailTitle"></div>
+      <div class="detail-uuid" id="detailUuid"></div>
+    </div>
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+
+<!-- SEARCH MODAL -->
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)closeSearch()">
+  <div class="search-modal">
+    <input class="search-modal-input" id="searchInput" placeholder="搜索模块… 输入名称或路径" oninput="filterSearch(this.value)">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <div class="status-left">
+    <span><span class="status-dot"></span>已连接</span>
+    <span id="statusModules">3 submodules</span>
+    <span id="statusLinks">4 links</span>
+    <span id="statusSaved">layout saved</span>
+  </div>
+  <div class="status-right">
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zoomBy(-0.15)">−</button>
+      <span class="zoom-level" id="zoomLevel">100%</span>
+      <button class="zoom-btn" onclick="zoomBy(0.15)">+</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== DATA ====================
+const levels = {
+  root: {
+    path: ['ArchUI'],
+    primary: {
+      id: 'archui-root',
+      name: 'ArchUI',
+      uuid: 'a1b2c3d4',
+      desc: '双接口知识管理系统 — 人类用画布编排模块，AI agent 读写文件系统',
+      x: 360, y: 180,
+      submodules: [
+        { name: 'gui', uuid: '2c4e6a8b', links: 1 },
+        { name: 'cli', uuid: '1a5b9c3d', links: 2 },
+        { name: 'web-development-release', uuid: 'f7e8d9c0', links: 0 },
+      ],
+      links: []
+    },
+    externals: [
+      { id: 'ext-figma', name: 'Figma Integration', uuid: '9f8e7d6c', desc: '设计系统同步', x: 840, y: 100, relation: 'references' },
+      { id: 'ext-hackathon', name: 'Hackathon', uuid: 'aa100001', desc: '黑客松展示材料', x: 840, y: 260, relation: 'related-to' },
+    ],
+    edges: [
+      { from: 'primary', fromPort: 0, to: 'ext-figma', relation: 'references' },
+      { from: 'primary', fromHandle: 'source', to: 'ext-hackathon', relation: 'related-to' },
+    ]
+  },
+  gui: {
+    path: ['ArchUI', 'gui'],
+    primary: {
+      id: 'gui-primary',
+      name: 'GUI',
+      uuid: '2c4e6a8b',
+      desc: '节点画布可视化界面 — 拖拽连线、无限嵌套、双击钻入，跨平台（Web、Electron、iOS、Android）',
+      x: 320, y: 140,
+      submodules: [
+        { name: 'screens', uuid: '3d5f7b9a', links: 2 },
+        { name: 'components', uuid: '4e6a8c0b', links: 3 },
+        { name: 'file-sync', uuid: '4b6a8d2e', links: 1 },
+        { name: 'design-system', uuid: '5f7b9d1c', links: 1 },
+      ],
+      links: [
+        { target: 'Core Schema', uuid: '8e9f0a1b', relation: 'depends-on' }
+      ]
+    },
+    externals: [
+      { id: 'ext-core', name: 'Core Schema', uuid: '8e9f0a1b', desc: 'ArchUI 文件系统规范', x: 820, y: 80, relation: 'depends-on' },
+      { id: 'ext-cli', name: 'CLI', uuid: '1a5b9c3d', desc: '命令行验证工具', x: 820, y: 220, relation: 'related-to' },
+      { id: 'ext-figma2', name: 'Figma MCP', uuid: 'dd000001', desc: '设计 token 同步', x: 820, y: 360, relation: 'references' },
+    ],
+    edges: [
+      { from: 'primary', fromPort: 0, to: 'ext-core', relation: 'depends-on' },
+      { from: 'primary', fromPort: 1, to: 'ext-cli', relation: 'related-to' },
+      { from: 'primary', fromPort: 2, to: 'ext-core', relation: 'depends-on' },
+      { from: 'primary', fromPort: 3, to: 'ext-figma2', relation: 'references' },
+    ]
+  },
+  screens: {
+    path: ['ArchUI', 'gui', 'screens'],
+    primary: {
+      id: 'screens-primary',
+      name: 'Screens',
+      uuid: '3d5f7b9a',
+      desc: '顶层屏幕状态机 — Landing（项目选择）与 Canvas（画布主屏）两个独立屏幕',
+      x: 340, y: 180,
+      submodules: [
+        { name: 'landing', uuid: 'aabb0011', links: 0 },
+        { name: 'canvas', uuid: '537c63d3', links: 3 },
+      ],
+      links: []
+    },
+    externals: [
+      { id: 'ext-pmcard', name: 'Primary Module Card', uuid: '6a8b0c2d', desc: '大卡片组件', x: 800, y: 100, relation: 'depends-on' },
+      { id: 'ext-linkrend', name: 'Link Renderer', uuid: '7b9c1d3e', desc: '连线渲染组件', x: 800, y: 240, relation: 'depends-on' },
+      { id: 'ext-nav', name: 'Navigation', uuid: '8c0d2e4f', desc: '面包屑导航组件', x: 800, y: 380, relation: 'depends-on' },
+    ],
+    edges: [
+      { from: 'primary', fromPort: 1, to: 'ext-pmcard', relation: 'depends-on' },
+      { from: 'primary', fromPort: 1, to: 'ext-linkrend', relation: 'depends-on' },
+      { from: 'primary', fromPort: 1, to: 'ext-nav', relation: 'depends-on' },
+    ]
+  }
+};
+
+// ==================== STATE ====================
+let currentLevel = 'root';
+let pan = { x: 0, y: 0 };
+let zoom = 1;
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+let dragCard = null;
+let dragOffset = { x: 0, y: 0 };
+let selectedCard = null;
+
+// ==================== RENDER ====================
+function renderLevel(levelKey, animate = false) {
+  const level = levels[levelKey];
+  if (!level) return;
+  currentLevel = levelKey;
+
+  const world = document.getElementById('world');
+  const svg = document.getElementById('edgesLayer');
+
+  if (animate) {
+    world.classList.add('transitioning');
+    setTimeout(() => {
+      buildLevel(level, world, svg);
+      world.classList.remove('transitioning');
+    }, 200);
+  } else {
+    buildLevel(level, world, svg);
+  }
+
+  renderBreadcrumb(level.path);
+  updateStatus(level);
+  closeDetail();
+}
+
+function buildLevel(level, world, svg) {
+  world.innerHTML = '';
+  // Clear old paths (keep defs)
+  svg.querySelectorAll('path').forEach(p => p.remove());
+
+  const p = level.primary;
+
+  // Primary card
+  const primary = document.createElement('div');
+  primary.className = 'module-card';
+  primary.style.left = p.x + 'px';
+  primary.style.top = p.y + 'px';
+  primary.dataset.id = 'primary';
+  primary.innerHTML = `
+    <div class="primary-card" id="primaryCard">
+      <div class="module-handle target"></div>
+      <div class="module-handle source"></div>
+      <div class="primary-header">
+        <div class="primary-name-row">
+          <span class="primary-name">${p.name}</span>
+          <span class="uuid-badge">${p.uuid}</span>
+        </div>
+        <div class="primary-desc">${p.desc}</div>
+      </div>
+      <div class="port-section">
+        <div class="port-section-label">子模块 Submodules</div>
+        ${p.submodules.map((s, i) => `
+          <div class="port-row" data-port="${i}" data-drillto="${s.name}" ondblclick="drillDown('${s.name}')">
+            <div class="port-row-left">
+              <span class="port-folder-icon">📁</span>
+              <span class="port-name">${s.name}</span>
+            </div>
+            <div class="port-row-right">
+              ${s.links ? `<span class="port-link-count">${s.links} link${s.links !== 1 ? 's' : ''}</span>` : ''}
+              <span class="port-drilldown">↗</span>
+            </div>
+            <div class="port-handle" data-port-idx="${i}"></div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  primary.addEventListener('mousedown', e => startDrag(e, primary));
+  primary.addEventListener('click', e => {
+    if (!primary._dragged) selectCard('primary', p);
+  });
+  world.appendChild(primary);
+
+  // External cards
+  level.externals.forEach(ext => {
+    const card = document.createElement('div');
+    card.className = 'module-card';
+    card.style.left = ext.x + 'px';
+    card.style.top = ext.y + 'px';
+    card.dataset.id = ext.id;
+    card.innerHTML = `
+      <div class="ext-card" data-extid="${ext.id}">
+        <div class="module-handle target"></div>
+        <div class="ext-name">${ext.name}</div>
+        <div class="ext-uuid">${ext.uuid}</div>
+        <div class="ext-desc">${ext.desc}</div>
+      </div>
+    `;
+    card.addEventListener('mousedown', e => startDrag(e, card));
+    card.addEventListener('click', e => {
+      if (!card._dragged) selectCard(ext.id, ext);
+    });
+    card.addEventListener('dblclick', () => {
+      const drillKey = ext.name.toLowerCase().replace(/\s+/g, '-');
+      if (levels[drillKey]) {
+        drillDown(drillKey);
+      } else {
+        showToast(`"${ext.name}" 暂无子层级`);
+      }
+    });
+    world.appendChild(card);
+  });
+
+  // Draw edges after a tick so DOM settles
+  requestAnimationFrame(() => drawEdges(level));
+}
+
+function drawEdges(level) {
+  const svg = document.getElementById('edgesLayer');
+  svg.querySelectorAll('path').forEach(p => p.remove());
+
+  level.edges.forEach(edge => {
+    let sx, sy, tx, ty;
+
+    // Source
+    if (edge.fromHandle === 'source') {
+      const pc = document.querySelector('[data-id="primary"]');
+      if (!pc) return;
+      const card = pc.querySelector('.primary-card');
+      sx = parseFloat(pc.style.left) + card.offsetWidth + 7;
+      sy = parseFloat(pc.style.top) + card.offsetHeight / 2;
+    } else if (edge.fromPort !== undefined) {
+      const pc = document.querySelector('[data-id="primary"]');
+      if (!pc) return;
+      const port = pc.querySelector(`[data-port-idx="${edge.fromPort}"]`);
+      if (!port) return;
+      const card = pc.querySelector('.primary-card');
+      sx = parseFloat(pc.style.left) + card.offsetWidth + 5;
+      sy = parseFloat(pc.style.top) + port.offsetTop + port.offsetHeight / 2;
+      // Walk up to find port offset relative to card
+      let el = port.parentElement;
+      while (el && !el.classList.contains('primary-card')) {
+        sy = parseFloat(pc.style.top) + port.getBoundingClientRect().top / zoom - document.getElementById('world').getBoundingClientRect().top / zoom;
+        break;
+      }
+      // Recalc properly
+      const worldRect = document.getElementById('world').getBoundingClientRect();
+      const portRect = port.getBoundingClientRect();
+      sx = (portRect.left + portRect.width / 2 - worldRect.left) / zoom;
+      sy = (portRect.top + portRect.height / 2 - worldRect.top) / zoom;
+    }
+
+    // Target
+    const tc = document.querySelector(`[data-id="${edge.to}"]`);
+    if (!tc) return;
+    const targetEl = tc.querySelector('.module-handle.target') || tc;
+    const worldRect = document.getElementById('world').getBoundingClientRect();
+    const tRect = targetEl.getBoundingClientRect();
+    tx = (tRect.left + tRect.width / 2 - worldRect.left) / zoom;
+    ty = (tRect.top + tRect.height / 2 - worldRect.top) / zoom;
+
+    const dx = tx - sx;
+    const cpx = Math.min(Math.abs(dx) * 0.5, 120);
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M ${sx} ${sy} C ${sx + cpx} ${sy}, ${tx - cpx} ${ty}, ${tx} ${ty}`);
+    path.setAttribute('class', `edge-path ${edge.relation || ''}`);
+
+    const markerMap = { 'depends-on': 'arrow-depends', 'implements': 'arrow-implements', 'extends': 'arrow-extends', 'references': 'arrow-references' };
+    path.setAttribute('marker-end', `url(#${markerMap[edge.relation] || 'arrow-default'})`);
+
+    svg.appendChild(path);
+  });
+}
+
+// ==================== BREADCRUMB ====================
+function renderBreadcrumb(pathArr) {
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = pathArr.map((name, i) => {
+    const isLast = i === pathArr.length - 1;
+    const levelKey = i === 0 ? 'root' : name.toLowerCase().replace(/\s+/g, '-');
+    return `
+      ${i > 0 ? '<span class="breadcrumb-sep">›</span>' : ''}
+      <span class="breadcrumb-item ${isLast ? 'current' : ''}" onclick="${isLast ? '' : `drillDown('${levelKey}')`}">${name}</span>
+    `;
+  }).join('');
+}
+
+// ==================== DRILL DOWN ====================
+function drillDown(key) {
+  if (levels[key]) {
+    renderLevel(key, true);
+    showToast(`钻入 → ${levels[key].primary.name}`);
+  } else {
+    showToast(`"${key}" 暂无子层级数据`);
+  }
+}
+
+// ==================== CARD SELECTION & DETAIL ====================
+function selectCard(id, data) {
+  document.querySelectorAll('.primary-card, .ext-card').forEach(c => c.classList.remove('selected'));
+  const el = document.querySelector(`[data-id="${id}"] .primary-card, [data-id="${id}"] .ext-card`);
+  if (el) el.classList.add('selected');
+
+  selectedCard = id;
+  const panel = document.getElementById('detailPanel');
+  document.getElementById('detailTitle').textContent = data.name;
+  document.getElementById('detailUuid').textContent = data.uuid;
+
+  let bodyHTML = `
+    <div class="detail-section">
+      <div class="detail-section-title">描述</div>
+      <div class="detail-desc">${data.desc}</div>
+    </div>
+  `;
+
+  if (data.submodules && data.submodules.length) {
+    bodyHTML += `
+      <div class="detail-section">
+        <div class="detail-section-title">子模块</div>
+        <div class="detail-submodules-list">
+          ${data.submodules.map(s => `
+            <div class="detail-submodule-row" ondblclick="drillDown('${s.name}')">
+              <span>📁 ${s.name} <span style="font-family:var(--mono);font-size:0.62rem;color:var(--ink-faint);margin-left:6px">${s.uuid}</span></span>
+              <span class="port-drilldown" style="color:var(--ink-faint)">↗</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  if (data.links && data.links.length) {
+    bodyHTML += `
+      <div class="detail-section">
+        <div class="detail-section-title">链接</div>
+        ${data.links.map(l => `
+          <div class="detail-link-item">
+            <span class="detail-link-relation ${l.relation}">${l.relation}</span>
+            <span class="detail-link-name">${l.target}</span>
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--ink-faint);margin-left:auto">${l.uuid}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  if (data.relation) {
+    bodyHTML += `
+      <div class="detail-section">
+        <div class="detail-section-title">关系类型</div>
+        <div class="detail-link-item">
+          <span class="detail-link-relation ${data.relation}">${data.relation}</span>
+          <span class="detail-link-name">→ ${levels[currentLevel].primary.name}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('detailBody').innerHTML = bodyHTML;
+  panel.classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.querySelectorAll('.primary-card, .ext-card').forEach(c => c.classList.remove('selected'));
+  selectedCard = null;
+}
+
+// ==================== DRAG ====================
+function startDrag(e, cardEl) {
+  if (e.target.classList.contains('port-handle') || e.target.classList.contains('module-handle')) return;
+  if (e.button !== 0) return;
+  e.stopPropagation();
+
+  cardEl._dragged = false;
+  dragCard = cardEl;
+  dragCard.classList.add('dragging');
+  document.getElementById('viewport').classList.add('dragging-card');
+
+  const rect = cardEl.getBoundingClientRect();
+  const worldRect = document.getElementById('world').getBoundingClientRect();
+  dragOffset.x = e.clientX - rect.left + worldRect.left;
+  dragOffset.y = e.clientY - rect.top + worldRect.top;
+}
+
+document.addEventListener('mousemove', e => {
+  if (dragCard) {
+    const worldRect = document.getElementById('world').getBoundingClientRect();
+    dragCard.style.left = (e.clientX - dragOffset.x + worldRect.left) / zoom + 'px';
+    // Recalc
+    const newX = (e.clientX - worldRect.left - (dragOffset.x - worldRect.left)) / zoom;
+    const newY = (e.clientY - worldRect.top - (dragOffset.y - worldRect.top)) / zoom;
+    dragCard.style.left = ((e.clientX - dragOffset.x) / zoom + pan.x / zoom) + 'px';
+    dragCard.style.top = ((e.clientY - dragOffset.y) / zoom + pan.y / zoom) + 'px';
+    // Simpler approach
+    const wx = (e.clientX - dragOffset.x);
+    const wy = (e.clientY - dragOffset.y);
+    dragCard.style.left = wx / zoom + 'px';
+    dragCard.style.top = wy / zoom + 'px';
+
+    dragCard._dragged = true;
+    drawEdges(levels[currentLevel]);
+  } else if (isPanning) {
+    const dx = e.clientX - panStart.x;
+    const dy = e.clientY - panStart.y;
+    pan.x += dx;
+    pan.y += dy;
+    panStart.x = e.clientX;
+    panStart.y = e.clientY;
+    applyTransform();
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  if (dragCard) {
+    dragCard.classList.remove('dragging');
+    document.getElementById('viewport').classList.remove('dragging-card');
+    setTimeout(() => { if (dragCard) dragCard._dragged = false; dragCard = null; }, 10);
+  }
+  isPanning = false;
+});
+
+// ==================== PAN ====================
+document.getElementById('viewport').addEventListener('mousedown', e => {
+  if (e.target === document.getElementById('viewport') || e.target === document.getElementById('canvasGrid')) {
+    isPanning = true;
+    panStart.x = e.clientX;
+    panStart.y = e.clientY;
+    closeDetail();
+  }
+});
+
+// ==================== ZOOM ====================
+document.getElementById('viewport').addEventListener('wheel', e => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -0.08 : 0.08;
+  zoomBy(delta, e.clientX, e.clientY);
+}, { passive: false });
+
+function zoomBy(delta, cx, cy) {
+  const oldZoom = zoom;
+  zoom = Math.max(0.3, Math.min(2, zoom + delta));
+  // Zoom toward center if no point given
+  if (cx === undefined) {
+    cx = window.innerWidth / 2;
+    cy = window.innerHeight / 2;
+  }
+  const viewportRect = document.getElementById('viewport').getBoundingClientRect();
+  const mx = cx - viewportRect.left;
+  const my = cy - viewportRect.top;
+  pan.x = mx - (mx - pan.x) * (zoom / oldZoom);
+  pan.y = my - (my - pan.y) * (zoom / oldZoom);
+  applyTransform();
+  document.getElementById('zoomLevel').textContent = Math.round(zoom * 100) + '%';
+}
+
+function applyTransform() {
+  const world = document.getElementById('world');
+  const svg = document.getElementById('edgesLayer');
+  const transform = `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`;
+  world.style.transform = transform;
+  svg.style.transform = transform;
+  // Update grid
+  const grid = document.getElementById('canvasGrid');
+  const size = 24 * zoom;
+  const ox = pan.x % size;
+  const oy = pan.y % size;
+  grid.style.backgroundSize = `${size}px ${size}px`;
+  grid.style.backgroundPosition = `${ox}px ${oy}px`;
+}
+
+// ==================== SEARCH ====================
+const allModules = [
+  { name: 'ArchUI', path: '/', level: 'root' },
+  { name: 'GUI', path: '/gui', level: 'gui' },
+  { name: 'CLI', path: '/cli', level: null },
+  { name: 'Screens', path: '/gui/screens', level: 'screens' },
+  { name: 'Canvas Screen', path: '/gui/screens/canvas', level: null },
+  { name: 'Landing', path: '/gui/screens/landing', level: null },
+  { name: 'Components', path: '/gui/components', level: null },
+  { name: 'Primary Module Card', path: '/gui/components/primary-module-card', level: null },
+  { name: 'Link Renderer', path: '/gui/components/link-renderer', level: null },
+  { name: 'Navigation', path: '/gui/components/navigation', level: null },
+  { name: 'Detail Panel', path: '/gui/components/detail-panel', level: null },
+  { name: 'File Sync', path: '/gui/file-sync', level: null },
+  { name: 'Design System', path: '/gui/design-system', level: null },
+  { name: 'Hackathon', path: '/hackathon', level: null },
+  { name: 'Web Demo', path: '/hackathon/web-demo', level: null },
+];
+
+function openSearch() {
+  document.getElementById('searchOverlay').classList.add('open');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchInput').focus();
+  filterSearch('');
+}
+
+function closeSearch() {
+  document.getElementById('searchOverlay').classList.remove('open');
+}
+
+function filterSearch(query) {
+  const q = query.toLowerCase();
+  const filtered = allModules.filter(m => !q || m.name.toLowerCase().includes(q) || m.path.toLowerCase().includes(q));
+  document.getElementById('searchResults').innerHTML = filtered.map(m => `
+    <div class="search-result-item" onclick="jumpTo('${m.level}', '${m.name}')">
+      <span class="search-result-icon">📁</span>
+      <span class="search-result-name">${m.name}</span>
+      <span class="search-result-path">${m.path}</span>
+    </div>
+  `).join('');
+}
+
+function jumpTo(level, name) {
+  closeSearch();
+  if (level && level !== 'null' && levels[level]) {
+    renderLevel(level, true);
+  } else {
+    showToast(`跳转到 "${name}"（Demo 中仅部分层级可钻入）`);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    openSearch();
+  }
+  if (e.key === 'Escape') {
+    closeSearch();
+    closeDetail();
+  }
+  if (e.key === 'Backspace' && !document.querySelector('.search-overlay.open') && !document.querySelector('.detail-overlay.open')) {
+    // Go up one level
+    const level = levels[currentLevel];
+    if (level && level.path.length > 1) {
+      const parentKey = level.path.length === 2 ? 'root' : level.path[level.path.length - 2].toLowerCase();
+      if (levels[parentKey]) renderLevel(parentKey, true);
+    }
+  }
+});
+
+// ==================== STATUS ====================
+function updateStatus(level) {
+  document.getElementById('statusModules').textContent = `${level.primary.submodules.length} submodules`;
+  document.getElementById('statusLinks').textContent = `${level.edges.length} links`;
+}
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ==================== INIT ====================
+renderLevel('root');
+// Center canvas initially
+pan.x = 80;
+pan.y = 40;
+applyTransform();
+</script>
+
+</body>
+</html>

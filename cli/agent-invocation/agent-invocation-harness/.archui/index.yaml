@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: "35ff77f9"
+submodules: {}
+links:
+  - uuid: "1d60422f"
+    relation: implements
+    description: Test harness for agent-invocation

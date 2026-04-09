@@ -1,0 +1,8 @@
+schema_version: 1
+uuid: 75e0ae08
+submodules:
+  conversion-phase-harness: 619f478e
+links:
+  - uuid: 485e9c29
+    relation: implements
+    description: conversion phase is a submodule of the init command

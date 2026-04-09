@@ -1,0 +1,11 @@
+schema_version: 1
+uuid: 559d57c5
+submodules:
+  delete-command-harness: f72d9d99
+links:
+  - uuid: 785ff2e5
+    relation: depends-on
+    description: reuses runClean logic to sweep dangling references after folder deletion
+  - uuid: 8d2f6a4e
+    relation: depends-on
+    description: reuses findModuleByUuid for UUID-to-path resolution

@@ -2,6 +2,9 @@ schema_version: "1"
 uuid: aa100002
 submodules: {}
 links:
+  - uuid: aa10000d
+    relation: depends-on
+    description: PPT 封面的队名、项目名称与一句话项目介绍以 basic-info 模块为唯一来源
   - uuid: aa10000b
     relation: depends-on
     description: PPT 主视觉素材由 image-design 模块通过 Gemini 生成

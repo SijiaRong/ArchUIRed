@@ -1,5 +1,7 @@
 schema_version: 1
 uuid: 719a8fc3
+submodules:
+  codex-harness: "46fa0624"
 links:
   - uuid: 6aea7af7
     relation: depends-on

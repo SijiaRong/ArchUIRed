@@ -1,5 +1,7 @@
 schema_version: 1
 uuid: 9e10465a
+submodules:
+  partial-mode-harness: 43e96279
 links:
   - uuid: 5a578ab2
     relation: implements

@@ -16,6 +16,7 @@ Templates are consumed by agent-specific adapter modules which format them accor
 - **Frontmatter purity** — Identity documents may only contain `name` and `description` in frontmatter. UUIDs, submodules, and links belong exclusively in `.archui/index.yaml`.
 - **Folder-is-module** — Every folder is a module. Every module must have exactly one identity document. The only exception is `resources/`.
 - **Submodule-disk sync** — The `submodules` map in `.archui/index.yaml` must exactly match the actual subfolders on disk, bidirectionally.
+- **Module context loading** — Reading any identity document (`README.md`, `SPEC.md`, `SKILL.md`, `HARNESS.md`, `MEMORY.md`) requires also reading `.archui/index.yaml` in the same directory. A module's context is incomplete without its uuid, submodules, and links.
 
 ### Workflow Mandates
 

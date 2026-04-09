@@ -54,5 +54,15 @@ export function createMemAdapter(initial: Record<string, string> = {}): FsAdapte
     async mkdir(_path: string): Promise<void> {
       // no-op: directories are implicit in the mem adapter
     },
+
+    async removeDir(dirPath: string): Promise<void> {
+      const p = normalise(dirPath)
+      const prefix = p + '/'
+      for (const key of [...files.keys()]) {
+        if (key === p || key.startsWith(prefix)) {
+          files.delete(key)
+        }
+      }
+    },
   }
 }

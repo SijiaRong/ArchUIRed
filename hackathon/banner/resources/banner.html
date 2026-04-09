@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>ArchUI — 易拉宝 80×200cm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* === RESET === */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --orange: #F07040;
+            --orange-dark: #d85a2a;
+            --orange-bg: rgba(240,112,64,0.06);
+            --text-dark: #1a1a2e;
+            --text-mid: #3d3f52;
+            --text-light: #7a7d90;
+        }
+
+        html, body {
+            background: #e0e0e0;
+            font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+        }
+
+        /* === BANNER: 800×2000px fixed (2:5) === */
+        .banner {
+            width: 800px;
+            height: 2000px;
+            margin: 20px auto;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.12);
+        }
+
+        /* Subtle grid */
+        .banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(240,112,64,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(240,112,64,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .banner > * { position: relative; z-index: 1; }
+
+        /* === SECTION 1: BRAND HEADER (10% = 200px) === */
+        .brand-header {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .brand-header .logo {
+            height: 80px;
+            width: auto;
+        }
+
+        .brand-header .team-name {
+            font-size: 20px;
+            color: var(--text-light);
+            letter-spacing: 0.2em;
+            font-weight: 400;
+        }
+
+        .brand-header .divider {
+            width: 50%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--orange), transparent);
+            opacity: 0.4;
+        }
+
+        /* === SECTION 2: MAIN VISUAL (25% = 500px) === */
+        .main-visual {
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .node-canvas { width: 720px; height: 460px; }
+        .node-canvas svg { width: 100%; height: 100%; }
+
+        .node-box {
+            fill: #ffffff;
+            stroke: rgba(240,112,64,0.5);
+            stroke-width: 2;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08));
+        }
+        .node-header { rx: 10; ry: 10; }
+        .node-label {
+            fill: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+        .node-sublabel {
+            fill: #5a5d70;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .node-port {
+            fill: var(--orange);
+            stroke: #ffffff;
+            stroke-width: 2.5;
+        }
+        .conn {
+            fill: none;
+            stroke: rgba(240,112,64,0.45);
+            stroke-width: 2.5;
+            stroke-dasharray: 8 4;
+        }
+        .conn-solid {
+            fill: none;
+            stroke: rgba(240,112,64,0.3);
+            stroke-width: 2;
+        }
+
+        /* === SECTION 3: PROJECT NAME + TAGLINE (10% = 200px) === */
+        .project-info {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+            padding: 0 40px;
+        }
+
+        .project-info .project-name {
+            font-size: 68px;
+            font-weight: 900;
+            color: var(--text-dark);
+            letter-spacing: 0.04em;
+        }
+
+        .project-info .subtitle {
+            font-size: 26px;
+            color: var(--orange);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        .project-info .tagline {
+            font-size: 16px;
+            color: var(--text-mid);
+            margin-top: 2px;
+        }
+
+        /* === SECTION 4: PROJECT INTRO (15% = 300px) === */
+        .project-intro {
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 60px;
+            gap: 24px;
+        }
+
+        .intro-problem {
+            font-size: 20px;
+            color: var(--text-mid);
+            line-height: 1.8;
+            text-align: center;
+            position: relative;
+            padding: 20px 30px;
+            background: #faf8f6;
+            border-left: 4px solid var(--orange);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .intro-solution {
+            font-size: 19px;
+            color: var(--text-dark);
+            line-height: 1.8;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .intro-solution strong {
+            color: var(--orange);
+            font-weight: 700;
+        }
+
+        .intro-bottom {
+            font-size: 15px;
+            color: var(--text-light);
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* === SECTION 5: THREE HIGHLIGHTS (25% = 500px) === */
+        .highlights {
+            height: 500px;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            padding: 30px 36px;
+            gap: 24px;
+        }
+
+        .highlight-card {
+            flex: 1;
+            background: #fafafa;
+            border: 1.5px solid rgba(240,112,64,0.15);
+            border-radius: 16px;
+            padding: 32px 18px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+            position: relative;
+        }
+
+        .highlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--orange), transparent);
+            border-radius: 0 0 4px 4px;
+        }
+
+        .highlight-card .card-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--orange);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .highlight-card .card-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .highlight-card .card-subtitle {
+            font-size: 16px;
+            color: var(--text-mid);
+            line-height: 1.7;
+        }
+
+        .highlight-card .card-example {
+            font-size: 13px;
+            color: var(--text-light);
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            width: 100%;
+            line-height: 1.5;
+        }
+
+        /* === SECTION 6: FOOTER (15% = 300px) === */
+        .footer {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 60px;
+        }
+
+        .qr-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .qr-placeholder {
+            width: 150px;
+            height: 150px;
+            border: 2.5px dashed var(--orange);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(240,112,64,0.03);
+        }
+
+        .qr-label {
+            font-size: 16px;
+            color: var(--text-mid);
+        }
+
+        .footer-sep {
+            width: 1px;
+            height: 140px;
+            background: linear-gradient(180deg, transparent, rgba(240,112,64,0.3), transparent);
+        }
+
+        .contact-block {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            color: var(--text-mid);
+            font-size: 16px;
+        }
+
+        .contact-block .contact-title {
+            font-size: 20px;
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .footer-line {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, transparent 5%, var(--orange) 30%, var(--orange) 70%, transparent 95%);
+        }
+
+        /* === PRINT: single page, no pagination === */
+        @page {
+            size: 800px 2000px;
+            margin: 0;
+        }
+        @media print {
+            html, body { background: #fff; margin: 0; padding: 0; }
+            .banner {
+                width: 800px; height: 2000px;
+                margin: 0; box-shadow: none;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+
+        <!-- SECTION 1: BRAND HEADER -->
+        <section class="brand-header">
+            <img src="archui-logo.png" alt="ArchUI Logo" class="logo">
+            <div class="team-name">Arch Park</div>
+            <div class="divider"></div>
+        </section>
+
+        <!-- SECTION 2: NODE CANVAS -->
+        <section class="main-visual">
+            <div class="node-canvas">
+                <svg viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+
+                    <!-- Connections -->
+                    <path d="M 245,95 C 300,95 300,240 345,240" class="conn"/>
+                    <path d="M 245,115 C 310,115 310,360 365,360" class="conn"/>
+                    <path d="M 245,80 C 340,60 400,60 435,85" class="conn"/>
+                    <path d="M 455,220 C 490,220 490,140 455,140" class="conn-solid"/>
+                    <path d="M 165,55 C 165,25 85,25 85,55" class="conn-solid" style="opacity:0.3"/>
+
+                    <!-- README.md -->
+                    <g transform="translate(25, 35)">
+                        <rect width="165" height="90" rx="10" ry="10" class="node-box"/>
+                        <rect width="165" height="26" rx="10" ry="10" fill="#5a7a9a"/>
+                        <text x="82" y="18" text-anchor="middle" class="node-label" font-size="12">README.md</text>
+                        <text x="14" y="46" class="node-sublabel" font-size="10">name: ArchUI</text>
+                        <text x="14" y="60" class="node-sublabel" font-size="10">description:</text>
+                        <text x="14" y="74" class="node-sublabel" font-size="10">  模块化文档编排系统</text>
+                        <circle cx="165" cy="50" r="5.5" class="node-port"/>
+                    </g>
+
+                    <!-- SPEC.md -->
+                    <g transform="translate(80, 155)">
+                        <rect width="190" height="115" rx="10" ry="10" class="node-box" style="stroke:#F07040;stroke-width:2.5;"/>
+                        <rect width="190" height="28" rx="10" ry="10" fill="#F07040"/>
+                        <text x="95" y="19" text-anchor="middle" class="node-label" font-size="13">SPEC.md</text>
+                        <text x="15" y="48" class="node-sublabel" font-size="10">uuid: a1b2c3d4</text>
+                        <text x="15" y="64" class="node-sublabel" font-size="10">submodules:</text>
+                        <text x="15" y="80" class="node-sublabel" font-size="10">  memory: e5f6g7h8</text>
+                        <text x="15" y="96" class="node-sublabel" font-size="10">  harness: i9j0k1l2</text>
+                        <circle cx="0" cy="65" r="5.5" class="node-port"/>
+                        <circle cx="190" cy="45" r="5.5" class="node-port"/>
+                        <circle cx="190" cy="80" r="5.5" class="node-port"/>
+                    </g>
+
+                    <!-- MEMORY.md -->
+                    <g transform="translate(325, 200)">
+                        <rect width="170" height="90" rx="10" ry="10" class="node-box" style="stroke:rgba(100,200,150,0.5);"/>
+                        <rect width="170" height="26" rx="10" ry="10" fill="#3a8a5a"/>
+                        <text x="85" y="18" text-anchor="middle" class="node-label" font-size="12">MEMORY.md</text>
+                        <text x="14" y="46" class="node-sublabel" font-size="10">经验与决策记录</text>
+                        <text x="14" y="62" class="node-sublabel" font-size="10">link → parent SPEC</text>
+                        <text x="14" y="78" class="node-sublabel" font-size="10">uuid: e5f6g7h8</text>
+                        <circle cx="0" cy="50" r="5.5" class="node-port" style="fill:#64c896;"/>
+                    </g>
+
+                    <!-- HARNESS.md -->
+                    <g transform="translate(290, 330)">
+                        <rect width="170" height="80" rx="10" ry="10" class="node-box" style="stroke:rgba(180,140,255,0.5);"/>
+                        <rect width="170" height="26" rx="10" ry="10" fill="#6a4aaa"/>
+                        <text x="85" y="18" text-anchor="middle" class="node-label" font-size="12">HARNESS.md</text>
+                        <text x="14" y="46" class="node-sublabel" font-size="10">测试与验证方案</text>
+                        <text x="14" y="62" class="node-sublabel" font-size="10">link → parent SPEC</text>
+                        <circle cx="0" cy="44" r="5.5" class="node-port" style="fill:#b48cff;"/>
+                    </g>
+
+                    <!-- .archui/index.yaml -->
+                    <g transform="translate(395, 55)">
+                        <rect width="185" height="100" rx="10" ry="10" class="node-box" style="stroke:rgba(240,180,64,0.5);"/>
+                        <rect width="185" height="26" rx="10" ry="10" fill="#c08030"/>
+                        <text x="92" y="18" text-anchor="middle" class="node-label" font-size="11">.archui/index.yaml</text>
+                        <text x="14" y="46" class="node-sublabel" font-size="10">uuid: a1b2c3d4</text>
+                        <text x="14" y="62" class="node-sublabel" font-size="10">submodules:</text>
+                        <text x="14" y="78" class="node-sublabel" font-size="10">  memory → e5f6g7h8</text>
+                        <text x="14" y="94" class="node-sublabel" font-size="10">  harness → i9j0k1l2</text>
+                        <circle cx="0" cy="60" r="5.5" class="node-port" style="fill:#f0b440;"/>
+                    </g>
+
+                    <!-- UUID badge -->
+                    <g transform="translate(285, 170)">
+                        <rect width="68" height="20" rx="10" fill="rgba(240,112,64,0.08)" stroke="#F07040" stroke-width="0.8"/>
+                        <text x="34" y="14" text-anchor="middle" fill="#F07040" font-family="JetBrains Mono" font-size="8" font-weight="600">UUID Link</text>
+                    </g>
+                </svg>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PROJECT NAME + TAGLINE -->
+        <section class="project-info">
+            <div class="project-name">ArchUI</div>
+            <div class="subtitle">模块化文档编排系统</div>
+            <div class="tagline">让文档可复用、可替换，直接生成代码</div>
+        </section>
+
+        <!-- SECTION 4: PROJECT INTRO -->
+        <section class="project-intro">
+            <div class="intro-problem">
+                代码和文档是割裂的 —<br>
+                文档写完就过时，AI 啃长文档效率低，知识无法复用。
+            </div>
+            <div class="intro-solution">
+                ArchUI 把文档拆成<strong>模块树</strong>，每个模块独立可理解、可复用。<br>
+                人类用画布编排模块关系，AI agent 按需加载上下文，<strong>直接生成代码</strong>。
+            </div>
+            <div class="intro-bottom">
+                文件系统即知识库，模块即 spec，文档改了代码跟着更新。
+            </div>
+        </section>
+
+        <!-- SECTION 5: THREE HIGHLIGHTS -->
+        <section class="highlights">
+            <div class="highlight-card">
+                <div class="card-num">1</div>
+                <div class="card-title">文档即编排</div>
+                <div class="card-subtitle">文档模块化<br>AI 按需加载<br>告别长文档</div>
+                <div class="card-example">SPEC.md → 模块树<br>AI agent 只读需要的模块</div>
+            </div>
+            <div class="highlight-card">
+                <div class="card-num">2</div>
+                <div class="card-title">模块可复用</div>
+                <div class="card-subtitle">拉取一个登录模块<br>AI 直接生成代码<br>不用从零写 spec</div>
+                <div class="card-example">login-module/ → pull<br>→ AI generates code</div>
+            </div>
+            <div class="highlight-card">
+                <div class="card-num">3</div>
+                <div class="card-title">模块广场</div>
+                <div class="card-subtitle">发布、发现、组合<br>知识模块的 npm</div>
+                <div class="card-example">publish → discover<br>→ compose → generate</div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: FOOTER -->
+        <section class="footer">
+            <div class="qr-block">
+                <img src="qrcode.png" alt="QR Code" style="width:150px;height:150px;border-radius:8px;">
+                <div class="qr-label">扫码查看演示</div>
+            </div>
+            <div class="footer-sep"></div>
+            <div class="contact-block">
+                <div class="contact-title">联系我们</div>
+                <div>GitHub:</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:13px;">SijiaRong/ArchUIRed</div>
+                <div>Team: Arch Park</div>
+            </div>
+        </section>
+
+        <div class="footer-line"></div>
+    </div>
+</body>
+</html>

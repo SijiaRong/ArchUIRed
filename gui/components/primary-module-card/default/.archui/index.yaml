@@ -9,3 +9,7 @@ links:
     relation: implements
     description: Implements the Default visual state of both primary and external reference
       card variants.
+  - uuid: 7e3f1c9a
+    relation: references
+    description: All visual properties must use semantic tokens from the design
+      system — color, typography, spacing, and elevation.

@@ -1,21 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import {
   ReactFlow,
+  ReactFlowProvider,
   Background,
   Controls,
   MiniMap,
   useNodesState,
   useEdgesState,
-  addEdge,
+  useReactFlow,
   BackgroundVariant,
   MarkerType,
 } from '@xyflow/react'
-import type { Node, Edge, Connection, NodeMouseHandler, OnNodesChange } from '@xyflow/react'
+import type { Connection, Edge, Node, NodeMouseHandler, OnNodesChange } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
 import { useCanvasStore } from '../../store/canvas'
-import { saveLayout, addLink, createModule } from '../../filesystem/writeOps'
-import type { ChildModule, ModuleLink } from '../../types'
+import { saveLayout, addLink, createModule, copyModule, deleteModule } from '../../filesystem/writeOps'
+import type { ArchModule, ModuleLink, ProjectIndexEntry } from '../../types'
+import { workspaceContent } from '../../generated/workspace-content.generated'
+import { workspaceLayout } from '../../generated/workspace-layout.generated'
 import { Breadcrumb } from '../nav/Breadcrumb'
 import { ContextMenu } from '../ui/ContextMenu'
 import type { MenuItem } from '../ui/ContextMenu'
@@ -24,260 +28,570 @@ import { CommandPalette } from '../ui/CommandPalette'
 import type { Command } from '../ui/CommandPalette'
 import { ModuleNode } from './ModuleNode'
 import type { ModuleNodeData } from './ModuleNode'
-import { ExternalStubNode } from './ExternalStubNode'
-import type { ExternalStubNodeData } from './ExternalStubNode'
 import { LinkEdge } from './LinkEdge'
+import { DetailPanel } from './DetailPanel'
+import { Toast } from '../ui/Toast'
 import s from './CanvasPage.module.css'
 
-const NODE_TYPES = { moduleNode: ModuleNode, externalStubNode: ExternalStubNode }
+const NODE_TYPES = { moduleNode: ModuleNode }
 const EDGE_TYPES = { linkEdge: LinkEdge }
 
-const GRID_W = 240
-const GRID_H = 170
+const ACCENT_COUNT = 6
 
-function autoLayout(children: ChildModule[]): Record<string, { x: number; y: number }> {
-  const cols = Math.max(1, Math.ceil(Math.sqrt(children.length)))
-  return Object.fromEntries(
-    children.map((c, i) => [
-      c.uuid,
-      { x: (i % cols) * GRID_W + 40, y: Math.floor(i / cols) * GRID_H + 40 },
-    ])
+interface CanvasPageProps {
+  theme: 'light' | 'dark'
+  onToggleTheme: () => void
+}
+
+function placeholderEntry(uuid: string): ProjectIndexEntry {
+  return {
+    uuid,
+    path: '',
+    parentPath: null,
+    name: workspaceContent.canvas.placeholder.unknownModuleName,
+    description: workspaceContent.canvas.placeholder.unknownModuleDescription,
+    submodules: {},
+    links: [],
+  }
+}
+
+function accentIndexFromUuid(uuid: string): number {
+  const slice = uuid.slice(0, 2) || '00'
+  return Number.parseInt(slice, 16) % ACCENT_COUNT
+}
+
+function relationColor(relation?: string): string {
+  switch (relation) {
+    case 'depends-on':
+      return 'var(--edge-depends-on)'
+    case 'implements':
+      return 'var(--edge-implements)'
+    case 'extends':
+      return 'var(--edge-extends)'
+    case 'references':
+      return 'var(--edge-references)'
+    case 'related-to':
+    default:
+      return 'var(--edge-related-to)'
+  }
+}
+
+function realUuid(nodeId: string): string {
+  return nodeId.startsWith('ext-') ? nodeId.slice(4) : nodeId
+}
+
+function autoChildPosition(index: number, total: number): { x: number; y: number } {
+  const childGrid = workspaceLayout.canvas.graph.childGrid
+  const cols = total > childGrid.twoColumnThreshold ? 2 : 1
+  const col = index % cols
+  const row = Math.floor(index / cols)
+  return {
+    x: childGrid.originX + col * childGrid.columnWidth,
+    y: childGrid.originY + row * childGrid.rowHeight + (col % 2) * childGrid.staggerY,
+  }
+}
+
+function buildGraph(
+  currentModule: ArchModule,
+  projectIndex: Record<string, ProjectIndexEntry>,
+  selectedUuid: string | null,
+): { nodes: Node[]; edges: Edge[] } {
+  const visibleIds = new Set<string>([currentModule.uuid, ...currentModule.children.map(child => child.uuid)])
+  const seenEdges = new Set<string>()
+  const edges: Edge[] = []
+
+  for (const source of Object.values(projectIndex)) {
+    for (const link of source.links) {
+      const sourceVisible = visibleIds.has(source.uuid)
+      const targetVisible = visibleIds.has(link.uuid)
+      if (!sourceVisible && !targetVisible) continue
+
+      const sourceId = source.uuid
+      const targetId = link.uuid
+      if (sourceId === targetId) continue
+      if (!sourceVisible || !targetVisible) continue
+
+      const edgeRelation = link.relation ?? workspaceContent.linkRenderer.defaultRelation
+      const edgeKey = `${sourceId}|${targetId}|${edgeRelation}|${link.description ?? ''}`
+      if (seenEdges.has(edgeKey)) continue
+      seenEdges.add(edgeKey)
+
+      const stroke = relationColor(link.relation)
+      edges.push({
+        id: edgeKey,
+        source: sourceId,
+        target: targetId,
+        type: 'linkEdge',
+        data: { relation: edgeRelation },
+        markerEnd: { type: MarkerType.ArrowClosed, color: stroke, width: 14, height: 14 },
+        style: { stroke },
+      } satisfies Edge)
+    }
+  }
+
+  const primaryEntry = projectIndex[currentModule.uuid] ?? {
+    uuid: currentModule.uuid,
+    path: currentModule.path,
+    parentPath: null,
+    name: currentModule.name,
+    description: currentModule.description,
+    submodules: currentModule.submodules,
+    links: currentModule.links,
+  }
+
+  const nodes: Node[] = [
+    {
+      id: currentModule.uuid,
+      type: 'moduleNode',
+      position: currentModule.layout[currentModule.uuid] ?? workspaceLayout.canvas.graph.primaryNode,
+      draggable: false,
+      data: {
+        entry: primaryEntry,
+        variant: 'primary',
+        submoduleCount: currentModule.children.length,
+        linkCount: currentModule.links.length,
+        accentIndex: accentIndexFromUuid(currentModule.uuid),
+      } satisfies ModuleNodeData,
+      selected: selectedUuid === currentModule.uuid,
+    },
+    ...currentModule.children.map((child, index) => {
+      const entry = projectIndex[child.uuid] ?? {
+        uuid: child.uuid,
+        path: child.path,
+        parentPath: currentModule.path,
+        name: child.name,
+        description: child.description,
+        submodules: {},
+        links: child.links,
+      }
+
+      return {
+        id: child.uuid,
+        type: 'moduleNode',
+        position: currentModule.layout[child.uuid] ?? autoChildPosition(index, currentModule.children.length),
+        data: {
+          entry,
+          variant: 'child',
+          submoduleCount: child.submoduleCount,
+          linkCount: child.links.length,
+          accentIndex: accentIndexFromUuid(child.uuid),
+        } satisfies ModuleNodeData,
+        selected: selectedUuid === child.uuid,
+      } satisfies Node
+    }),
+  ]
+
+  return { nodes, edges }
+}
+
+export function CanvasPage(props: CanvasPageProps) {
+  return (
+    <ReactFlowProvider>
+      <CanvasPageInner {...props} />
+    </ReactFlowProvider>
   )
 }
 
-function buildNodes(
-  children: ChildModule[],
-  layout: Record<string, { x: number; y: number }>,
-  externalLinks: ModuleLink[],
-  childUuidSet: Set<string>,
-): Node[] {
-  const positions = Object.keys(layout).length > 0 ? layout : autoLayout(children)
+function CanvasPageInner({ theme, onToggleTheme }: CanvasPageProps) {
+  const currentModule = useCanvasStore(s => s.currentModule)
+  const projectIndex = useCanvasStore(s => s.projectIndex)
+  const adapter = useCanvasStore(s => s.adapter)
+  const rootPath = useCanvasStore(s => s.rootPath)
+  const navigate = useCanvasStore(s => s.navigate)
+  const reload = useCanvasStore(s => s.reload)
+  const loading = useCanvasStore(s => s.loading)
+  const error = useCanvasStore(s => s.error)
+  const setError = useCanvasStore(s => s.setError)
 
-  const moduleNodes: Node[] = children.map(child => ({
-    id: child.uuid,
-    type: 'moduleNode',
-    position: positions[child.uuid] ?? { x: 0, y: 0 },
-    data: {
-      child,
-      submoduleCount: 0, // loaded lazily
-    } satisfies ModuleNodeData,
-  }))
-
-  // External stubs for links pointing outside current children
-  let stubX = (children.length > 0 ? Math.ceil(Math.sqrt(children.length)) : 1) * GRID_W + 100
-  const externalNodes: Node[] = externalLinks
-    .filter(link => !childUuidSet.has(link.uuid))
-    .map(link => {
-      const x = stubX
-      stubX += 200
-      return {
-        id: `stub-${link.uuid}`,
-        type: 'externalStubNode',
-        position: layout[`stub-${link.uuid}`] ?? { x, y: 40 },
-        data: {
-          uuid: link.uuid,
-          relation: link.relation,
-          label: link.description,
-        } satisfies ExternalStubNodeData,
-      }
-    })
-
-  return [...moduleNodes, ...externalNodes]
-}
-
-function buildEdges(links: ModuleLink[], childUuidSet: Set<string>, sourceId: string): Edge[] {
-  return links.map(link => {
-    const targetId = childUuidSet.has(link.uuid) ? link.uuid : `stub-${link.uuid}`
-    return {
-      id: `edge-${link.uuid}`,
-      source: sourceId,
-      target: targetId,
-      type: 'linkEdge',
-      data: { relation: link.relation },
-      markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-color)', width: 12, height: 12 },
-    } satisfies Edge
-  })
-}
-
-export function CanvasPage() {
-  const currentModule   = useCanvasStore(s => s.currentModule)
-  const adapter         = useCanvasStore(s => s.adapter)
-  const navigate        = useCanvasStore(s => s.navigate)
-  const reload          = useCanvasStore(s => s.reload)
-  const loading         = useCanvasStore(s => s.loading)
-  const error           = useCanvasStore(s => s.error)
-  const setError        = useCanvasStore(s => s.setError)
-
+  const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
-  const [ctxMenu, setCtxMenu]  = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
+  const { screenToFlowPosition } = useReactFlow()
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
   const [showNewModule, setShowNewModule] = useState(false)
-  const [showPalette, setShowPalette]     = useState(false)
+  const [showPalette, setShowPalette] = useState(false)
+  const [toast, setToast] = useState<{ message: string; type?: 'info' | 'error' } | null>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Rebuild graph when module changes
+  const showToast = useCallback((message: string, type?: 'info' | 'error') => {
+    setToast({ message, type })
+  }, [])
+
   useEffect(() => {
     if (!currentModule) return
-    const childUuidSet = new Set(currentModule.children.map(c => c.uuid))
-    const newNodes = buildNodes(
-      currentModule.children,
-      currentModule.layout,
-      currentModule.links,
-      childUuidSet,
-    )
-    const newEdges = buildEdges(currentModule.links, childUuidSet, currentModule.uuid)
-    setNodes(newNodes)
-    setEdges(newEdges)
-  }, [currentModule, setNodes, setEdges])
+    const next = buildGraph(currentModule, projectIndex, selectedUuid)
+    setNodes(next.nodes)
+    setEdges(next.edges)
+  }, [currentModule, projectIndex, selectedUuid, setNodes, setEdges])
 
-  // Persist layout after drag with debounce
   const handleNodesChange: OnNodesChange = useCallback((changes) => {
     onNodesChange(changes)
     if (!currentModule) return
-    const hasDrag = changes.some(c => c.type === 'position' && c.dragging === false)
+    const hasDrag = changes.some(change => change.type === 'position' && change.dragging === false)
     if (!hasDrag) return
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => {
       setNodes(current => {
         const layout: Record<string, { x: number; y: number }> = {}
-        for (const n of current) layout[n.id] = n.position
+        for (const node of current) layout[node.id] = node.position
         saveLayout(adapter, currentModule.uuid, layout).catch(console.error)
         return current
       })
-    }, 600)
+    }, 500)
   }, [currentModule, adapter, onNodesChange, setNodes])
 
-  // Double-click a node → navigate in
-  const handleNodeDoubleClick: NodeMouseHandler = useCallback((_e, node) => {
-    if (node.type === 'moduleNode') {
-      const data = node.data as unknown as ModuleNodeData
-      navigate(data.child.path)
-    }
-  }, [navigate])
+  const handleNodeClick: NodeMouseHandler = useCallback((_event, node) => {
+    setSelectedUuid(realUuid(node.id))
+  }, [])
 
-  // Right-click a node → context menu
-  const handleNodeContextMenu: NodeMouseHandler = useCallback((e, node) => {
-    e.preventDefault()
+  const handleNodeDoubleClick: NodeMouseHandler = useCallback(async (_event, node) => {
+    const uuid = realUuid(node.id)
+    const entry = projectIndex[uuid]
+    if (!entry?.path) return
+    await navigate(entry.path)
+    setSelectedUuid(uuid)
+  }, [navigate, projectIndex])
+
+  const doPaste = useCallback(async (screenPos?: { x: number; y: number }) => {
+    try {
+      const text = await navigator.clipboard.readText()
+      const m = /^archui:\/\/copy\?path=(.+)&uuid=([0-9a-f]{8})$/.exec(text)
+      if (!m) {
+        showToast(workspaceContent.canvas.contextMenu.nothingToPaste, 'error')
+        return
+      }
+      const [, sourcePath] = m
+      const destParent = currentModule?.path ?? rootPath ?? ''
+      const flowPos = screenPos
+        ? screenToFlowPosition(screenPos)
+        : screenToFlowPosition({
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2,
+          })
+      await copyModule(adapter, sourcePath, destParent, flowPos)
+      await reload()
+      showToast(workspaceContent.canvas.contextMenu.copiedToClipboard)
+    } catch {
+      showToast(workspaceContent.canvas.contextMenu.pasteFailed, 'error')
+    }
+  }, [adapter, currentModule?.path, rootPath, reload, showToast, screenToFlowPosition])
+
+  const handleNodeContextMenu: NodeMouseHandler = useCallback((event, node) => {
+    event.preventDefault()
+    const uuid = realUuid(node.id)
+    const entry = projectIndex[uuid]
     const items: MenuItem[] = []
-    if (node.type === 'moduleNode') {
-      const data = node.data as unknown as ModuleNodeData
+
+    if (entry?.path) {
+      items.push({
+        id: 'open',
+        label: workspaceContent.canvas.contextMenu.openModule,
+        icon: '>',
+        action: () => { void navigate(entry.path); setSelectedUuid(uuid) },
+      })
+    }
+
+    items.push({
+      id: 'copy',
+      label: workspaceContent.canvas.contextMenu.copyModule,
+      icon: 'C',
+      action: () => {
+        const absPath = entry?.path ?? ''
+        void navigator.clipboard.writeText(
+          `archui://copy?path=${absPath}&uuid=${uuid}`
+        ).then(() => showToast(workspaceContent.canvas.contextMenu.copiedToClipboard))
+      },
+    })
+
+    if (uuid !== currentModule?.uuid) {
+      items.push({
+        id: 'sep',
+        label: '',
+        action: () => {},
+      })
+      items.push({
+        id: 'delete',
+        label: workspaceContent.canvas.contextMenu.deleteModule,
+        icon: 'X',
+        danger: true,
+        action: () => {
+          const entry = projectIndex[uuid]
+          if (!entry) return
+          const parentPath = entry.parentPath ?? currentModule?.path ?? ''
+          const folderName = entry.path.split('/').filter(Boolean).pop() ?? ''
+          if (!confirm(workspaceContent.canvas.contextMenu.deleteConfirm)) return
+          void (async () => {
+            try {
+              await deleteModule(adapter, parentPath, folderName, uuid)
+              await reload()
+            } catch {
+              showToast(workspaceContent.canvas.contextMenu.deleteFailed, 'error')
+            }
+          })()
+        },
+      })
+    }
+
+    if (uuid === currentModule?.uuid) {
       items.push(
-        { id: 'open', label: 'Open', icon: '→', action: () => navigate(data.child.path) },
-        { id: 'sep1', label: '', action: () => undefined },
-        { id: 'new-child', label: 'New child module', icon: '＋', action: () => setShowNewModule(true) },
+        {
+          id: 'new-child',
+          label: workspaceContent.canvas.contextMenu.newChildModule,
+          icon: '+',
+          action: () => setShowNewModule(true),
+        },
+        {
+          id: 'reload',
+          label: workspaceContent.canvas.contextMenu.reloadWorkspace,
+          icon: 'R',
+          action: () => void reload(),
+        },
       )
     }
-    if (items.length > 0) setCtxMenu({ x: e.clientX, y: e.clientY, items })
-  }, [navigate])
 
-  // Connect two nodes → add link in filesystem
+    if (items.length > 0) {
+      setCtxMenu({ x: event.clientX, y: event.clientY, items })
+    }
+  }, [adapter, currentModule?.uuid, currentModule?.path, navigate, projectIndex, reload, showToast])
+
+  const handlePaneContextMenu = useCallback((event: MouseEvent | React.MouseEvent) => {
+    event.preventDefault()
+    const pos = { x: event.clientX, y: event.clientY }
+    setCtxMenu({
+      x: event.clientX,
+      y: event.clientY,
+      items: [{
+        id: 'paste',
+        label: workspaceContent.canvas.contextMenu.pasteModule,
+        icon: 'V',
+        action: () => void doPaste(pos),
+      }],
+    })
+  }, [doPaste])
+
   const onConnect = useCallback(async (connection: Connection) => {
-    if (!currentModule) return
-    // Find the source child module
-    const sourceChild = currentModule.children.find(c => c.uuid === connection.source)
-    const targetChild = currentModule.children.find(c => c.uuid === connection.target)
-    if (!sourceChild || !targetChild) return
-    const link: ModuleLink = { uuid: targetChild.uuid, relation: 'related-to' }
+    if (!connection.source || !connection.target) return
+    const sourceUuid = realUuid(connection.source)
+    const targetUuid = realUuid(connection.target)
+    const sourceEntry = projectIndex[sourceUuid]
+    if (!sourceEntry?.path) return
+
+    const link: ModuleLink = { uuid: targetUuid, relation: workspaceContent.linkRenderer.defaultRelation }
     try {
-      await addLink(adapter, sourceChild.path, link)
-      setEdges(eds => addEdge({
-        ...connection,
-        type: 'linkEdge',
-        data: { relation: 'related-to' },
-        markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-color)', width: 12, height: 12 },
-      }, eds))
+      await addLink(adapter, sourceEntry.path, link)
+      await reload()
+      setSelectedUuid(sourceUuid)
     } catch (e) {
       setError(String(e))
     }
-  }, [currentModule, adapter, setEdges, setError])
+  }, [adapter, projectIndex, reload, setError])
 
-  // Create new child module
   async function handleCreateModule(folderName: string, name: string, description: string) {
     if (!currentModule) return
     setShowNewModule(false)
     try {
       await createModule(adapter, currentModule.path, folderName, name, description)
       await reload()
+      setSelectedUuid(currentModule.uuid)
     } catch (e) {
       setError(String(e))
     }
   }
 
-  // Keyboard shortcut: Cmd/Ctrl+K → command palette
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setShowPalette(v => !v) }
-      if (e.key === 'Escape') { setShowPalette(false); setCtxMenu(null) }
+    function onKey(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setShowPalette(value => !value)
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'c' && selectedUuid) {
+        const selEntry = projectIndex[selectedUuid]
+        if (selEntry?.path) {
+          event.preventDefault()
+          void navigator.clipboard.writeText(
+            `archui://copy?path=${selEntry.path}&uuid=${selectedUuid}`
+          ).then(() => showToast(workspaceContent.canvas.contextMenu.copiedToClipboard))
+        }
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'v') {
+        event.preventDefault()
+        void doPaste()
+      }
+      if (event.key === 'Escape') {
+        setShowPalette(false)
+        setCtxMenu(null)
+        setSelectedUuid(null)
+      }
     }
+
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [selectedUuid, projectIndex, showToast, doPaste])
+
+  const canvasContent = workspaceContent.canvas
+  const themeToggleLabel = theme === 'light'
+    ? canvasContent.toolbar.themeToggle.toDark
+    : canvasContent.toolbar.themeToggle.toLight
 
   const commands = useMemo<Command[]>(() => {
-    const cmds: Command[] = [
-      { id: 'new-module', label: 'New module', icon: '＋', action: () => setShowNewModule(true) },
-      { id: 'reload', label: 'Reload', icon: '↺', hint: 'Reload current module', action: () => reload() },
+    const list: Command[] = [
+      {
+        id: 'new-module',
+        label: canvasContent.commands.newChildModule,
+        icon: '+',
+        action: () => setShowNewModule(true),
+      },
+      {
+        id: 'reload',
+        label: canvasContent.commands.reloadWorkspace,
+        icon: 'R',
+        hint: canvasContent.commands.reloadHint,
+        action: () => reload(),
+      },
+      {
+        id: 'toggle-theme',
+        label: themeToggleLabel,
+        icon: 'T',
+        action: onToggleTheme,
+      },
     ]
+
     if (currentModule?.children) {
       for (const child of currentModule.children) {
-        cmds.push({
+        list.push({
           id: `nav-${child.uuid}`,
           label: child.name,
-          hint: 'Navigate',
-          icon: '→',
-          action: () => navigate(child.path),
+          hint: canvasContent.commands.openModuleHint,
+          icon: '>',
+          action: () => { void navigate(child.path); setSelectedUuid(child.uuid) },
         })
       }
     }
-    return cmds
-  }, [currentModule, navigate, reload])
 
-  if (!currentModule && !loading) return null
+    return list
+  }, [canvasContent.commands, currentModule, navigate, onToggleTheme, reload, themeToggleLabel])
+
+  const selectedEntry = selectedUuid ? (projectIndex[selectedUuid] ?? placeholderEntry(selectedUuid)) : null
+  const selectionAccent = selectedUuid ? accentIndexFromUuid(selectedUuid) : accentIndexFromUuid(currentModule?.uuid ?? '00000000')
+  const workspaceTitle = currentModule?.name ?? canvasContent.intro.emptyTitle
+  const workspaceDescription = currentModule?.description || canvasContent.intro.emptyDescription
+  const canvasLayoutVars = {
+    ['--canvas-intro-top' as string]: `${workspaceLayout.canvas.overlays.intro.desktop.top}px`,
+    ['--canvas-intro-left' as string]: `${workspaceLayout.canvas.overlays.intro.desktop.left}px`,
+    ['--canvas-intro-max-width' as string]: `${workspaceLayout.canvas.overlays.intro.desktop.maxWidth}px`,
+    ['--canvas-intro-tablet-max-width' as string]: `${workspaceLayout.canvas.overlays.intro.tablet.maxWidth}px`,
+    ['--canvas-intro-mobile-top' as string]: `${workspaceLayout.canvas.overlays.intro.mobile.top}px`,
+    ['--canvas-intro-mobile-left' as string]: `${workspaceLayout.canvas.overlays.intro.mobile.left}px`,
+    ['--canvas-intro-mobile-right' as string]: `${workspaceLayout.canvas.overlays.intro.mobile.right}px`,
+    ['--canvas-toolbar-top' as string]: `${workspaceLayout.canvas.overlays.toolbar.desktop.top}px`,
+    ['--canvas-toolbar-right' as string]: `${workspaceLayout.canvas.overlays.toolbar.desktop.right}px`,
+    ['--canvas-toolbar-mobile-top' as string]: `${workspaceLayout.canvas.overlays.toolbar.mobile.top}px`,
+    ['--canvas-toolbar-mobile-left' as string]: `${workspaceLayout.canvas.overlays.toolbar.mobile.left}px`,
+    ['--canvas-toolbar-mobile-right' as string]: `${workspaceLayout.canvas.overlays.toolbar.mobile.right}px`,
+    ['--canvas-meta-top' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.desktop.top}px`,
+    ['--canvas-meta-left' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.desktop.left}px`,
+    ['--canvas-meta-tablet-top' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.tablet.top}px`,
+    ['--canvas-meta-mobile-top' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.mobile.top}px`,
+    ['--canvas-meta-mobile-left' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.mobile.left}px`,
+    ['--canvas-selection-hint-right' as string]: `${workspaceLayout.canvas.overlays.selectionHint.desktop.right}px`,
+    ['--canvas-selection-hint-bottom' as string]: `${workspaceLayout.canvas.overlays.selectionHint.desktop.bottom}px`,
+    ['--canvas-selection-hint-mobile-left' as string]: `${workspaceLayout.canvas.overlays.selectionHint.mobile.left}px`,
+    ['--canvas-selection-hint-mobile-right' as string]: `${workspaceLayout.canvas.overlays.selectionHint.mobile.right}px`,
+    ['--canvas-selection-hint-mobile-bottom' as string]: `${workspaceLayout.canvas.overlays.selectionHint.mobile.bottom}px`,
+    ['--detail-panel-top' as string]: `${workspaceLayout.canvas.overlays.detailPanel.desktop.top}px`,
+    ['--detail-panel-right' as string]: `${workspaceLayout.canvas.overlays.detailPanel.desktop.right}px`,
+    ['--detail-panel-bottom' as string]: `${workspaceLayout.canvas.overlays.detailPanel.desktop.bottom}px`,
+    ['--detail-panel-width' as string]: `${workspaceLayout.canvas.overlays.detailPanel.desktop.width}px`,
+    ['--detail-panel-viewport-inset' as string]: `${workspaceLayout.canvas.overlays.detailPanel.desktop.viewportInset}px`,
+    ['--detail-panel-mobile-inset' as string]: `${workspaceLayout.canvas.overlays.detailPanel.mobile.inset}px`,
+    ['--detail-panel-mobile-max-height' as string]: workspaceLayout.canvas.overlays.detailPanel.mobile.maxHeight,
+  } as CSSProperties
 
   return (
     <div className={s.wrap}>
       <Breadcrumb />
-      <div className={s.canvas} style={{ position: 'relative' }}>
+      <div className={s.canvas} style={canvasLayoutVars}>
+        <div className={s.canvasIntro}>
+          <div className={s.kicker}>{canvasContent.intro.kicker}</div>
+          <h1>{workspaceTitle}</h1>
+          <p>{workspaceDescription}</p>
+        </div>
+
+        <div className={s.toolbar}>
+          <button className={s.toolBtn} onClick={() => setShowNewModule(true)}>{canvasContent.toolbar.newChild}</button>
+          <button className={s.toolBtn} onClick={() => reload()}>{canvasContent.toolbar.reload}</button>
+          <button className={s.toolBtn} onClick={onToggleTheme}>{themeToggleLabel}</button>
+          <button className={s.toolBtn} onClick={() => setShowPalette(true)}>{canvasContent.toolbar.commandMenu}</button>
+        </div>
+
+        <div className={s.workspaceMeta}>
+          <div className={s.metricCard}>
+            <span className={s.metricLabel}>{canvasContent.metrics.submodules}</span>
+            <strong>{currentModule?.children.length ?? 0}</strong>
+          </div>
+          <div className={s.metricCard}>
+            <span className={s.metricLabel}>{canvasContent.metrics.theme}</span>
+            <strong>{theme}</strong>
+          </div>
+        </div>
+
         <ReactFlow
           nodes={nodes}
           edges={edges}
           onNodesChange={handleNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onNodeClick={handleNodeClick}
           onNodeDoubleClick={handleNodeDoubleClick}
           onNodeContextMenu={handleNodeContextMenu}
-          onPaneClick={() => setCtxMenu(null)}
+          onPaneClick={() => { setCtxMenu(null); setSelectedUuid(null) }}
+          onPaneContextMenu={handlePaneContextMenu}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
           fitView
-          fitViewOptions={{ padding: 0.2 }}
-          minZoom={0.2}
-          maxZoom={3}
+          fitViewOptions={workspaceLayout.canvas.graph.fitView}
+          minZoom={workspaceLayout.canvas.graph.zoom.min}
+          maxZoom={workspaceLayout.canvas.graph.zoom.max}
           deleteKeyCode="Delete"
           proOptions={{ hideAttribution: true }}
+          className={s.flow}
         >
-          <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--canvas-dot)" />
-          <Controls showInteractive={false} />
+          <Background variant={BackgroundVariant.Dots} gap={24} size={1.2} color="var(--canvas-dot)" />
+          <Controls showInteractive={false} className={s.controls} />
           <MiniMap
             nodeColor={() => 'var(--node-bg)'}
             maskColor="var(--overlay-dim)"
-            style={{ background: 'var(--bg-crust)' }}
+            style={{ background: 'var(--surface-overlay)', border: '1px solid var(--line-default)' }}
           />
         </ReactFlow>
 
-        {/* Toolbar */}
-        <div className={s.toolbar}>
-          <button className={s.toolBtn} onClick={() => setShowNewModule(true)}>＋ Module</button>
-          <button className={s.toolBtn} onClick={() => reload()}>↺ Reload</button>
-          <button className={s.toolBtn} onClick={() => setShowPalette(true)}>⌘K</button>
-        </div>
+        {!selectedEntry && (
+          <div className={s.selectionHint}>
+            <strong>{canvasContent.selectionHint.title}</strong>
+            <span>{canvasContent.selectionHint.body}</span>
+          </div>
+        )}
 
-        {loading && <div className={s.loading}>Loading…</div>}
+        {selectedEntry && currentModule && (
+          <DetailPanel
+            entry={selectedEntry}
+            currentModuleUuid={currentModule.uuid}
+            projectIndex={projectIndex}
+            accentIndex={selectionAccent}
+            onNavigate={(path, uuid) => {
+              void navigate(path)
+              setSelectedUuid(uuid)
+            }}
+            onClose={() => setSelectedUuid(null)}
+          />
+        )}
+
+        {loading && <div className={s.loading}>{canvasContent.loading}</div>}
 
         {!loading && currentModule && currentModule.children.length === 0 && (
           <div className={s.emptyHint}>
-            <h3>No submodules yet</h3>
-            <p>Click "＋ Module" to add the first child module.</p>
+            <h3>{canvasContent.emptyState.title}</h3>
+            <p>{canvasContent.emptyState.body}</p>
           </div>
         )}
 
@@ -308,6 +622,14 @@ export function CanvasPage() {
         <CommandPalette
           commands={commands}
           onClose={() => setShowPalette(false)}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onDismiss={() => setToast(null)}
         />
       )}
     </div>

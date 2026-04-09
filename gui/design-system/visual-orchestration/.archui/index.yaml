@@ -1,0 +1,40 @@
+schema_version: 1
+uuid: 68885b70
+submodules: {}
+links:
+  - uuid: 3ccb57fd
+    relation: depends-on
+    description: Visual orchestration builds on the foundations token system and
+      defines how those tokens are composed into a coherent workspace.
+  - uuid: 537c63d3
+    relation: related-to
+    description: The canvas screen consumes this module's workspace composition,
+      density, and motion rules.
+  - uuid: 6f1c4a9d
+    relation: related-to
+    description: Primary and external card hierarchy are defined here before they
+      are expressed as concrete Figma components.
+  - uuid: 2a8e5b3f
+    relation: related-to
+    description: Edge emphasis and dense-link readability rules are coordinated
+      through this module.
+  - uuid: 9d4c7e1b
+    relation: related-to
+    description: Breadcrumb and drill-down orientation rules are part of the same
+      workspace composition language.
+  - uuid: 4ccc342f
+    relation: related-to
+    description: Secondary panels must fit the same hierarchy and focus model as
+      the canvas workbench.
+  - uuid: 333a9a92
+    relation: related-to
+    description: Design-update-trigger uses this module as the semantic staging
+      area before pushing layout changes into Figma and code.
+  - uuid: 7a1e5b8d
+    relation: related-to
+    description: The shared React SPA implements this module's composition rules
+      for both Web and Electron targets.
+  - uuid: 71e6fea9
+    relation: related-to
+    description: Web visual regression tests derive their screenshot scenarios
+      from this module's orchestrated workspace states.

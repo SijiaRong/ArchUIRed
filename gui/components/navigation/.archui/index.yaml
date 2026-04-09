@@ -11,3 +11,7 @@ links:
       core/filesystem-rules — every drill-in step corresponds to entering a
       subfolder, and every back step corresponds to returning to the parent
       folder.
+  - uuid: 7e3f1c9a
+    relation: references
+    description: All visual properties must use semantic tokens from the design
+      system — color, typography, spacing, and elevation.

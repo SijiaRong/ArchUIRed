@@ -2,64 +2,102 @@
 
 ## Layout
 
-The breadcrumb trail is a horizontal bar pinned to the top of the canvas viewport, below
-the main topbar (if any). It is always visible while any canvas is open.
+The breadcrumb is rendered inside the 48px topbar, vertically centred. It occupies the full available width of the topbar minus 16px of horizontal padding on each side.
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│  ArchUI  ›  GUI  ›  Screens  ›  Canvas                    │  ← breadcrumb bar
-└────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  topbar (48px)                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  ArchUI  ›  GUI  ›  Canvas                                          │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Dimensions
+The breadcrumb component itself is 32px tall, centred in the topbar with 8px above and below.
 
-```
-height: 32px
-padding: 0 16px
-background: token(surface-topbar)    /* #F9FAFB light / #111827 dark */
-border-bottom: 1px solid token(border-subtle)
-font-size: 13px
-```
+## Root Crumb — Always Visible
 
-## Crumb Element
+The root crumb ("ArchUI") is always the first item in the trail. It is:
 
-```
-[crumb-label]  ›  [crumb-label]  ›  [current-label]
-```
+- Present from the moment the GUI opens.
+- Never removed, hidden, or collapsed into the overflow `…` button — it is excluded from overflow truncation.
+- Always clickable (navigates to the root canvas).
+- The label is always the repository root display name, not a dynamic value.
 
-- Separator `›`: 10px wide, token(text-tertiary) color, non-clickable.
-- Intermediate crumbs: token(text-link) color, underline on hover, cursor pointer.
-- Current crumb (last): token(text-primary), no underline, cursor default, font-weight 500.
-- Root crumb: always "ArchUI", links to root canvas.
+## Crumb Click Navigation
 
-## Overflow Behavior
+Clicking any crumb (root or intermediate) navigates directly to that module's canvas:
 
-When the breadcrumb exceeds the available bar width:
-1. Middle crumbs are collapsed into a `…` ellipsis button.
-2. The first crumb (root) and last crumb (current) always remain visible.
-3. Clicking `…` expands a dropdown showing hidden intermediate crumbs.
+- The navigation stack is truncated to the depth of the clicked crumb.
+- Canvases for modules deeper than the clicked crumb are not retained.
+- The previously focused node at the destination canvas is briefly highlighted to aid re-orientation.
+- The current (rightmost) crumb is non-clickable — clicking it has no effect.
+
+## Keyboard Accessibility
+
+All clickable crumbs (root + intermediate) are keyboard-focusable tab stops:
+
+- Tab order goes left to right through clickable crumbs.
+- The current (rightmost) crumb is excluded from tab order (`tabindex="-1"` or equivalent).
+- The overflow `…` button is a tab stop when visible.
+- Enter / Space activates a focused crumb (same effect as a click).
+- A visible focus ring is rendered around the focused crumb: 2px, `color/border/focus`, 2px offset.
+- Items in the overflow dropdown are focusable; Escape closes the dropdown without navigation.
+
+## Overflow Truncation
+
+When the total rendered width of all crumbs plus separators exceeds the available bar width:
+
+1. Root crumb and current crumb are kept visible.
+2. All intermediate crumbs between root and current are collapsed into a single `…` overflow button.
+3. Clicking `…` opens a dropdown panel listing the hidden crumbs in order from closest-to-root at the top.
+4. Clicking a crumb in the dropdown navigates to that depth (same behaviour as a direct crumb click).
+5. The `…` button is positioned between the root crumb separator and the current crumb separator.
 
 ```
 ArchUI  ›  …  ›  Canvas
-              ↓ (on click)
-         GUI
-         Screens
 ```
 
-## Interaction
+Overflow recalculation runs:
+- On initial mount.
+- When the window/viewport is resized.
+- When the navigation stack changes length.
 
-| Action                        | Result                                      |
-|-------------------------------|---------------------------------------------|
-| Click intermediate crumb      | Navigate to that depth (truncate stack)     |
-| Click root crumb              | Navigate to project root canvas             |
-| Click `…` expand button       | Show hidden crumbs in dropdown              |
-| Click hidden crumb in dropdown| Navigate to that depth                      |
-| Keyboard Tab                  | Focusable, Enter activates click behavior   |
+## Session Persistence Interaction
+
+The breadcrumb reads its state from the navigation stack, which is restored from session storage on reload. The breadcrumb itself does not read from or write to session storage — that responsibility belongs to the navigation module. On restore, the breadcrumb renders the persisted trail immediately, with no animation (no slide-in on mount for pre-existing crumbs).
+
+New crumbs added after mount (drill-in) do animate in.
 
 ## Animation
 
-When a new crumb is added (drill-in), the new crumb slides in from the right:
-- Animation: opacity 0→1 + translateX(8px→0), 120ms ease-out.
+| Event        | Animation                                     | Duration   | Easing    |
+|--------------|-----------------------------------------------|------------|-----------|
+| Drill-in     | New crumb: opacity 0→1, translateX(8px→0)     | 120ms      | ease-out  |
+| Back / jump  | Removed crumbs: opacity 1→0                   | 80ms       | ease-in   |
+| Overflow `…` | Dropdown open: opacity 0→1, translateY(−4→0)  | 100ms      | ease-out  |
+| Overflow `…` | Dropdown close: opacity 1→0                   | 60ms       | ease-in   |
 
-When crumbs are removed (back navigation):
-- Removed crumbs fade out: opacity 1→0, 80ms ease-in.
+## Rendering in Topbar Context
+
+The breadcrumb is a child of the topbar component. Layout contract:
+
+- The topbar is 48px tall and full viewport width.
+- The breadcrumb is rendered in a flex row, vertically centred (`align-items: center`).
+- Left edge: 16px from topbar left edge (`spacing/400`).
+- Right edge: must not overflow the topbar; clip or trigger overflow truncation before reaching the topbar right edge.
+- The topbar may also contain action buttons (e.g., sync, settings) on its right side. The breadcrumb must respect the space reserved for those buttons; it does not overlap them.
+
+## Interaction Table
+
+| Action                         | Result                                          |
+|--------------------------------|-------------------------------------------------|
+| Click root crumb               | Navigate to root canvas                         |
+| Click intermediate crumb       | Navigate to that depth (truncate stack)         |
+| Click current crumb            | No effect                                       |
+| Click `…` overflow button      | Open dropdown with hidden crumbs                |
+| Click crumb in dropdown        | Navigate to that depth                          |
+| Hover any clickable crumb      | Underline, surface/hover background tint        |
+| Keyboard Tab                   | Move focus left→right through clickable crumbs  |
+| Keyboard Enter / Space         | Activate focused crumb (same as click)          |
+| Keyboard Escape (dropdown open)| Close dropdown, return focus to `…` button      |

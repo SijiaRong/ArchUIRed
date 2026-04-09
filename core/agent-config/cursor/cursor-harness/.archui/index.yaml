@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: b219f2ce
+submodules: {}
+links:
+  - uuid: eae5e5c9
+    relation: implements
+    description: Test harness for the Cursor deployment adapter

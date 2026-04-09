@@ -40,7 +40,7 @@ The CLI validates these rules. Every valid ArchUI project must follow them:
 9. `submodules` in `.archui/index.yaml` is a **map** of `folder-name → child-uuid`. It must match actual subfolders on disk (bidirectional).
 10. The only allowed non-module subfolder is `resources/`.
 11. Structure is infinitely nestable — the same rules apply at every level.
-12. **SPEC modules** must contain exactly one HARNESS submodule and one MEMORY submodule.
+12. **SPEC modules** must contain exactly one HARNESS submodule. MEMORY submodule is optional (at most one).
 13. **HARNESS modules** must have exactly one link (to their parent SPEC). No other links permitted.
 14. **MEMORY modules** should link only to their parent SPEC (warning if violated, not error).
 

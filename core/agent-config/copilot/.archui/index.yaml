@@ -1,5 +1,7 @@
 schema_version: 1
 uuid: c91296a3
+submodules:
+  copilot-harness: d392ccb2
 links:
   - uuid: 6aea7af7
     relation: depends-on

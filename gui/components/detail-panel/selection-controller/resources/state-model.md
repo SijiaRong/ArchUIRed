@@ -7,87 +7,152 @@ selectedUuid: string | null
 ```
 
 - `null` — no module is selected; canvas is in the idle state.
-- `string` — exactly one module is selected, identified by its UUID. At most one module can be selected at any time; selecting a new module replaces the previous selection.
+- `string` — exactly one module is selected, identified by its UUID. At most one module can be selected at any time; selecting a new module atomically replaces the previous selection — there is no intermediate state where two modules are simultaneously selected.
 
 ---
 
-## Ways Selection Is Set
+## State Machine Diagram
 
-A single click on any of the following targets sets `selectedUuid` to the UUID of the corresponding module:
-
-| Click Target | Result |
-|---|---|
-| Primary card body or header (not the drill-in button) | `selectedUuid` = that primary card's module UUID |
-| External reference card | `selectedUuid` = the external module's UUID |
-| Port row inside the primary card | `selectedUuid` = the submodule shown by that port row |
-| Detail panel submodule row | `selectedUuid` = the clicked submodule's UUID (also triggers navigation) |
-| Detail panel link row (Link to or Linked by) | `selectedUuid` = the linked/linking module's UUID (also triggers navigation) |
-
-**Note on double-click**: Double-clicking a card triggers drill-in navigation and does **not** set `selectedUuid`. Selection is not changed by drill-in initiation; the canvas level transition itself will reset selection (see "Interaction with Navigation" below).
+```
+                      ┌─────────────────────────────────────────────────┐
+                      │                                                 │
+                      ▼                                                 │
+               ┌─────────────┐    single-click card / port / ext-card  │
+               │    IDLE     │──────────────────────────────────────────┤
+               │ uuid = null │                                          │
+               └─────────────┘                                          │
+                      │                                                 │
+                      │  single-click card / port / ext-card            │
+                      ▼                                                 │
+               ┌─────────────┐    click empty canvas (onPaneClick)     │
+               │  SELECTED   │──────────────────────────────────────────┘
+               │ uuid = <id> │
+               └──────┬──────┘
+                      │           click different card / port / ext-card
+                      └──────────────────────────────────────────────────┐
+                                                                         │
+               ┌─────────────┐                                          │
+               │  SELECTED   │◀─────────────────────────────────────────┘
+               │ uuid = <id2>│   (atomic replace — no intermediate state)
+               └──────┬──────┘
+                      │
+                      │  drill-in (double-click) or breadcrumb click
+                      ▼
+               ┌──────────────────┐
+               │ NAVIGATING       │  (transient — resolves immediately)
+               │ uuid = null      │──► canvas re-renders at new level
+               └──────────────────┘   selectedUuid set per navigation type
+                                       (see Navigation table below)
+```
 
 ---
 
-## Ways Selection Is Cleared
+## State Table
 
-| Trigger | Mechanism |
-|---------|-----------|
-| Click on empty canvas space (no node/edge/handle under cursor) | React Flow `onPaneClick` fires → `selectedUuid = null` |
-| Drill-in navigation (double-click on card) | Canvas level transition resets `selectedUuid = null` |
-| Breadcrumb click (navigate up or to ancestor) | Canvas level transition resets `selectedUuid = null` |
+| State | `selectedUuid` | Description |
+|-------|---------------|-------------|
+| IDLE | `null` | No module selected. Canvas pane is in rest state. Detail panel is hidden (translated off-screen). |
+| SELECTED | `<uuid>` | Exactly one module is selected. Primary card with matching UUID shows accent border + glow. Detail panel is visible and populated. |
 
-There is no Escape key handler for deselection in the initial implementation (may be added in a future iteration).
+There is no `MULTI_SELECTED` state — the spec defines single-value selection only.
 
 ---
 
-## Effects Table
+## Transitions
 
-When `selectedUuid` changes, the following components respond:
+### Transitions into SELECTED
 
-| Component | Response |
-|---|---|
-| Primary card (`module-node/default`) | If its UUID matches `selectedUuid`: apply `module-node/selected` visual state (accent border + glow). If it does not match: render in default state. |
-| External reference card | If its UUID matches `selectedUuid`: apply selected visual state (same border/glow pattern). |
-| Port row (inside primary card) | If the port's submodule UUID matches `selectedUuid`: highlight that row (accent color on row background or left border). |
-| Detail panel | `selectedUuid` non-null → panel slides in (`translateX(0)`) and displays the selected module's data. `selectedUuid` null → panel slides out (`translateX(100%)`). |
+| Trigger | Source state | Guard | `selectedUuid` after | Side effects |
+|---------|-------------|-------|---------------------|--------------|
+| Single click on primary card body/header (not drill-in button) | IDLE or SELECTED | Click target is a node, not the drill-in `▷` button | UUID of clicked card | Primary card enters selected visual state; detail panel slides in or updates content. |
+| Single click on external reference card | IDLE or SELECTED | None | UUID of the external module | External reference card enters selected visual state; detail panel slides in or updates. |
+| Single click on port row | IDLE or SELECTED | Port row is visible inside a primary card | UUID of the submodule shown by the port | Port row highlights; detail panel slides in or updates. |
+| Detail panel submodule row click | SELECTED | Panel is open | UUID of the clicked submodule | Navigation triggered (see Navigation table); after new level renders, UUID set, card centred. |
+| Detail panel link row click (Link to or Linked by) | SELECTED | Panel is open | UUID of the linked / linking module | Navigation triggered; after new level renders, UUID set, card centred. |
+
+### Transitions into IDLE
+
+| Trigger | Source state | Guard | `selectedUuid` after | Side effects |
+|---------|-------------|-------|---------------------|--------------|
+| Click on empty canvas (`onPaneClick`) | SELECTED | React Flow guarantees no node/edge under cursor | `null` | Primary card returns to default visual state; detail panel slides out. |
+| Drill-in navigation (double-click on card) | IDLE or SELECTED | Canvas level transition begins | `null` (reset during transition) | Canvas re-renders at new level; detail panel is hidden. |
+| Breadcrumb click (navigate up or to ancestor) | IDLE or SELECTED | Canvas level transition begins | `null` (reset during transition) | Canvas re-renders at the breadcrumb target level; detail panel is hidden. |
+
+---
+
+## Guards and Non-Transitions
+
+| User action | Does it change `selectedUuid`? | Reason |
+|-------------|-------------------------------|--------|
+| Double-click on a card | No — drill-in begins, then `null` is set during level transition | Double-click is captured as a navigation event, not a selection event. |
+| Click the drill-in `▷` button | No — same as double-click | Button triggers drill-in; selection is incidental. |
+| Hover over a card or row | No | Hover is a display-only interaction. |
+| Canvas pan or zoom | No | React Flow pan/zoom does not emit `onPaneClick`. |
+| Keyboard input (text editing, shortcuts) | No — unless Escape is added later | No Escape handler in the initial implementation. |
+
+---
+
+## Side Effects Table
+
+When `selectedUuid` changes to a **non-null** value:
+
+| Component | Effect |
+|-----------|--------|
+| Primary card (`module-node/default`) whose UUID matches | Apply `module-node/selected` CSS: accent border using `color/border/focus`, glow via box-shadow. All other primary cards revert to default style. |
+| External reference card whose UUID matches | Apply selected visual state (same border/glow pattern). |
+| Port row whose submodule UUID matches | Highlight that row (accent color on row background or left border stripe). |
+| Detail panel | `selectedUuid` non-null → `translateX(0)`, transition `200ms ease-out`. Panel fetches and renders the selected module's data. |
+
+When `selectedUuid` changes to **null**:
+
+| Component | Effect |
+|-----------|--------|
+| All primary cards | Remove selected visual state; render in default state. |
+| All external reference cards | Remove selected visual state. |
+| All port rows | Remove highlight. |
+| Detail panel | `translateX(100%)`, transition `200ms ease-in`. Panel remains mounted in DOM. |
 
 ---
 
 ## Canvas Click Deselection Handler
 
-The React Flow `onPaneClick` event fires when the user clicks on the canvas background with no node or edge under the cursor.
-
 ```typescript
+// React Flow prop on the canvas component
 onPaneClick={() => selectModule(null)}
 ```
 
-React Flow guarantees that `onPaneClick` does **not** fire when clicking on a node or edge — the node's own `onClick` handler fires instead and stops propagation to the pane. This means `onPaneClick` is safe to use for deselection without additional guard conditions.
+React Flow guarantees that `onPaneClick` does **not** fire when clicking on a node, edge, or handle — the node's own `onClick` handler fires instead and stops propagation to the pane. No additional guard conditions are required in the `onPaneClick` handler.
 
 ---
 
 ## Interaction with Navigation
 
-Navigation events (drill-in, breadcrumb, or detail panel row click) interact with selection as follows:
+Navigation events always reset or set `selectedUuid` as part of the canvas level transition.
 
-1. **Navigate** to the new canvas level (update `navStack`).
-2. **Set `selectedUuid`**:
-   - If navigation was triggered by clicking a specific target (detail panel row click): set `selectedUuid` = target module UUID after the new level renders.
-   - If navigation was triggered by drill-in or breadcrumb click (no specific module target): set `selectedUuid` = `null`.
-3. **After the new level renders**: if a target UUID was specified, scroll/centre the selected module's card into the viewport.
+| Navigation trigger | When `selectedUuid` is set | Value |
+|-------------------|--------------------------|-------|
+| Drill-in (double-click card) | During level transition | `null` |
+| Breadcrumb click | During level transition | `null` |
+| Detail panel submodule row click | After new canvas level renders | UUID of the clicked submodule |
+| Detail panel link row click (Link to) | After new canvas level renders | UUID of the target module |
+| Detail panel link row click (Linked by) | After new canvas level renders | UUID of the linking module |
 
-| Navigation Trigger | Post-navigation `selectedUuid` |
-|---|---|
-| Drill-in (double-click card) | `null` |
-| Breadcrumb click | `null` |
-| Detail panel submodule row click | UUID of the clicked submodule |
-| Detail panel link row click (Link to / Linked by) | UUID of the target/source module |
+Step sequence for a detail panel row click that requires navigation:
+
+1. Determine the target UUID from the row.
+2. Look up the target module's parent path in the project index.
+3. If the target is not visible at the current level: update `navStack` to end at the parent.
+4. Wait for the canvas to re-render (next animation frame or React commit).
+5. Set `selectedUuid` = target UUID.
+6. Centre the target's card using `fitView({ nodes: [targetId] })` or `setCenter`.
+
+If the target is already visible at the current level, skip steps 2–4.
 
 ---
 
-## Integration Pattern
+## Integration Patterns
 
-The selection state should be accessible to both canvas components (which write it) and the detail panel (which reads it). Two valid patterns:
-
-### React Context (lightweight, co-located)
+### React Context (preferred for co-located canvas state)
 
 ```typescript
 // Defined at the canvas screen level
@@ -98,8 +163,12 @@ const SelectionContext = React.createContext<{
 
 // Canvas writes:
 const { selectModule } = useContext(SelectionContext);
+// on card click: selectModule(moduleUuid)
+// on pane click: selectModule(null)
+
 // Detail panel reads:
 const { selectedUuid } = useContext(SelectionContext);
+// visible = selectedUuid !== null
 ```
 
 ### Zustand Store (if global state management is already in use)
@@ -116,4 +185,4 @@ const useSelectionStore = create<SelectionStore>((set) => ({
 }));
 ```
 
-Both patterns expose the same contract: a readable `selectedUuid` value and a `selectModule(uuid | null)` setter. The detail panel reads `selectedUuid` to determine visibility and content; the canvas writes via `selectModule`.
+Both patterns expose the same contract: a readable `selectedUuid` value and a `selectModule(uuid | null)` setter. The implementation choice does not affect the selection model described here.

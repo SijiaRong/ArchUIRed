@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: 39ca3c29
+submodules: {}
+links:
+  - uuid: 5477232e
+    relation: implements
+    description: Test harness for the CLI import command

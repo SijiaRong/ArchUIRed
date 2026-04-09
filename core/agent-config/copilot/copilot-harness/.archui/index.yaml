@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: d392ccb2
+submodules: {}
+links:
+  - uuid: c91296a3
+    relation: implements
+    description: Test harness for the Copilot deployment adapter

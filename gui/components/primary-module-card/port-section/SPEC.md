@@ -23,3 +23,7 @@ Only submodules with at least one external link appear in the port section. Subm
 ## Interaction
 
 Double-clicking a port row drills into that submodule, making it the new primary card on the canvas.
+
+## Design System
+
+All visual properties — color, typography, spacing, and elevation — must use semantic tokens from the Design System (`gui/design-system/`). Do not use raw hex, pixel, or opacity values in implementations. Port label colors must use the `color/port/*` palette defined in `gui/design-system/foundations/color/resources/token-table.md`. Consult the full token vocabulary in `gui/design-system/foundations/` for all other visual properties.

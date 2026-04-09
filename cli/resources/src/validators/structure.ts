@@ -91,7 +91,7 @@ export function validateStructure(rootPath: string, isRoot = true): Violation[] 
     }
   }
 
-  // SPEC modules must contain exactly one HARNESS submodule and one MEMORY submodule
+  // SPEC modules must contain exactly one HARNESS submodule; MEMORY submodule is optional (at most one)
   if (fs.existsSync(path.join(abs, 'SPEC.md'))) {
     const harnessSubmodules = [...declaredSubmodules].filter(name =>
       fs.existsSync(path.join(abs, name, 'HARNESS.md'))
@@ -112,17 +112,12 @@ export function validateStructure(rootPath: string, isRoot = true): Violation[] 
         message: `SPEC module must contain exactly one HARNESS submodule, but found ${harnessSubmodules.length}: ${harnessSubmodules.join(', ')}`,
       })
     }
-    if (memorySubmodules.length === 0) {
-      violations.push({
-        ruleId: 'spec/missing-memory',
-        filePath: rootPath,
-        message: 'SPEC module must contain exactly one MEMORY submodule',
-      })
-    } else if (memorySubmodules.length > 1) {
+    if (memorySubmodules.length > 1) {
       violations.push({
         ruleId: 'spec/multiple-memory',
+        severity: 'warn',
         filePath: rootPath,
-        message: `SPEC module must contain exactly one MEMORY submodule, but found ${memorySubmodules.length}: ${memorySubmodules.join(', ')}`,
+        message: `SPEC module should contain at most one MEMORY submodule, but found ${memorySubmodules.length}: ${memorySubmodules.join(', ')}`,
       })
     }
   }

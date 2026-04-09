@@ -17,7 +17,7 @@ ArchUI modules are distinguished by their identity document filename. Each type 
 |---|---|---|---|
 | `README.md` | Generic | Optional | None beyond base rules |
 | `SKILL.md` | Skill / knowledge | No | None beyond base rules |
-| `SPEC.md` | Implementation spec | Yes | Must contain exactly one HARNESS and one MEMORY submodule |
+| `SPEC.md` | Implementation spec | Yes | Must contain exactly one HARNESS submodule; MEMORY submodule is optional (at most one) |
 | `MEMORY.md` | Memory | No | Should link only to parent SPEC |
 | `HARNESS.md` | Test harness | Yes | Must have exactly one link, pointing to parent SPEC |
 

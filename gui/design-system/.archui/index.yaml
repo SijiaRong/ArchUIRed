@@ -3,6 +3,7 @@ uuid: 7e3f1c9a
 submodules:
   foundations: 3ccb57fd
   figma-integration: 93ab33c4
+  visual-orchestration: 68885b70
   harness: d6b68f01
   design-system-harness: bb000007
 links:

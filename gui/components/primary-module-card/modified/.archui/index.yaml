@@ -8,3 +8,7 @@ links:
   - uuid: 6f1c4a9d
     relation: implements
     description: Implements the Modified visual state of the primary-module-card component.
+  - uuid: 7e3f1c9a
+    relation: references
+    description: All visual properties must use semantic tokens from the design
+      system — color, typography, spacing, and elevation.

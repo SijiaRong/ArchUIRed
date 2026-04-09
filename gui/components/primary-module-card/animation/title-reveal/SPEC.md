@@ -10,3 +10,7 @@ In the resting state the card title is rendered at a larger size, visually occup
 The animation is purely cosmetic — the underlying DOM structure does not change. The description element is always present in the tree; only its opacity and the title's font-size transition.
 
 Detailed interaction timing, easing curves, and annotated states are in `resources/spec.md`.
+
+## Design System
+
+All visual properties — color, typography, spacing, and elevation — must use semantic tokens from the Design System (`gui/design-system/`). Do not use raw hex, pixel, or opacity values in implementations. Consult `gui/design-system/foundations/typography/resources/token-table.md` for font-size tokens used in the title expand/collapse animation, and `gui/design-system/foundations/` for all other visual properties.

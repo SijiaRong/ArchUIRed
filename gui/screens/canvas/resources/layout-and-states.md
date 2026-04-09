@@ -1,70 +1,167 @@
-# Canvas Screen Layout and State Machine
+# Canvas Screen — Layout and States
 
-## Screen Layout
+---
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  ArchUI › GUI › Canvas                          [Sync] [Settings]   │  ← topbar
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌──────────┐                                       ┌──────────┐  │
-│  │ ExtCard  │     ┌────────────────────────────┐    │ ExtCard  │  │
-│  │ name     │────►│  PRIMARY CARD              │◄───│ name     │  │
-│  │ uuid     │     │  Module Name               │    │ uuid     │  │
-│  └──────────┘     │  a1b2c3d4                  │    └──────────┘  │
-│                    │                            │                   │
-│  ┌──────────┐     │◀ Description text     ▶│    ┌──────────┐  │
-│  │ ExtCard  │────►│                            │───►│ ExtCard  │  │
-│  │ name     │     ├────────────────────────────┤    │ name     │  │
-│  │ uuid     │     │ ◀ Sub-A       Sub-B ▶│    │ uuid     │  │
-│  └──────────┘     │ ◀ Sub-C                    │    └──────────┘  │
-│                    └────────────────────────────┘                   │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-```
+## State Summary
 
-- **Topbar:** Breadcrumb navigation (always visible) + Sync button + Settings button.
-- **Canvas area:** Infinite canvas with one primary card and zero or more external cards.
-- **Primary card:** The focused module rendered as a large card:
-  - Header: module name as title, UUID as dimmed identifier.
-  - Description section: description text with module-level handles (◀ left for incoming, ▶ right for outgoing). Handles only appear when the focused module itself has external links in that direction.
-  - Port section: submodule rows with port handles, showing only submodules that have external links.
-- **External reference cards:** Small rectangular cards for modules linked to/from the primary card at either module or submodule level. Show full module name and dimmed UUID.
-- **Detail panel:** Slides in from the right when a node is selected (node-selected state). Hidden in idle and drilled states.
+| State | Defining characteristics | Detail panel | `selectedUuid` | `navStack` |
+|---|---|---|---|---|
+| **idle** | Canvas visible, no selection, panel hidden | Hidden | null | current path |
+| **node-selected** | One card selected, detail panel open | Visible (320px, right) | set to selected UUID | current path |
+| **drilled** | Canvas re-rendered at a new module level (transient 200ms, then settles to idle) | Hidden (dismissed during drill) | null (cleared) | grows by 1 |
 
-## Rendering Level Rules
+---
 
-A single rendering level contains exactly:
-
-1. **One primary card** — the currently focused module.
-2. **Zero or more external reference cards** — modules outside the current hierarchy that are linked to or from the focused module or its submodules.
-3. **Link edges** — in two categories:
-   - **Direct edges** — between the primary card's module-level handles (description section) and external cards, for the focused module's own links.
-   - **Port edges** — between submodule port handles (port section) and external cards, for submodule links.
-
-## Same-Card Rendering Rule
-
-When both endpoints of a link resolve to handles on the same card, the link is **not drawn** at this canvas level. This is a rendering-only decision — the underlying link data is fully valid. Submodules may link to siblings, to their parent, or vice versa. Such links become visible as cross-card edges when the user drills in.
-
-## Non-Overlap Constraint
-
-All cards on the canvas — primary and external — must never overlap. The layout engine enforces collision avoidance during initial placement and drag operations.
-
-## State Machine
+## Full State Machine Diagram
 
 ```
-landing ──open project──► idle
-                           │
-              single-click │◄──── click empty space ────┐
-                           ▼                             │
-                     node-selected ──double-click──► drilled
-                                                         │
-                              ◄── breadcrumb / back ─────┘
+                          ┌──────────────────────────────────────────────────────────────────┐
+                          │                         CANVAS STATE MACHINE                      │
+                          └──────────────────────────────────────────────────────────────────┘
+
+  project open ──────────────────────────────────────────────► idle
+                                                                 │
+                           ┌─────────────────────────────────────┤
+                           │                                      │
+                    single-click card                    double-click port row ──────────────────────────────┐
+                           │                                      │                                          │
+                           ▼                                      │                                          ▼
+                    node-selected                                 │                                       drilled
+                           │                                      │                                    (deeper level)
+              ┌────────────┼──────────────┐                      │                                          │
+              │            │              │                       │                                          │
+     click    │  click     │  double-     │                       │                    ┌─────────────────────┤
+     empty    │  different │  click       │                       │                    │                     │
+     canvas   │  card      │  port row    │                       │          Escape /  │  breadcrumb    single-click
+     or       │  (re-sel.) │              │                       │          Backspace │  crumb click   card
+     Escape   │            │              │                       │          (no sel.) │                     │
+              │            │              │                       │                    ▼                     ▼
+              ▼            │              ▼                       └──────────────► drilled             node-selected
+             idle ◄────────┘           drilled ◄──────────────────────────────  (parent level)
+              │                           │
+              └─────────────────── ◄──────┘
+                   (Escape/breadcrumb back to idle at parent)
 ```
 
-See child state modules for full transition tables.
+### All Transitions at a Glance
 
-## Figma Node
+| From | Trigger | To |
+|---|---|---|
+| idle | single-click card | node-selected |
+| idle | double-click port row | drilled |
+| idle | double-click external card | idle (external module's parent canvas) |
+| idle | Cmd+K → select result | idle (result's canvas) |
+| idle | drag external card (mouse-up) | idle (same level, position updated) |
+| node-selected | click empty canvas or Escape | idle |
+| node-selected | single-click different card | node-selected (new selection) |
+| node-selected | double-click port row | drilled |
+| node-selected | click panel submodule row | idle→node-selected at new level |
+| drilled | single-click card | node-selected |
+| drilled | double-click port row | drilled (deeper) |
+| drilled | Escape / Backspace (no selection) | drilled (parent) or idle at root |
+| drilled | breadcrumb crumb click | drilled (ancestor level) or idle at root |
 
-- **Page:** Canvas Layouts (in the ArchUI Design System Figma file, key `beEbYQhz9LBLHrAj2eGyft`)
-- **Frames:** `Canvas Layouts / Canvas-Idle`, `Canvas Layouts / Canvas-NodeSelected`, `Canvas Layouts / Canvas-Drilled`
+---
+
+## Layout Diagrams
+
+### Idle State
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│  topbar (48px)                                                         │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │  breadcrumb (32px): ArchUI  ›  GUI  ›  Canvas       [Sync] [⚙]  │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  canvas area  (100vw × (100vh − 80px))                                 │
+│                                                                        │
+│   ┌──────────┐                                       ┌──────────┐     │
+│   │ ExtCard  │────────────────────────────────────►  │ ExtCard  │     │
+│   │ name     │         ┌────────────────────┐        │ name     │     │
+│   │ uuid     │         │  PRIMARY CARD      │        │ uuid     │     │
+│   └──────────┘    ◄────│  Module Name       │────►   └──────────┘     │
+│                        │  a1b2c3d4          │                         │
+│   ┌──────────┐         ├────────────────────┤        ┌──────────┐     │
+│   │ ExtCard  │    ◄────│ ◀ Sub-A            │        │ ExtCard  │     │
+│   │ name     │         │        Sub-B ▶     │────►   │ name     │     │
+│   │ uuid     │         └────────────────────┘        │ uuid     │     │
+│   └──────────┘                                       └──────────┘     │
+│                                                                        │
+│  No panel. All interactions active: pan, zoom, select, drill, drag.    │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### Node-Selected State
+
+```
+┌───────────────────────────────────────────────┬────────────────────────┐
+│  topbar (48px)                                │                        │
+│  breadcrumb: ArchUI › GUI › Canvas  [Sync][⚙] │                        │
+├───────────────────────────────────────────────┤  Detail Panel (320px)  │
+│                                               │  ────────────────────  │
+│  canvas area  ((100vw − 320px) × (100vh−80px))│  Module Name           │
+│                                               │  a1b2c3d4              │
+│   ┌──────────┐                               │                        │
+│   │ ExtCard  │    ┌────────────────────┐      │  Description of the    │
+│   │ name     │    │  PRIMARY CARD      │      │  module, wrapping      │
+│   │ uuid     │    │  Module Name  [sel]│      │  naturally.            │
+│   └──────────┘    │  a1b2c3d4          │      │  ────────────────────  │
+│                   │  [2px blue border] │      │  SUBMODULES (2)        │
+│                   ├────────────────────┤      │  ›  Sub-Alpha          │
+│                   │ ◀ Sub-A            │      │  ›  Sub-Beta           │
+│                   │        Sub-B ▶     │      │  ────────────────────  │
+│                   └────────────────────┘      │  LINK TO (1)           │
+│                                               │  [depends-on] Target   │
+│  Click empty or Escape → back to idle         │                        │
+└───────────────────────────────────────────────┴────────────────────────┘
+```
+
+### Drilled State (settling to idle at new level)
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│  topbar (48px)                                                         │
+│  breadcrumb: ArchUI  ›  GUI  ›  Canvas  ›  Sub-Module   [Sync] [⚙]    │
+│                                           ^^^^^^^^^^^^^^               │
+│                                           new crumb appended           │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  canvas area — now showing Sub-Module as the primary card              │
+│                                                                        │
+│   ┌──────────┐                                       ┌──────────┐     │
+│   │ ExtCard  │         ┌────────────────────┐        │ ExtCard  │     │
+│   │ (parent  │    ◄────│  Sub-Module         │────►   │ other    │     │
+│   │  module) │*        │  (new primary)      │        │ ext refs │     │
+│   └──────────┘         ├────────────────────┤        └──────────┘     │
+│                        │ ◀ Grandchild-A      │                         │
+│                        └────────────────────┘                         │
+│                                                                        │
+│  * Entry flash: parent module card highlights for 1s (if visible)     │
+│  Escape / Backspace → back to Canvas level                             │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Structural Invariants
+
+The following rules hold in all three states:
+
+1. **Exactly one primary card** is rendered at any level. The primary card is always the module at the tail of `navStack`.
+2. **External reference cards** appear only for modules that are linked to or from the primary card (or its submodules) but are not in the primary card's module hierarchy at the current level.
+3. **Same-card link suppression:** When both endpoints of a link resolve to the same card, no edge is drawn. The link data is valid and becomes visible after drilling in.
+4. **Non-overlap:** No two cards may overlap at any time. Auto-layout and the drag engine both enforce collision-free placement.
+5. **Breadcrumb reflects navStack:** The breadcrumb trail always displays exactly `navStack.length` crumbs, one per entry, from root (leftmost) to current (rightmost).
+
+---
+
+## Figma Reference
+
+- **File key:** `beEbYQhz9LBLHrAj2eGyft`
+- **Page:** `Canvas Layouts`
+- **Frames:**
+  - `Canvas Layouts / Canvas-Idle`
+  - `Canvas Layouts / Canvas-NodeSelected`
+  - `Canvas Layouts / Canvas-Drilled`

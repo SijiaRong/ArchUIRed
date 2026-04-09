@@ -3,70 +3,72 @@ name: Link Renderer Test Playbook
 description: "Playbook for verifying that the link-renderer correctly draws directed edges between nodes, applies relation-type styling, handles external stubs, and shows tooltips."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Playbook
 
-### Group 1: Edges are drawn for links between visible nodes
+### Group 1: Direct edge rendering for a focused module's own link
 
-[init] A canvas is open where Module A and Module B are both visible as nodes. Module A's README.md contains a link entry pointing to Module B's UUID with relation depends-on and a description.
+[init] A canvas is open. The focused module has one outgoing `depends-on` link to an external Module B. Module B is visible as an external reference card. The link entry includes both a `relation` and a `description`.
 
-[action] Observe the canvas for edges between Module A and Module B.
-[eval] A directed edge is drawn from Module A's right connection point to Module B's left connection point, with an arrowhead at the Module B end. The label mid-edge reads "depends-on".
+[action] Observe the canvas for edges connected to the primary card's description section.
+[eval] A directed edge is drawn from the module source handle (▶) on the right edge of the description section to Module B's left-center anchor. The arrowhead is at the Module B end. The label "depends-on" is rendered as a pill centered at the edge midpoint.
 
-[action] Hover over the edge.
-[eval] A tooltip appears showing the description text from the link entry in Module A's frontmatter.
+[action] Hover over the edge shaft.
+[eval] A tooltip appears showing the `description` value from the link entry. The tooltip uses `surface/overlay` background and `text/primary` foreground, max 240px wide.
 
 [end] No state change needed; canvas remains open.
 
-### Group 2: Relation types are visually distinct
+### Group 2: Port edge rendering for a submodule's link
 
-[init] A canvas is open with multiple pairs of nodes linked by different relation types: one depends-on, one implements, one extends, one references, one related-to, and one custom relation.
+[init] A canvas is open. Sub-A of the focused module has an `implements` link to external Module C. Module C is visible as an external reference card. Sub-A's row is the second row in the port section.
 
-[action] Observe the stroke style and color of the depends-on edge.
-[eval] The edge is rendered with a solid, thick stroke in blue.
+[action] Observe the port edges on the canvas.
+[eval] A directed edge is drawn from Sub-A's source port handle (▶) — at the right edge of the primary card, vertically aligned with Sub-A's port row center — to Module C's left-center anchor. The arrowhead is at Module C. A small filled circle (port indicator, radius 5px, fill: `color/edge/implements`) is rendered at the source port handle end.
 
-[action] Observe the stroke style and color of the implements edge.
-[eval] The edge is rendered with a solid stroke in green.
-
-[action] Observe the stroke style and color of the extends edge.
-[eval] The edge is rendered with a dashed stroke in purple.
-
-[action] Observe the stroke style and color of the references edge.
-[eval] The edge is rendered with a dotted stroke in gray.
-
-[action] Observe the stroke style and color of the custom relation edge.
-[eval] The edge is rendered with a solid stroke in orange, distinguishing it from the standard vocabulary edges.
+[action] Observe the bezier curve shape near the primary card.
+[eval] The edge departs horizontally from the primary card's right edge (0° angle) — it does not cut through the card body. The control point offset is at least 80px.
 
 [end] No state change needed; canvas remains open.
 
 ### Group 3: Links without relation or description render correctly
 
-[init] A canvas is open with two visible nodes. Node A's README.md has a link to Node B with no relation field and no description field (a bare link entry with only a uuid).
+[init] A canvas is open. A submodule Sub-B has a link to an external Module D with no `relation` field and no `description` field (bare link entry with only a `uuid`).
 
-[action] Observe the edge between Node A and Node B.
-[eval] An edge is drawn but has no relation label in the middle of the shaft.
+[action] Observe the port edge between Sub-B and Module D.
+[eval] A port edge is drawn using the default stroke style (`color/edge/default`, 1px solid). No relation label pill is rendered at the midpoint — the midpoint area is empty.
 
-[action] Hover over the edge.
-[eval] No tooltip appears (or the tooltip is empty/absent) since no description was provided.
+[action] Hover over the edge shaft.
+[eval] No tooltip appears. The hover state only raises the edge z-order; no tooltip element is shown because no `description` was provided.
 
 [end] No state change needed; canvas remains open.
 
-### Group 4: External stubs for off-canvas link targets
+### Group 4: Same-card rule suppresses both module-to-submodule and sibling links
 
-[init] Module A is visible on the canvas. Module A has a node whose README.md contains a link to Module Z, which is not a submodule of the active module and is not visible on the current canvas.
+[init] A canvas is open. The focused module has a `depends-on` link to its own Sub-A. Sub-A has a `references` link to sibling Sub-B. Both submodules are visible in the primary card's port section.
 
-[action] Observe the canvas for the link to Module Z.
-[eval] A short stub edge (approximately 40px) is drawn from the source node's right connection point, ending with an external-link icon. The stub is labeled with Module Z's name, resolved from .archui/index.yaml.
+[action] Observe the canvas for any edges drawn between the description section and Sub-A's port row.
+[eval] No edge is drawn. The focused module → Sub-A link is suppressed because both endpoints are on the same primary card (the description section handle and Sub-A's port row are both on the primary card).
 
-[action] Click the external stub.
-[eval] Navigation jumps to the canvas where Module Z lives, and Module Z's node is highlighted.
+[action] Observe the canvas for any edges drawn between Sub-A's port row and Sub-B's port row.
+[eval] No edge is drawn. The Sub-A → Sub-B sibling link is also suppressed by the same-card rule. No shaft, arrowhead, or label is visible for either suppressed link.
 
-[end] Return to Module A's canvas using the breadcrumb trail.
+[end] No state change needed; canvas remains open.
 
-### Group 5: Multiple links between the same pair of nodes are fanned
+### Group 5: Relation label display and all standard relation types are visually distinct
 
-[init] A canvas is open where Module A has two separate link entries pointing to Module B — one with depends-on and one with references.
+[init] A canvas is open with five external reference cards. The focused module (or its submodules) has one link to each external card, using relation types: `depends-on`, `implements`, `extends`, `references`, and `related-to`. A sixth link uses a custom relation string "monitors".
 
-[action] Observe the canvas edges between Module A and Module B.
-[eval] Two distinct edges are rendered between the nodes, fanned apart with a small angular offset so they do not fully overlap. Each edge has its own relation label.
+[action] Observe the stroke style and color of each edge in turn.
+[eval] Each edge is visually distinct per the edge styling reference table:
+- `depends-on`: 2px solid stroke, `color/edge/depends-on` (blue)
+- `implements`: 1.5px solid stroke, `color/edge/implements` (green)
+- `extends`: 1.5px dashed stroke (6px/3px), `color/edge/extends` (purple)
+- `references`: 1px dotted stroke (2px/4px), `color/edge/references` (gray)
+- `related-to`: 1px dotted stroke (2px/4px), `color/edge/related-to` (gray)
+- "monitors" (custom): 1.5px solid stroke, `color/edge/custom` (orange)
+
+[action] Observe the relation label at the midpoint of each edge.
+[eval] Each edge shows its relation string as a pill label centered at the shaft midpoint. The `extends` label is italicized; all others are in normal weight. All labels use `text/tertiary` color on a pill background with 4px padding and 4px corner radius.
 
 [end] No state change needed; canvas remains open.

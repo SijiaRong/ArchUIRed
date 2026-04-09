@@ -1,0 +1,11 @@
+schema_version: 1
+uuid: "1d60422f"
+submodules:
+  agent-invocation-harness: "35ff77f9"
+links:
+  - uuid: 1a5b9c3d
+    relation: related-to
+    description: agent-invocation is a submodule of the CLI
+  - uuid: 7e70243e
+    relation: depends-on
+    description: agent-invocation uses the ai-agent configuration to determine which backend and model to invoke

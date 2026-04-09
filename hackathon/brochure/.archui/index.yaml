@@ -2,6 +2,9 @@ schema_version: "1"
 uuid: aa10000a
 submodules: {}
 links:
+  - uuid: aa10000d
+    relation: depends-on
+    description: 宣传册封面与封底中的队名、项目名称与一句话项目介绍以 basic-info 模块为唯一来源
   - uuid: aa10000c
     relation: depends-on
     description: 宣传册的色彩、字体、排版规范由 vi 模块统一定义

@@ -1,77 +1,110 @@
 # Primary Module Card — Default State Spec
 
-## Primary Card Dimensions
+## Card Geometry
 
 ```
-min-width:  360px
-max-width:  520px
-min-height: 120px  (header + description, no port section)
-border-radius: 12px
-border: 1px solid token(border-neutral)   /* #D1D5DB light / #374151 dark */
-background: token(surface-default)        /* #FFFFFF light / #1F2937 dark */
-box-shadow: 0 2px 8px rgba(0,0,0,0.12)   /* elevated shadow for focal element */
+width:         dimension/node-width = 240px  (fixed)
+border-radius: dimension/border-radius-card = 8px
+border:        1px solid color/border/subtle
+background:    color/surface/default
+box-shadow:    elevation/card/default
+               (0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06))
 ```
 
-## External Reference Card Dimensions
+## Internal Section Heights
+
+| Section | Token | Value | Notes |
+|---|---|---|---|
+| Header row | `dimension/node-header-height` | 36px | Fixed; never collapses |
+| Description body | `dimension/node-body-height` | 52px | Hidden at rest (max-height: 0); revealed on hover/select |
+| Port divider | `dimension/node-divider-height` | 1px | Dashed rule |
+| Per port row | `dimension/port-row-height` | 28px | Multiplied by row count |
+
+## Header Section
 
 ```
-min-width:  140px
-max-width:  220px
-min-height: 48px
-border-radius: 8px
-border: 1px solid token(border-subtle)
-background: token(surface-default)
-box-shadow: none                          /* flat, no elevation */
+┌──────────────────────────────────────────┐  ← 36px
+│ ●  Module Name                      [↗] │
+│    a1b2c3d4-...                          │
+└──────────────────────────────────────────┘
 ```
 
-## Primary Card Internal Layout
+- **Status dot (●):** 6px circle, `color/status/clean` (`#9098A1`). Positioned before the title with `spacing/1` (4px) gap.
+- **Title:** `typography/node-name` (14px, 600), `color/text/primary`. Single line; truncated with ellipsis if overflow.
+- **UUID:** `typography/ui-meta` (11px, 400), `color/text/tertiary`. Always visible; never hidden at rest.
+- **Drill-in icon [↗]:** 16×16px SVG, `color/text/tertiary` at opacity 0.4 at rest, opacity 1.0 on hover. Aligned to header trailing edge with `spacing/4` (16px) right padding.
+- **Header horizontal padding:** `spacing/4` (16px) left and right.
+- **Header vertical padding:** `spacing/2` (8px) top and bottom.
+
+## Description Section (Body)
+
+The description section is **collapsed at rest** (`max-height: 0; overflow: hidden`) so it occupies zero height between the header and the port section. It expands on hover or selection via the title-reveal animation.
+
+- **Font:** `typography/node-description` (13px, 400, 18px line-height)
+- **Color:** `color/text/secondary`
+- **Padding:** `spacing/4` (16px) horizontal, `spacing/2` (8px) vertical
+- **Overflow:** text clips at bottom when expanded; no scrollbar
+
+## Module-Level Handles
+
+Connection handles on the description section edges. Shown conditionally:
+
+- **Left handle (◀):** Rendered when at least one external module links TO this focused module. Handle ID = `module-{focusedUuid}-in`.
+- **Right handle (▶):** Rendered when the focused module has at least one outgoing link to an external module. Handle ID = `module-{focusedUuid}-out`.
+- **Hidden** when no module-level links exist in that direction.
+
+Handle geometry: `dimension/handle-size` (8px) diameter circle. Fill: `color/surface/default`. Stroke: 1.5px `color/border/default`. Centered on the left or right edge of the description section.
+
+## Port Section
+
+Appears below the description section (or below the header at rest when body is collapsed), separated by a 1px dashed divider in `color/border/default`.
+
+- Rendered only when at least one direct submodule has an external link.
+- Each port row: `dimension/port-row-height` (28px) tall, `spacing/4` (16px) horizontal padding.
+- Port label font: `typography/port-label` (12px, 400).
+- Target port labels: `color/text/tertiary`.
+- Source port labels: `color/port/{n}` (round-robin from port palette, n = index of external reference card).
+- Port handle Y position (from card top): `103 + i × 28` px (see spacing token-table formula).
+
+## External Reference Card Geometry
 
 ```
-┌─────────────────────────────────────────────────┐  ← outer card (12px radius)
-│  Module Name                                    │  title: 16px medium, token(text-primary)
-│  a1b2c3d4                                       │  uuid: 11px mono, token(text-tertiary)
-├─────────────────────────────────────────────────┤  divider: 1px solid token(border-neutral)
-│                                                 │
-│◀ One-sentence description text             ▶│  body: 13px regular, token(text-secondary)
-│  wrapping at max-width.                         │  module-level handles on left/right edges
-│                                                 │  (shown only when module-level links exist)
-├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤  port divider: 1px dashed
-│◀ Sub-A                          Sub-B (out) ▶│  port rows: 11px, token(text-tertiary)
-└─────────────────────────────────────────────────┘
+width:         min 120px, max 200px (content-sized)
+border-radius: dimension/border-radius-card = 8px
+border:        1px solid color/border/subtle
+background:    color/surface/default
+box-shadow:    none (flat)
 ```
 
-Module-level handles: 8px circle, centered on left/right edge of description section.
-Handle fill: token(surface-default). Handle stroke: token(border-neutral) 1.5px.
-Handles appear only when module-level links exist in that direction.
+- **Name:** `typography/node-name` (14px, 600), `color/text/primary`.
+- **UUID:** `typography/ui-meta` (11px, 400), `color/text/tertiary`.
+- **Padding:** `spacing/4` (16px) horizontal, `spacing/2` (8px) vertical.
+- **Handle:** Single 8px circle on left edge (if target) or right edge (if source). Same fill/stroke as primary card handles.
 
-Port handles: 8px circle, centered on left/right edge of port rows.
-Same styling as module-level handles.
+## Hover Transition Details
 
-## External Reference Card Internal Layout
+The description reveal on hover is governed by the title-reveal animation (see `animation/title-reveal`):
 
-```
-┌────────────────────┐  ← outer card (8px radius)
-│  Module Name       │  name: 13px medium, token(text-primary)
-│  e5f6a7b8          │  uuid: 10px mono, token(text-tertiary), more dimmed
-└────────────────────┘
-  ○ handle (8px)
-```
+1. Title shrinks from 22px → 14px (`typography/node-name`) over 220ms `ease-out`.
+2. Description fades in (`opacity: 0 → 1`) over 180ms `ease-in`, starting after the title begins shrinking.
+3. Card grows downward only — it never shrinks or reflows content above the header.
 
-Handle: 8px circle on left or right edge, depending on link direction.
+On hover exit:
+1. Description fades out over 80ms.
+2. Title expands from 14px → 22px over 220ms `ease-out`.
 
-## Typography
+## Drill-in Behavior
 
-| Zone                       | Font size | Weight | Color                     |
-|----------------------------|-----------|--------|---------------------------|
-| Primary card title         | 16px      | 500    | token(text-primary)       |
-| Primary card UUID          | 11px      | 400    | token(text-tertiary)      |
-| Primary card description   | 13px      | 400    | token(text-secondary)     |
-| Port labels                | 11px      | 400    | token(text-tertiary)      |
-| External card name         | 13px      | 500    | token(text-primary)       |
-| External card UUID         | 10px      | 400    | token(text-tertiary)      |
+- Clicking the [↗] icon drills into the focused module (same as double-clicking the card body).
+- The icon is always present in the DOM; opacity communicates hover affordance.
 
-## Drill-in Icon [↗]
+## Typography Reference
 
-16x16px in primary card header area. Visible at rest (opacity 0.4), full opacity on hover.
-Clicking triggers drill-in (same as double-click on card body).
-Not present on external reference cards (double-click navigates instead).
+| Zone | Token | Size / Weight |
+|---|---|---|
+| Module name | `typography/node-name` | 14px / 600 |
+| UUID | `typography/ui-meta` | 11px / 400 |
+| Description | `typography/node-description` | 13px / 400 |
+| Port label | `typography/port-label` | 12px / 400 |
+| External card name | `typography/node-name` | 14px / 600 |
+| External card UUID | `typography/ui-meta` | 11px / 400 |

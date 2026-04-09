@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchUI — 模块广场</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a2e;
+  --ink-light: #3d3f52;
+  --ink-muted: #7a7d90;
+  --ink-faint: #b0b3c0;
+  --surface: #ffffff;
+  --surface-warm: #fafafa;
+  --surface-cool: #f5f5f5;
+  --border: #e8e8ec;
+  --border-light: #f0f0f2;
+  --accent: #F07040;
+  --accent-soft: rgba(240,112,64,0.06);
+  --accent-dark: #d85a2a;
+  --green: #3a8a5a;
+  --green-soft: #e6f2eb;
+  --blue: #5a7a9a;
+  --blue-soft: #e8eff5;
+  --gold: #c08030;
+  --gold-soft: #faf0dd;
+  --purple: #6a4aaa;
+  --purple-soft: #ede6f5;
+  --sans: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --radius: 6px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body { background: var(--surface-warm); color: var(--ink); font-family: var(--sans); line-height: 1.6; min-height: 100vh; }
+
+/* ==================== TOP NAV ==================== */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topnav-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.topnav-logo {
+  font-family: var(--sans);
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.topnav-logo span { color: var(--accent); }
+
+.topnav-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.topnav-tab {
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 4px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+}
+
+.topnav-tab:hover { color: var(--ink); background: var(--surface-cool); }
+.topnav-tab.active { color: var(--ink); background: var(--surface-cool); font-weight: 600; }
+
+.topnav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-publish {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 7px 18px;
+  border-radius: 4px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-publish:hover { background: var(--accent-dark); }
+
+/* ==================== HERO BANNER ==================== */
+.hero-banner {
+  padding: 48px 32px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.hero-banner h1 {
+  font-family: var(--sans);
+  font-weight: 900;
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.hero-banner p {
+  font-size: 0.95rem;
+  color: var(--ink-light);
+  max-width: 560px;
+}
+
+/* ==================== SEARCH BAR ==================== */
+.search-section {
+  padding: 0 32px 32px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.search-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search-input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 11px 16px 11px 42px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  background: var(--surface);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input::placeholder { color: var(--ink-faint); }
+.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.search-input-wrap kbd {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--ink-muted);
+  background: var(--surface-cool);
+}
+
+.sort-select {
+  padding: 11px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+  min-width: 120px;
+}
+
+/* ==================== TAGS ==================== */
+.tags-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 32px 28px;
+  max-width: 1280px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tag:hover { border-color: var(--ink-muted); color: var(--ink); }
+.tag.active { background: var(--ink); color: white; border-color: var(--ink); }
+
+.tag-count {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--ink-muted);
+  margin-left: 4px;
+}
+
+.tag.active .tag-count { color: rgba(255,255,255,0.6); }
+
+/* ==================== MODULE GRID ==================== */
+.content-area {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px 64px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ==================== MODULE CARD ==================== */
+.module-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.module-card:hover {
+  border-color: var(--ink-muted);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.module-card-preview {
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mini UI previews inside cards */
+.preview-ui {
+  width: 75%;
+  height: 70%;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-ui .p-title {
+  width: 40%;
+  height: 8px;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.preview-ui .p-input {
+  width: 65%;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.preview-ui .p-btn {
+  width: 45%;
+  height: 11px;
+  border-radius: 3px;
+  margin-top: 2px;
+}
+
+.preview-ui .p-row {
+  width: 70%;
+  height: 7px;
+  border-radius: 2px;
+}
+
+.preview-ui .p-card-mini {
+  width: 30%;
+  height: 24px;
+  border-radius: 3px;
+}
+
+.preview-ui .p-sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 22%;
+}
+
+.preview-ui .p-content {
+  position: absolute;
+  right: 8%;
+  top: 12%;
+  width: 62%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.preview-ui .p-nav {
+  width: 100%;
+  height: 10px;
+  border-radius: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.preview-ui .p-hero-block {
+  width: 70%;
+  height: 28px;
+  border-radius: 3px;
+  margin-top: 20px;
+}
+
+.preview-ui .p-grid-row {
+  display: flex;
+  gap: 5px;
+  width: 80%;
+}
+
+.preview-ui .p-grid-item {
+  flex: 1;
+  height: 18px;
+  border-radius: 2px;
+}
+
+/* Card style: login-minimal */
+.preview-login-minimal { background: #fafafa; }
+.preview-login-minimal .p-title { background: #ddd; }
+.preview-login-minimal .p-input { background: #eee; border: 1px solid #ddd; }
+.preview-login-minimal .p-btn { background: #1a1a1a; }
+
+/* Card style: login-glass */
+.preview-login-glass { background: linear-gradient(135deg, #667eea, #764ba2); }
+.preview-login-glass .p-title { background: rgba(255,255,255,0.5); }
+.preview-login-glass .p-input { background: rgba(255,255,255,0.2); }
+.preview-login-glass .p-btn { background: rgba(255,255,255,0.9); }
+
+/* Card style: login-dark */
+.preview-login-dark { background: #1a1a2e; }
+.preview-login-dark .p-title { background: rgba(255,255,255,0.2); }
+.preview-login-dark .p-input { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); }
+.preview-login-dark .p-btn { background: #e94560; }
+
+/* Card style: login-earth */
+.preview-login-earth { background: #faf5f0; }
+.preview-login-earth .p-title { background: #d4c5b5; }
+.preview-login-earth .p-input { background: #ece4da; }
+.preview-login-earth .p-btn { background: #F07040; }
+
+/* Card style: dashboard-cards */
+.preview-dashboard-cards { background: #f8f9fa; }
+.preview-dashboard-cards .p-sidebar { background: #1e293b; }
+.preview-dashboard-cards .p-row { background: #e2e8f0; }
+.preview-dashboard-cards .p-card-mini { background: #fff; border: 1px solid #e2e8f0; }
+
+/* Card style: dashboard-dark */
+.preview-dashboard-dark { background: #0f172a; }
+.preview-dashboard-dark .p-sidebar { background: #1e293b; }
+.preview-dashboard-dark .p-row { background: rgba(255,255,255,0.06); }
+.preview-dashboard-dark .p-card-mini { background: #1e293b; }
+
+/* Card style: landing-saas */
+.preview-landing-saas { background: #fff; }
+.preview-landing-saas .p-nav { background: #f8f9fa; border-bottom: 1px solid #eee; }
+.preview-landing-saas .p-hero-block { background: linear-gradient(135deg, var(--blue-soft), #e0e7ff); }
+.preview-landing-saas .p-grid-item { background: #f1f5f9; }
+
+/* Card style: landing-bold */
+.preview-landing-bold { background: #18181b; }
+.preview-landing-bold .p-nav { background: rgba(255,255,255,0.05); }
+.preview-landing-bold .p-hero-block { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+.preview-landing-bold .p-grid-item { background: rgba(255,255,255,0.06); }
+
+/* Card style: settings-ios */
+.preview-settings-ios { background: #f2f2f7; }
+.preview-settings-ios .p-row { background: #fff; border-radius: 8px; height: 10px; width: 85%; }
+
+/* Card style: payment-stripe */
+.preview-payment-stripe { background: #fff; }
+.preview-payment-stripe .p-input { background: #f6f9fc; border: 1px solid #e0e6eb; }
+.preview-payment-stripe .p-btn { background: #635bff; }
+.preview-payment-stripe .p-title { background: #e0e6eb; }
+
+/* Card style: auth-social */
+.preview-auth-social { background: #fff; }
+.preview-auth-social .p-btn { height: 10px; width: 65%; border-radius: 3px; }
+
+/* Card style: onboarding-steps */
+.preview-onboarding-steps { background: linear-gradient(180deg, var(--green-soft), #fff); }
+.preview-onboarding-steps .p-title { background: var(--green); width: 30%; }
+.preview-onboarding-steps .p-row { background: #d1e7d9; }
+
+.module-card-body {
+  padding: 16px 20px 20px;
+}
+
+.module-card-category {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+
+.module-card-name {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.module-card-desc {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.module-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.module-card-stats {
+  display: flex;
+  gap: 14px;
+}
+
+.module-stat {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.module-stat svg { opacity: 0.5; }
+
+.module-card-tags {
+  display: flex;
+  gap: 4px;
+}
+
+.module-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--surface-cool);
+  color: var(--ink-muted);
+}
+
+/* Featured badge */
+.badge-featured {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  z-index: 2;
+}
+
+.badge-featured.hot { background: var(--accent); color: white; }
+.badge-featured.new { background: var(--green); color: white; }
+.badge-featured.popular { background: var(--blue); color: white; }
+
+/* ==================== COMPARE BAR (bottom) ==================== */
+.compare-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--ink);
+  color: white;
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 200;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+}
+
+.compare-bar.visible { transform: translateY(0); }
+
+.compare-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.88rem;
+}
+
+.compare-bar-items {
+  display: flex;
+  gap: 8px;
+}
+
+.compare-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.compare-item-remove {
+  cursor: pointer;
+  opacity: 0.5;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.compare-item-remove:hover { opacity: 1; }
+
+.btn-compare {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 24px;
+  border-radius: 4px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-compare:hover { background: var(--accent-dark); }
+
+/* ==================== DETAIL MODAL ==================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+.modal {
+  background: var(--surface);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 880px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(16px);
+  transition: transform 0.25s ease;
+}
+
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-preview {
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.3);
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+  z-index: 2;
+}
+
+.modal-close:hover { background: rgba(0,0,0,0.5); }
+
+.modal-body {
+  padding: 32px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+}
+
+.modal-author {
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-replace {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 28px;
+  border-radius: 4px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-replace:hover { background: var(--accent-dark); }
+
+.btn-pull {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-pull:hover { border-color: var(--ink-muted); }
+
+.modal-stats-row {
+  display: flex;
+  gap: 28px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 24px;
+}
+
+.modal-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modal-stat-value {
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.modal-stat-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.modal-section-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+
+.modal-desc {
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  line-height: 1.8;
+}
+
+/* Module tree in modal */
+.module-tree {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 2;
+  color: var(--ink-light);
+  padding: 16px 20px;
+  background: var(--surface-cool);
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.module-tree .folder { color: var(--blue); font-weight: 500; }
+.module-tree .file { color: var(--ink-muted); }
+.module-tree .indent { margin-left: 20px; }
+.module-tree .indent2 { margin-left: 40px; }
+
+/* Reviews in modal */
+.reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review {
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.review-author {
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.review-stars {
+  color: var(--gold);
+  font-size: 0.8rem;
+}
+
+.review-text {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  line-height: 1.6;
+}
+
+/* ==================== COMPARE MODAL ==================== */
+.compare-modal {
+  max-width: 1100px;
+  width: 95%;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 2), 1fr);
+  gap: 24px;
+  padding: 32px;
+}
+
+.compare-col {
+  text-align: center;
+}
+
+.compare-preview {
+  height: 200px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  transition: border-color 0.2s;
+}
+
+.compare-preview:hover { border-color: var(--accent); }
+
+.compare-name {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.compare-meta {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  margin-bottom: 12px;
+}
+
+.compare-select-btn {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 24px;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.compare-select-btn:hover { background: var(--accent); color: white; }
+
+.compare-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.compare-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 960px) {
+  .content-area { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .content-area { grid-template-columns: 1fr; }
+  .topnav { padding: 0 16px; }
+  .hero-banner, .search-section, .tags-row, .content-area { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="topnav-left">
+    <a class="topnav-logo" href="#">Arch<span>UI</span></a>
+    <div class="topnav-tabs">
+      <button class="topnav-tab" onclick="window.location.href='#'">画布</button>
+      <button class="topnav-tab active">广场</button>
+      <button class="topnav-tab">我的模块</button>
+    </div>
+  </div>
+  <div class="topnav-right">
+    <button class="btn-publish" onclick="alert('发布模块功能即将上线')">发布模块</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-banner">
+  <h1>模块广场</h1>
+  <p>浏览社区共享的文档模块 — 找到你需要的，一键替换到项目中，AI 自动重新生成代码。</p>
+</div>
+
+<!-- SEARCH -->
+<div class="search-section">
+  <div class="search-bar">
+    <div class="search-input-wrap">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input class="search-input" type="text" placeholder="搜索模块… 如「登录」「支付」「仪表盘」" id="searchInput">
+      <kbd>/</kbd>
+    </div>
+    <select class="sort-select" id="sortSelect">
+      <option value="hot">热度排序</option>
+      <option value="new">最新发布</option>
+      <option value="rating">评分最高</option>
+      <option value="downloads">下载最多</option>
+    </select>
+  </div>
+</div>
+
+<!-- TAGS -->
+<div class="tags-row" id="tagsRow">
+  <span class="tag active" data-tag="all">全部<span class="tag-count">42</span></span>
+  <span class="tag" data-tag="login">登录 / 注册<span class="tag-count">8</span></span>
+  <span class="tag" data-tag="dashboard">仪表盘<span class="tag-count">6</span></span>
+  <span class="tag" data-tag="landing">落地页<span class="tag-count">5</span></span>
+  <span class="tag" data-tag="payment">支付<span class="tag-count">4</span></span>
+  <span class="tag" data-tag="settings">设置<span class="tag-count">3</span></span>
+  <span class="tag" data-tag="auth">鉴权<span class="tag-count">4</span></span>
+  <span class="tag" data-tag="onboarding">引导流程<span class="tag-count">3</span></span>
+  <span class="tag" data-tag="ui">UI 组件<span class="tag-count">9</span></span>
+</div>
+
+<!-- MODULE GRID -->
+<div class="content-area" id="moduleGrid">
+  <!-- Cards injected by JS -->
+</div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compareBar">
+  <div class="compare-bar-left">
+    <span>样式对比</span>
+    <div class="compare-bar-items" id="compareItems"></div>
+  </div>
+  <button class="btn-compare" onclick="openCompare()">对比选中模块</button>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeDetail()">
+  <div class="modal" id="detailContent">
+    <!-- Filled by JS -->
+  </div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="modal-overlay" id="compareModal" onclick="if(event.target===this)closeCompare()">
+  <div class="modal compare-modal" id="compareContent">
+    <!-- Filled by JS -->
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const modules = [
+  {
+    id: 'login-minimal',
+    name: '极简登录',
+    category: '登录 / 注册',
+    tag: 'login',
+    desc: '纯白背景、无干扰的登录表单，适合工具类产品和 SaaS 应用。支持邮箱/密码、忘记密码流程。',
+    author: 'archpark',
+    downloads: 1243,
+    rating: 4.8,
+    reviews: 23,
+    badge: 'hot',
+    previewClass: 'preview-login-minimal',
+    tree: `<span class="folder">login-minimal/</span>\n<span class="indent file">README.md</span> <span style="color:var(--ink-faint)">— name + description</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">form-fields/</span>\n<span class="indent2 file">README.md</span>\n<span class="indent folder">forgot-password/</span>\n<span class="indent2 file">README.md</span>\n<span class="indent folder">resources/</span>\n<span class="indent2 file">visual-spec.md</span>\n<span class="indent2 file">preview.png</span>`,
+    reviewsList: [
+      { author: '李明', stars: '★★★★★', text: '非常干净的设计，替换进项目后 AI 生成的代码质量很高，几乎不需要手动调整。' },
+      { author: 'devzhang', stars: '★★★★☆', text: '模块结构清晰，文档完整。希望能增加社交登录的子模块。' }
+    ]
+  },
+  {
+    id: 'login-glass',
+    name: '渐变玻璃登录',
+    category: '登录 / 注册',
+    tag: 'login',
+    desc: '紫蓝渐变背景 + 毛玻璃卡片效果，视觉冲击力强，适合创意类和 C 端产品。',
+    author: 'uicraft',
+    downloads: 987,
+    rating: 4.7,
+    reviews: 18,
+    badge: 'popular',
+    previewClass: 'preview-login-glass',
+    tree: `<span class="folder">login-glass/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">glass-card/</span>\n<span class="indent2 file">README.md</span>\n<span class="indent folder">gradient-bg/</span>\n<span class="indent2 file">README.md</span>\n<span class="indent folder">resources/</span>\n<span class="indent2 file">visual-spec.md</span>`,
+    reviewsList: [
+      { author: 'Sarah', stars: '★★★★★', text: '效果惊艳！客户看到后直接选了这个方案。' },
+      { author: '王磊', stars: '★★★★☆', text: '视觉效果好，但在低端设备上 blur 有性能问题，建议加降级方案。' }
+    ]
+  },
+  {
+    id: 'login-dark',
+    name: '暗黑登录',
+    category: '登录 / 注册',
+    tag: 'login',
+    desc: '深色主题登录页面，赤红色 CTA 按钮，适合游戏、开发者工具、暗色系产品。',
+    author: 'nightdev',
+    downloads: 756,
+    rating: 4.6,
+    reviews: 12,
+    badge: null,
+    previewClass: 'preview-login-dark',
+    tree: `<span class="folder">login-dark/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">dark-theme/</span>\n<span class="indent2 file">README.md</span>\n<span class="indent folder">resources/</span>\n<span class="indent2 file">visual-spec.md</span>`,
+    reviewsList: [
+      { author: 'hacker42', stars: '★★★★★', text: '终于有好看的暗色登录模块了，直接替换到我的 CLI 工具网站。' }
+    ]
+  },
+  {
+    id: 'login-earth',
+    name: '暖色自然登录',
+    category: '登录 / 注册',
+    tag: 'login',
+    desc: '米色暖调底色 + 陶土色按钮，温暖亲和，适合生活方式、健康、教育类产品。',
+    author: 'archpark',
+    downloads: 534,
+    rating: 4.5,
+    reviews: 9,
+    badge: 'new',
+    previewClass: 'preview-login-earth',
+    tree: `<span class="folder">login-earth/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">warm-palette/</span>\n<span class="indent2 file">README.md</span>\n<span class="indent folder">resources/</span>\n<span class="indent2 file">visual-spec.md</span>`,
+    reviewsList: [
+      { author: '小花', stars: '★★★★★', text: '颜色很舒服，用在我的瑜伽课程 APP 上非常合适。' }
+    ]
+  },
+  {
+    id: 'dashboard-cards',
+    name: '卡片式仪表盘',
+    category: '仪表盘',
+    tag: 'dashboard',
+    desc: '左侧导航 + 右侧卡片网格布局，支持数据概览、图表区、最近活动。企业级后台首选。',
+    author: 'bizdev',
+    downloads: 2100,
+    rating: 4.9,
+    reviews: 45,
+    badge: 'hot',
+    previewClass: 'preview-dashboard-cards',
+    tree: `<span class="folder">dashboard-cards/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">sidebar-nav/</span>\n<span class="indent folder">stat-cards/</span>\n<span class="indent folder">chart-area/</span>\n<span class="indent folder">activity-feed/</span>\n<span class="indent folder">resources/</span>`,
+    reviewsList: [
+      { author: 'PM-Chen', stars: '★★★★★', text: '模块拆分得非常合理，单独替换 stat-cards 子模块就能改变数据展示风格。' }
+    ]
+  },
+  {
+    id: 'dashboard-dark',
+    name: '暗色数据仪表盘',
+    category: '仪表盘',
+    tag: 'dashboard',
+    desc: '深蓝色系专业数据仪表盘，适合监控面板、数据分析平台、运维看板。',
+    author: 'datavis',
+    downloads: 1456,
+    rating: 4.7,
+    reviews: 28,
+    badge: 'popular',
+    previewClass: 'preview-dashboard-dark',
+    tree: `<span class="folder">dashboard-dark/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">dark-sidebar/</span>\n<span class="indent folder">metric-panels/</span>\n<span class="indent folder">resources/</span>`,
+    reviewsList: [
+      { author: 'ops-lead', stars: '★★★★★', text: '替换后监控面板焕然一新，团队都很喜欢新的暗色风格。' }
+    ]
+  },
+  {
+    id: 'landing-saas',
+    name: 'SaaS 落地页',
+    category: '落地页',
+    tag: 'landing',
+    desc: '经典 SaaS 产品落地页结构 — 导航栏、Hero 区、功能网格、定价表、CTA。转化率优化。',
+    author: 'growth-kit',
+    downloads: 1890,
+    rating: 4.8,
+    reviews: 34,
+    badge: 'hot',
+    previewClass: 'preview-landing-saas',
+    tree: `<span class="folder">landing-saas/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">hero-section/</span>\n<span class="indent folder">feature-grid/</span>\n<span class="indent folder">pricing-table/</span>\n<span class="indent folder">cta-block/</span>\n<span class="indent folder">resources/</span>`,
+    reviewsList: []
+  },
+  {
+    id: 'landing-bold',
+    name: '大胆暗色落地页',
+    category: '落地页',
+    tag: 'landing',
+    desc: '暗色底 + 渐变高亮，适合开发者工具、AI 产品、技术品牌。视觉张力强。',
+    author: 'nightdev',
+    downloads: 823,
+    rating: 4.6,
+    reviews: 15,
+    badge: null,
+    previewClass: 'preview-landing-bold',
+    tree: `<span class="folder">landing-bold/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">dark-hero/</span>\n<span class="indent folder">gradient-features/</span>\n<span class="indent folder">resources/</span>`,
+    reviewsList: []
+  },
+  {
+    id: 'settings-ios',
+    name: 'iOS 风格设置页',
+    category: '设置',
+    tag: 'settings',
+    desc: '仿 iOS 原生设置页面，分组圆角卡片 + 灰底，适合移动端 Web 和 Hybrid App。',
+    author: 'mobilekit',
+    downloads: 678,
+    rating: 4.5,
+    reviews: 11,
+    badge: 'new',
+    previewClass: 'preview-settings-ios',
+    tree: `<span class="folder">settings-ios/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">setting-group/</span>\n<span class="indent folder">toggle-row/</span>\n<span class="indent folder">resources/</span>`,
+    reviewsList: []
+  },
+  {
+    id: 'payment-stripe',
+    name: 'Stripe 风格支付',
+    category: '支付',
+    tag: 'payment',
+    desc: '参考 Stripe Checkout 的支付表单设计，清晰的输入引导，支持卡号、有效期、CVV。',
+    author: 'paykit',
+    downloads: 1567,
+    rating: 4.9,
+    reviews: 38,
+    badge: 'hot',
+    previewClass: 'preview-payment-stripe',
+    tree: `<span class="folder">payment-stripe/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">card-form/</span>\n<span class="indent folder">order-summary/</span>\n<span class="indent folder">resources/</span>`,
+    reviewsList: []
+  },
+  {
+    id: 'auth-social',
+    name: '社交登录',
+    category: '鉴权',
+    tag: 'auth',
+    desc: '一键社交登录模块 — Google、Apple、GitHub、微信。按钮组 + OAuth 流程 spec。',
+    author: 'archpark',
+    downloads: 1120,
+    rating: 4.7,
+    reviews: 21,
+    badge: 'popular',
+    previewClass: 'preview-auth-social',
+    tree: `<span class="folder">auth-social/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">oauth-buttons/</span>\n<span class="indent folder">callback-handler/</span>\n<span class="indent folder">resources/</span>`,
+    reviewsList: []
+  },
+  {
+    id: 'onboarding-steps',
+    name: '分步引导流程',
+    category: '引导流程',
+    tag: 'onboarding',
+    desc: '渐变绿色系多步引导，进度条 + 分步表单，适合注册后的用户初始化流程。',
+    author: 'growth-kit',
+    downloads: 445,
+    rating: 4.4,
+    reviews: 7,
+    badge: 'new',
+    previewClass: 'preview-onboarding-steps',
+    tree: `<span class="folder">onboarding-steps/</span>\n<span class="indent file">README.md</span>\n<span class="indent file">.archui/index.yaml</span>\n<span class="indent folder">progress-bar/</span>\n<span class="indent folder">step-form/</span>\n<span class="indent folder">resources/</span>`,
+    reviewsList: []
+  }
+];
+
+// ==================== RENDER ====================
+const grid = document.getElementById('moduleGrid');
+let activeTag = 'all';
+let compareList = [];
+
+function renderCards(filter = 'all', search = '') {
+  const filtered = modules.filter(m => {
+    const tagMatch = filter === 'all' || m.tag === filter;
+    const searchMatch = !search || m.name.includes(search) || m.desc.includes(search) || m.category.includes(search);
+    return tagMatch && searchMatch;
+  });
+
+  grid.innerHTML = filtered.map(m => `
+    <div class="module-card" onclick="openDetail('${m.id}')">
+      ${m.badge ? `<span class="badge-featured ${m.badge}">${m.badge === 'hot' ? '🔥 热门' : m.badge === 'new' ? '🆕 最新' : '⭐ 精选'}</span>` : ''}
+      <div class="module-card-preview">
+        <div class="preview-ui ${m.previewClass}">
+          ${getPreviewContent(m.id)}
+        </div>
+      </div>
+      <div class="module-card-body">
+        <div class="module-card-category">${m.category}</div>
+        <div class="module-card-name">${m.name}</div>
+        <div class="module-card-desc">${m.desc}</div>
+        <div class="module-card-footer">
+          <div class="module-card-stats">
+            <span class="module-stat">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              ${m.downloads}
+            </span>
+            <span class="module-stat">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              ${m.rating}
+            </span>
+            <span class="module-stat">💬 ${m.reviews}</span>
+          </div>
+          <div class="module-card-tags">
+            <span class="module-tag">${m.author}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function getPreviewContent(id) {
+  if (id.startsWith('login') || id === 'auth-social') {
+    return '<div class="p-title"></div><div class="p-input"></div><div class="p-input"></div><div class="p-btn"></div>';
+  }
+  if (id.startsWith('dashboard')) {
+    return '<div class="p-sidebar"></div><div class="p-content"><div class="p-row"></div><div class="p-row" style="width:80%"></div><div class="p-row" style="width:60%"></div></div>';
+  }
+  if (id.startsWith('landing')) {
+    return '<div class="p-nav"></div><div class="p-hero-block"></div><div class="p-grid-row"><div class="p-grid-item"></div><div class="p-grid-item"></div><div class="p-grid-item"></div></div>';
+  }
+  if (id === 'settings-ios') {
+    return '<div class="p-row"></div><div class="p-row" style="margin-top:6px"></div><div class="p-row" style="margin-top:14px"></div><div class="p-row" style="margin-top:6px"></div><div class="p-row" style="margin-top:6px"></div>';
+  }
+  if (id === 'payment-stripe') {
+    return '<div class="p-title"></div><div class="p-input"></div><div class="p-input" style="width:45%"></div><div class="p-btn"></div>';
+  }
+  if (id === 'onboarding-steps') {
+    return '<div class="p-title"></div><div class="p-row"></div><div class="p-row" style="width:50%"></div><div class="p-btn" style="background:var(--green);width:40%;height:10px;border-radius:3px"></div>';
+  }
+  return '<div class="p-row"></div><div class="p-row"></div>';
+}
+
+// ==================== TAGS ====================
+document.getElementById('tagsRow').addEventListener('click', e => {
+  const tag = e.target.closest('.tag');
+  if (!tag) return;
+  document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+  tag.classList.add('active');
+  activeTag = tag.dataset.tag;
+  renderCards(activeTag, document.getElementById('searchInput').value);
+});
+
+// ==================== SEARCH ====================
+document.getElementById('searchInput').addEventListener('input', e => {
+  renderCards(activeTag, e.target.value);
+});
+
+// Keyboard shortcut
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+  if (e.key === 'Escape') {
+    closeDetail();
+    closeCompare();
+  }
+});
+
+// ==================== DETAIL MODAL ====================
+function openDetail(id) {
+  const m = modules.find(x => x.id === id);
+  if (!m) return;
+
+  const inCompare = compareList.includes(id);
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="modal-preview ${m.previewClass}" style="min-height:260px;display:flex;align-items:center;justify-content:center;">
+      <div class="preview-ui" style="width:50%;height:60%;">${getPreviewContent(m.id)}</div>
+      <button class="modal-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">${m.name}</div>
+          <div class="modal-author">by ${m.author}</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-pull" onclick="toggleCompare('${m.id}')">
+            ${inCompare ? '✓ 已加入对比' : '加入对比'}
+          </button>
+          <button class="btn-pull" onclick="alert('模块已拉取到本地项目')">拉取到项目</button>
+          <button class="btn-replace" onclick="alert('替换功能：选择本地模块 → 确认替换 → AI 重新生成')">替换当前模块</button>
+        </div>
+      </div>
+      <div class="modal-stats-row">
+        <div class="modal-stat"><div class="modal-stat-value">${m.downloads.toLocaleString()}</div><div class="modal-stat-label">下载量</div></div>
+        <div class="modal-stat"><div class="modal-stat-value">${m.rating}</div><div class="modal-stat-label">评分</div></div>
+        <div class="modal-stat"><div class="modal-stat-value">${m.reviews}</div><div class="modal-stat-label">评论</div></div>
+        <div class="modal-stat"><div class="modal-stat-value">v1.2</div><div class="modal-stat-label">版本</div></div>
+      </div>
+      <div class="modal-desc">${m.desc}</div>
+
+      <div class="modal-section-title">模块结构</div>
+      <div class="module-tree">${m.tree}</div>
+
+      ${m.reviewsList.length ? `
+        <div class="modal-section-title">用户评价</div>
+        <div class="reviews">
+          ${m.reviewsList.map(r => `
+            <div class="review">
+              <div class="review-header">
+                <span class="review-author">${r.author}</span>
+                <span class="review-stars">${r.stars}</span>
+              </div>
+              <div class="review-text">${r.text}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('open');
+}
+
+// ==================== COMPARE ====================
+function toggleCompare(id) {
+  const idx = compareList.indexOf(id);
+  if (idx > -1) {
+    compareList.splice(idx, 1);
+  } else {
+    if (compareList.length >= 4) { alert('最多对比 4 个模块'); return; }
+    compareList.push(id);
+  }
+  updateCompareBar();
+}
+
+function updateCompareBar() {
+  const bar = document.getElementById('compareBar');
+  const items = document.getElementById('compareItems');
+
+  if (compareList.length === 0) {
+    bar.classList.remove('visible');
+    return;
+  }
+
+  bar.classList.add('visible');
+  items.innerHTML = compareList.map(id => {
+    const m = modules.find(x => x.id === id);
+    return `<div class="compare-item">
+      ${m.name}
+      <span class="compare-item-remove" onclick="event.stopPropagation();toggleCompare('${id}')">×</span>
+    </div>`;
+  }).join('');
+}
+
+function openCompare() {
+  if (compareList.length < 2) { alert('请至少选择 2 个模块进行对比'); return; }
+
+  const cols = compareList.length;
+  document.getElementById('compareContent').innerHTML = `
+    <div class="compare-header">
+      <div class="compare-title">样式对比 — ${cols} 个模块</div>
+      <button class="modal-close" onclick="closeCompare()" style="position:static;background:var(--surface-cool);color:var(--ink);">✕</button>
+    </div>
+    <div class="compare-grid" style="--cols:${cols}">
+      ${compareList.map(id => {
+        const m = modules.find(x => x.id === id);
+        return `<div class="compare-col">
+          <div class="compare-preview ${m.previewClass}">
+            <div class="preview-ui" style="width:65%;height:65%">${getPreviewContent(m.id)}</div>
+          </div>
+          <div class="compare-name">${m.name}</div>
+          <div class="compare-meta">⭐ ${m.rating} · ${m.downloads} 下载 · by ${m.author}</div>
+          <button class="compare-select-btn" onclick="alert('已选择「${m.name}」作为替换模块')">选择此模块</button>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+
+  document.getElementById('compareModal').classList.add('open');
+}
+
+function closeCompare() {
+  document.getElementById('compareModal').classList.remove('open');
+}
+
+// ==================== INIT ====================
+renderCards();
+</script>
+
+</body>
+</html>

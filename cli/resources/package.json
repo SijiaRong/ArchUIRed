@@ -1,6 +1,6 @@
 {
   "name": "archui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "ArchUI CLI — filesystem validator, index manager, and sync tool",
   "type": "module",
   "bin": {

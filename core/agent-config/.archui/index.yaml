@@ -7,6 +7,7 @@ submodules:
   cursor: eae5e5c9
   codex: 719a8fc3
   copilot: c91296a3
+  command-templates: 441217aa
 links:
   - uuid: 9e2b5d7c
     relation: depends-on

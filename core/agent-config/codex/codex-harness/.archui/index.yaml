@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: 46fa0624
+submodules: {}
+links:
+  - uuid: 719a8fc3
+    relation: implements
+    description: Test harness for the Codex deployment adapter

@@ -1,6 +1,15 @@
 schema_version: 1
 uuid: 485e9c29
+submodules:
+  conversion-phase: 75e0ae08
+  init-command-harness: 21e5ac45
 links:
   - uuid: cd7d3790
     relation: depends-on
     description: init command creates files that conform to the schema defined in core/schema
+  - uuid: "8250301b"
+    relation: depends-on
+    description: init command uses agent-config deployment adapters to install ArchUI plugins for detected AI agents
+  - uuid: "1d60422f"
+    relation: depends-on
+    description: init command uses agent-invocation to spawn the AI agent during the conversion phase

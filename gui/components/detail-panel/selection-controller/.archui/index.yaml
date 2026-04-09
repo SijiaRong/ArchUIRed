@@ -4,4 +4,8 @@ submodules:
   harness: 306ee46b
   memory: ce6764ea
 
-links: []
+links:
+  - uuid: 7e3f1c9a
+    relation: references
+    description: All visual properties must use semantic tokens from the design
+      system — color, typography, spacing, and elevation.

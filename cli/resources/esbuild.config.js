@@ -12,6 +12,10 @@ await build({
   outfile: 'dist/index.js',
   banner: { js: '#!/usr/bin/env node' },
   external: Object.keys(pkg.dependencies ?? {}),
+  loader: {
+    '.sh': 'text',
+    '.md': 'text',
+  },
 })
 
 console.log('CLI build complete → dist/index.js')

@@ -113,9 +113,9 @@ There is no depth limit on module nesting. The same rules apply uniformly at eve
 
 Folder names form the human-readable path to a module (e.g., `core/filesystem-rules`). They should be lowercase, hyphen-separated, and descriptive. Folder names can change without breaking cross-module links (links use UUIDs).
 
-### Rule 10: SPEC modules must contain exactly one HARNESS submodule and one MEMORY submodule
+### Rule 10: SPEC modules must contain exactly one HARNESS submodule; MEMORY is optional
 
-A module whose identity document is `SPEC.md` must declare, as direct submodules, exactly one HARNESS node and exactly one MEMORY node. These submodules must appear in the `submodules` map in `.archui/index.yaml`.
+A module whose identity document is `SPEC.md` must declare, as a direct submodule, exactly one HARNESS node. A MEMORY submodule is optional — a SPEC may have zero or one MEMORY node, but not more than one. These submodules must appear in the `submodules` map in `.archui/index.yaml`.
 
 ```
 my-feature/
@@ -124,12 +124,12 @@ my-feature/
 ├── harness/
 │   ├── HARNESS.md
 │   └── .archui/index.yaml
-└── memory/
+└── memory/                      # optional
     ├── MEMORY.md
     └── .archui/index.yaml
 ```
 
-Absence of either submodule is a validation error.
+Absence of the HARNESS submodule is a validation error. Absence of the MEMORY submodule is allowed. Having more than one MEMORY submodule is a validation warning.
 
 ### Rule 11: HARNESS modules must link exclusively to their parent SPEC
 

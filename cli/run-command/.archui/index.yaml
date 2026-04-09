@@ -1,5 +1,7 @@
-schema_version: 1
+schema_version: "1"
 uuid: d1bc98a5
+submodules:
+  run-command-harness: 38db4fe4
 links:
   - uuid: 7dbb954d
     relation: implements
@@ -10,3 +12,6 @@ links:
   - uuid: 1a5b9c3d
     relation: related-to
     description: run-command is a submodule of the CLI
+  - uuid: "1d60422f"
+    relation: depends-on
+    description: run-command uses agent-invocation to spawn the AI agent for executing module commands

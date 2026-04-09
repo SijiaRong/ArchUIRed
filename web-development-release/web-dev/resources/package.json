@@ -9,10 +9,15 @@
     "build": "tsc --noEmit && vite build",
     "build:server": "VITE_FS_MODE=server tsc --noEmit && VITE_FS_MODE=server vite build",
     "preview": "vite preview",
+    "sync:figma": "node scripts/sync-figma.mjs",
+    "sync:design-docs": "node scripts/sync-design-docs.mjs",
+    "verify:design-sync": "node scripts/verify-design-sync.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots",
+    "lint:tokens": "node scripts/token-lint.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.8",

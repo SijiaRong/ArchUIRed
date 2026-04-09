@@ -16,3 +16,7 @@ links:
     relation: depends-on
     description: Module-node reads name, description, submodules, and links from the
       module's README.md frontmatter to populate its visual fields.
+  - uuid: 7e3f1c9a
+    relation: references
+    description: All visual properties must use semantic tokens from the design
+      system — color, typography, spacing, and elevation.

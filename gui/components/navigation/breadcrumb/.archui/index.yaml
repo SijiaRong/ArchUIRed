@@ -8,3 +8,7 @@ links:
   - uuid: 9d4c7e1b
     relation: implements
     description: Implements the breadcrumb UI element of the parent navigation component.
+  - uuid: 7e3f1c9a
+    relation: references
+    description: All visual properties must use semantic tokens from the design
+      system — color, typography, spacing, and elevation.

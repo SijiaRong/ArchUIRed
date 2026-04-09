@@ -1,56 +1,94 @@
 # Primary Module Card — Port Section Spec
 
-## When Port Section Appears
+## When the Port Section Appears
 
-The port section is appended below the description section (separated by a horizontal divider) when at least one of the focused module's direct submodules has an external link — that is, a link to or from a module outside the primary card.
+The port section is appended below the description body when **at least one direct submodule of the focused module has an external link**. An external link is a link where one endpoint resolves to a module outside the primary card hierarchy (not the focused module itself and not a sibling submodule).
 
-An "external link" means:
-- **Source port (▶)**: submodule S has a `links` entry whose target UUID resolves to a module outside the primary card (not the focused module itself and not a sibling submodule).
-- **Target port (◀)**: a module outside the primary card has a `links` entry targeting S's UUID.
+The port section is **not rendered** in the error state (submodule links cannot be resolved).
 
-## Visual Layout
+## Port Row Visibility Rules
 
-```
-┌─────────────────────────────────────────────────┐
-│  Module Name                                    │  header
-│  a1b2c3d4                                       │  uuid
-├─────────────────────────────────────────────────┤
-│◀ Description text                          ▶│  description section (with module-level handles)
-├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤  port divider: 1px dashed border-neutral
-│◀ Sub-A                                          │  target port row (handle on left edge)
-│                                    Sub-B (out) ▶│  source port row (handle on right edge)
-│◀ Sub-C                            Sub-C (out) ▶│  sub with both in+out
-└─────────────────────────────────────────────────┘
-```
+A port row is generated for submodule S when:
+
+**Source port (▶):** S has a `links` entry in its `.archui/index.yaml` whose target UUID resolves to a module outside the primary card (i.e., the target is an external reference card on this canvas level).
+
+**Target port (◀):** A module outside the primary card has a `links` entry targeting S's UUID.
+
+A submodule may have both a source and a target port row if it has both incoming and outgoing external links.
+
+Submodule-to-sibling links (where both endpoints are inside the same primary card) are **not shown** in the port section — this is a rendering-only exclusion rule. The link data is valid and will appear as an edge when the user drills into the parent module.
 
 ## Port Row Dimensions
 
 ```
-port-row height: 24px
-port-row padding: 0 12px
-port-label font: 11px, token(text-tertiary)
-port-indicator (◀ or ▶): 10px, positioned 4px inside card edge
+row-height:    dimension/port-row-height = 28px
+padding-left:  spacing/4 = 16px
+padding-right: spacing/4 = 16px
 ```
 
 ## Handle Positioning
 
-Each port row has a named handle centered vertically on the row:
-- Target port handle: left edge, handle ID = `port-{submoduleUuid}-in`
-- Source port handle: right edge, handle ID = `port-{submoduleUuid}-out`
+For port row `i` (0-indexed from the top of the port section), the handle Y coordinate from the **top of the card** is:
 
-Handle size: 8px circle (same as module-level handles on the description section).
+```
+handle_y = dimension/node-header-height
+          + dimension/node-body-height
+          + dimension/node-divider-height
+          + i × dimension/port-row-height
+          + dimension/port-row-height / 2
+         = 36 + 52 + 1 + i × 28 + 14
+         = 103 + i × 28   (px)
+```
+
+This formula must be reproduced identically on all canvas platforms to align link edge endpoints with handle positions.
+
+Handle geometry:
+- Diameter: `dimension/handle-size` = 8px
+- Fill: `color/surface/default`
+- Stroke: 1.5px `color/border/default`
+- Target handle ID: `port-{submoduleUuid}-in`
+- Source handle ID: `port-{submoduleUuid}-out`
 
 ## Source Port Color Assignment
 
-Source port labels are color-coded by the external target module. Colors come from a fixed palette of 8:
+Source port labels are color-coded by the external reference card they link to. Colors are assigned from the `color/port/*` palette in round-robin order (index 0–7, wrapping at 8), where the index is the position of the external reference card in the canvas render order (determined by initial layout placement, stable across renders).
+
+Target port labels always use `color/text/tertiary` — no color assignment.
+
+## Drill-in Interaction
+
+Double-clicking a port row drills into that submodule:
+1. The canvas re-renders with the submodule as the new primary card.
+2. The breadcrumb updates to reflect the new path.
+3. The previous primary card's position is saved to `.archui/layout.yaml` for back-navigation.
+
+Single-clicking a port row selects the **submodule** as a secondary selection (highlights the row) but does not navigate.
+
+## Overflow Collapse
+
+When the port section has more than 6 rows:
+- Show the first 5 rows.
+- A `+N more ▾` indicator row occupies the 6th row slot.
+- N = total rows − 5.
+- Clicking the indicator expands to show all rows (no animation required).
+- Expanded state is not persisted; collapsing the card (moving away from hover/selection) resets to collapsed.
+
+## Port Section with Command Bar
+
+When a command bar is also present, the port section appears **above** the command bar:
 
 ```
-[#3B82F6, #10B981, #F59E0B, #EF4444, #8B5CF6, #EC4899, #06B6D4, #84CC16]
+┌─────────────────────────────────────────┐
+│  Header                                 │
+├─────────────────────────────────────────┤
+│  Description body                       │
+├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤  ← port divider
+│  Port rows                              │
+├─────────────────────────────────────────┤  ← command bar divider
+│  [Command buttons]                      │
+└─────────────────────────────────────────┘
 ```
 
-Color is assigned by index of the external reference card on the canvas.
-Target port labels use token(text-tertiary) — no color assignment.
+## Empty State
 
-## Maximum Port Rows
-
-No hard cap, but UX guidance: if the primary card has more than 6 port rows, show the first 5 with a "+N more" collapsed indicator. Expanding shows all rows.
+If no direct submodule has an external link, the entire port section is absent — no divider, no placeholder rows, no empty space. The card ends after the description body (or after the command bar if present).

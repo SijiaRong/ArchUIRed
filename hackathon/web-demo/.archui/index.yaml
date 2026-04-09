@@ -1,0 +1,10 @@
+schema_version: 1
+uuid: 2d61e4f5
+submodules:
+  canvas-editor: e6270121
+  edit-sync: 4e5eeab4
+  module-marketplace: 6ee8fb08
+  replace-flow: "3bb88623"
+  design-deploy: a0236eef
+  tech-stack: 58a3b1dc
+links: []

@@ -3,6 +3,8 @@ name: Selection Controller
 description: "Defines the selection model for the canvas: how modules become selected (single click on any card), how selection is cleared (click on empty canvas), and how selected state propagates to the primary card visual and the detail panel."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 Selection is a single-value global state: at most one module UUID is selected at any time. The selection controller owns this state and is the single source of truth for which module (if any) is currently selected.
@@ -64,3 +66,7 @@ When the user navigates (drill-in, breadcrumb, or detail panel row click):
 1. Navigate to the new canvas level.
 2. Set `selectedUuid` to the UUID of the target module (if the navigation was triggered by selecting a specific target) OR to `null` (if triggered by a breadcrumb or drill-in with no specific target).
 3. After the new canvas level renders, scroll/centre the selected module into view if a target UUID was specified.
+
+## Design System
+
+All visual properties — color, typography, spacing, and elevation — must use semantic tokens from the Design System (`gui/design-system/`). Do not use raw hex, pixel, or opacity values in implementations. Consult `gui/design-system/foundations/color/resources/token-table.md`, `gui/design-system/foundations/typography/resources/token-table.md`, `gui/design-system/foundations/spacing/resources/token-table.md`, and `gui/design-system/foundations/elevation/resources/token-table.md` for the complete token vocabulary.

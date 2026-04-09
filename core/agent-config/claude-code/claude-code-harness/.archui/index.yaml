@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: 78d5ffc5
+submodules: {}
+links:
+  - uuid: 5ae7bd27
+    relation: implements
+    description: Test harness for the Claude Code deployment adapter

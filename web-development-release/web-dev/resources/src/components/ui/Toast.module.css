@@ -1,0 +1,23 @@
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: var(--text, #fff);
+  border-radius: var(--radius-sm, 8px);
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-md);
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+.error {
+  background: rgba(220, 38, 38, 0.9);
+}

@@ -1,6 +1,7 @@
 schema_version: "1"
 uuid: aa100001
 submodules:
+  basic-info: aa10000d
   ppt: aa100002
   banner: aa100003
   video: aa100004
@@ -9,4 +10,5 @@ submodules:
   brochure: aa10000a
   image-design: aa10000b
   vi: aa10000c
+  web-demo: 2d61e4f5
 links: []

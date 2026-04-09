@@ -1,5 +1,7 @@
 schema_version: 1
 uuid: "32557333"
+submodules:
+  analyze-phase-harness: 15a65805
 links:
   - uuid: dc151a6e
     relation: implements

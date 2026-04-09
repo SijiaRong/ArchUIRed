@@ -3,6 +3,8 @@ name: Design Update Trigger Test Playbook
 description: "Verifies that spec changes correctly trigger the Figma sync, code regeneration, and screenshot verification pipeline."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Playbook
 
 ### Group 1: Design-affecting change triggers full pipeline

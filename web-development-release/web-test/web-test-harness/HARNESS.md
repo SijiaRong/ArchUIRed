@@ -6,7 +6,7 @@ description: "Step-by-step verification procedure for the web platform test suit
 ## Running the full suite
 
 ```bash
-cd web-development-release/web-development/resources
+cd web-development-release/web-dev/resources
 npm run test:all
 ```
 
@@ -14,7 +14,7 @@ Expected: all unit, integration, and e2e tests pass with 0 failures.
 
 ## Interpreting failures
 
-- **Unit failures** — component logic or utility bug; fix in `web-development/resources`
+- **Unit failures** — component logic or utility bug; fix in `web-dev/resources`
 - **Integration failures** — API contract mismatch; fix in `web-server/resources`
 - **E2E failures** — may be a test fragility or a real regression; check screenshot artifacts
 

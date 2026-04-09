@@ -1,0 +1,159 @@
+/**
+ * AUTO-GENERATED FILE. DO NOT EDIT.
+ * Regenerate with: npm run sync:figma
+ * Figma snapshot exported_at: 2026-04-09T02:28:00+08:00
+ * Sources:
+ * - gui/design-system/foundations/web-token-export.yaml
+ * - gui/design-system/README.md
+ * - gui/design-system/foundations/color/resources/token-table.md
+ * - gui/design-system/foundations/spacing/resources/token-table.md
+ * - gui/design-system/foundations/typography/resources/token-table.md
+ * - gui/design-system/foundations/elevation/resources/token-table.md
+ */
+
+:root
+{
+  color-scheme: light;
+  --font-wordmark: 'Syne', 'Sora', 'Inter', 'Lexend', 'PingFang SC', 'Microsoft YaHei UI', 'Source Han Sans SC', 'Noto Sans SC', system-ui, sans-serif;
+  --font-heading-sans: 'Sora', 'Inter', 'Lexend', 'PingFang SC', 'Microsoft YaHei UI', 'Source Han Sans SC', 'Noto Sans SC', system-ui, sans-serif;
+  --font-sans: 'Lexend', 'PingFang SC', 'Microsoft YaHei UI', 'Source Han Sans SC', 'Noto Sans SC', system-ui, sans-serif;
+  --font-display: var(--font-heading-sans);
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'SFMono-Regular', ui-monospace, monospace;
+  --brand-honey: #C26100;
+  --brand-honey-strong: #9B4D00;
+  --brand-lake: #2F7886;
+  --brand-lake-strong: #235B67;
+  --surface-page: #F5EDE4;
+  --surface-canvas: #F0E3D2;
+  --surface-panel: #FFF8F0;
+  --surface-elevated: #FFFDF8;
+  --surface-raised: #FAF1E5;
+  --surface-overlay: rgba(255, 249, 242, .86);
+  --surface-sunken: #E5D6C2;
+  --text-primary: #2C1B0C;
+  --text-secondary: #5E4832;
+  --text-tertiary: #8A725C;
+  --text-inverse: #FFF5E9;
+  --line-subtle: rgba(86, 57, 27, .12);
+  --line-default: rgba(86, 57, 27, .18);
+  --line-strong: rgba(86, 57, 27, .28);
+  --status-clean: #4B7A5E;
+  --status-modified: #C77A1F;
+  --status-error: #BF4B46;
+  --status-new: #2F7886;
+  --edge-depends-on: #2F7886;
+  --edge-implements: #C26100;
+  --edge-extends: #8D6242;
+  --edge-references: #5C8A7A;
+  --edge-related-to: #7C7368;
+  --focus-ring: #2F7886;
+  --canvas-dot: rgba(92, 70, 49, .12);
+  --node-bg: rgba(255, 250, 244, .94);
+  --node-border: rgba(98, 76, 52, .14);
+  --accent-0: #C26100;
+  --accent-1: #D17B2D;
+  --accent-2: #2F7886;
+  --accent-3: #5D8B79;
+  --accent-4: #9A5B4B;
+  --accent-5: #9A7A2D;
+  --shadow-soft: 0 10px 26px rgba(85, 55, 24, .08);
+  --shadow-card: 0 18px 40px rgba(85, 55, 24, .12);
+  --shadow-card-hover: 0 26px 52px rgba(85, 55, 24, .16);
+  --shadow-card-hero: 0 28px 64px rgba(85, 55, 24, .18);
+  --shadow-lg: 0 36px 90px rgba(61, 36, 10, .18);
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-control: 18px;
+  --radius-soft: 20px;
+  --radius-node: 22px;
+  --radius-lg: 24px;
+  --radius-xl: 28px;
+  --radius-2xl: 32px;
+  --radius-pill: 999px;
+  --overlay-dim: rgba(44, 27, 12, .1);
+  --overlay-dark: rgba(31, 18, 9, .42);
+  --overlay-heavy: rgba(31, 18, 9, .56);
+  --canvas-frame-highlight: rgba(255, 255, 255, .08);
+  --canvas-frame-sheen: rgba(255, 255, 255, .05);
+  --canvas-frame-shadow: rgba(0, 0, 0, .08);
+  --red: var(--status-error);
+  --red-subtle: rgba(191, 75, 70, .12);
+  --red-muted: rgba(191, 75, 70, .14);
+  --blue: var(--brand-lake);
+  --blue-hover: #256573;
+  --blue-glow-sm: rgba(47, 120, 134, .12);
+  --blue-glow-md: rgba(47, 120, 134, .24);
+  --yellow: #D59A46;
+  --green: var(--status-clean);
+  --teal: #5D8B79;
+  --lavender: #8E759B;
+  --peach: #D88B62;
+  --bg-base: var(--surface-page);
+  --bg-mantle: var(--surface-raised);
+  --bg-crust: var(--surface-panel);
+  --bg-surface0: var(--surface-elevated);
+  --bg-surface1: color-mix(in srgb, var(--surface-sunken) 86%, white);
+  --bg-surface-mid: color-mix(in srgb, var(--surface-sunken) 72%, white);
+  --text: var(--text-primary);
+  --subtext1: var(--text-secondary);
+  --subtext0: color-mix(in srgb, var(--text-secondary) 84%, white);
+  --overlay2: color-mix(in srgb, var(--text-tertiary) 82%, white);
+  --overlay1: var(--text-tertiary);
+  --overlay0: color-mix(in srgb, var(--text-tertiary) 78%, white);
+  --canvas-bg: var(--surface-canvas);
+  --node-selected: var(--focus-ring);
+  --edge-color: var(--edge-related-to);
+  --edge-hover: var(--focus-ring);
+}
+
+:root[data-theme='dark']
+{
+  color-scheme: dark;
+  --brand-honey: #D9811D;
+  --brand-honey-strong: #F0A649;
+  --brand-lake: #72AAB5;
+  --brand-lake-strong: #96C3CB;
+  --surface-page: #151210;
+  --surface-canvas: #181412;
+  --surface-panel: rgba(31, 24, 18, .94);
+  --surface-elevated: #231B15;
+  --surface-raised: #2B211A;
+  --surface-overlay: rgba(28, 22, 18, .9);
+  --surface-sunken: #120E0B;
+  --text-primary: #F6E8D8;
+  --text-secondary: #D8C2AA;
+  --text-tertiary: #A58E76;
+  --text-inverse: #20130A;
+  --line-subtle: rgba(246, 232, 216, .08);
+  --line-default: rgba(246, 232, 216, .12);
+  --line-strong: rgba(246, 232, 216, .2);
+  --status-clean: #6EAC81;
+  --status-modified: #E3A348;
+  --status-error: #E1706A;
+  --status-new: #72AAB5;
+  --edge-depends-on: #72AAB5;
+  --edge-implements: #D9811D;
+  --edge-extends: #BF8C62;
+  --edge-references: #7FAE9B;
+  --edge-related-to: #A18E7B;
+  --focus-ring: #72AAB5;
+  --canvas-dot: rgba(246, 232, 216, .08);
+  --node-bg: rgba(38, 30, 23, .95);
+  --node-border: rgba(246, 232, 216, .1);
+  --accent-0: #D9811D;
+  --accent-1: #E09B4C;
+  --accent-2: #72AAB5;
+  --accent-3: #7FAE9B;
+  --accent-4: #C57A6C;
+  --accent-5: #B89A52;
+  --shadow-soft: 0 16px 34px rgba(0, 0, 0, .24);
+  --shadow-card: 0 22px 50px rgba(0, 0, 0, .34);
+  --shadow-card-hover: 0 28px 68px rgba(0, 0, 0, .42);
+  --shadow-card-hero: 0 34px 86px rgba(0, 0, 0, .48);
+  --shadow-lg: 0 40px 100px rgba(0, 0, 0, .5);
+  --shadow-float: 0 8px 20px rgba(0, 0, 0, .18);
+  --canvas-frame-highlight: rgba(255, 255, 255, .04);
+  --canvas-frame-sheen: rgba(255, 255, 255, .03);
+  --canvas-frame-shadow: rgba(0, 0, 0, .16);
+}

@@ -5,63 +5,66 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Primary Module Card — ArchUI Component Preview</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
     :root {
-      --bg-base: #11111b;
-      --bg-mantle: #181825;
-      --bg-crust: #1e1e2e;
-      --bg-surface0: #313244;
-      --bg-surface1: #45475a;
-      --text: #cdd6f4;
-      --subtext1: #bac2de;
-      --subtext0: #a6adc8;
-      --overlay2: #9399b2;
-      --overlay1: #7f849c;
-      --overlay0: #6c7086;
-      --blue: #89b4fa;
-      --lavender: #b4befe;
-      --teal: #94e2d5;
-      --green: #a6e3a1;
-      --yellow: #f9e2af;
-      --peach: #fab387;
-      --red: #f38ba8;
-      --canvas-bg: #0f0f17;
-      --node-bg: #1e1e2e;
-      --node-border: #45475a;
-      --node-selected: #89b4fa;
+      --bg-base:      #11111b;
+      --bg-mantle:    #181825;
+      --bg-crust:     #1e1e2e;
+      --bg-surface0:  #313244;
+      --bg-surface1:  #45475a;
+      --text:         #cdd6f4;
+      --subtext1:     #bac2de;
+      --subtext0:     #a6adc8;
+      --overlay2:     #9399b2;
+      --overlay1:     #7f849c;
+      --overlay0:     #6c7086;
+      --blue:         #89b4fa;
+      --lavender:     #b4befe;
+      --teal:         #94e2d5;
+      --green:        #a6e3a1;
+      --yellow:       #f9e2af;
+      --peach:        #fab387;
+      --red:          #f38ba8;
+      --canvas-bg:    #0f0f17;
+      --node-bg:      #1e1e2e;
+      --node-border:  #45475a;
+      --node-selected:#89b4fa;
       --blue-glow-sm: rgba(137,180,250,.15);
       --blue-glow-md: rgba(137,180,250,.25);
-      --radius-md: 10px;
-      --radius-sm: 6px;
-      --radius-xs: 4px;
-      --shadow-md: 0 8px 24px rgba(0,0,0,.5);
+      --canvas-dot:   rgba(99,102,120,0.2);
+      --radius-md:    10px;
+      --radius-sm:    6px;
+      --radius-xs:    4px;
+      --shadow-md:    0 8px 24px rgba(0,0,0,.5);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background: var(--canvas-bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
       min-height: 100vh;
       padding: 40px 32px 80px;
     }
 
-    /* Subtle dot-grid background mimicking a canvas */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image: radial-gradient(circle, rgba(99,102,120,0.18) 1px, transparent 1px);
-      background-size: 24px 24px;
+      background-image: radial-gradient(circle, var(--canvas-dot) 1px, transparent 1px);
+      background-size: 28px 28px;
       pointer-events: none;
       z-index: 0;
     }
@@ -69,46 +72,44 @@
     .page-content {
       position: relative;
       z-index: 1;
-      max-width: 1100px;
+      max-width: 1120px;
       margin: 0 auto;
     }
 
-    .page-title {
-      font-size: 13px;
+    .page-eyebrow {
+      font-size: 11px;
       font-weight: 500;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--overlay1);
-      margin-bottom: 4px;
+      color: var(--overlay0);
+      margin-bottom: 5px;
     }
 
     .page-heading {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 6px;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
     }
 
-    .page-subtitle {
+    .page-sub {
       font-size: 13px;
       color: var(--overlay2);
-      margin-bottom: 48px;
+      margin-bottom: 52px;
     }
 
-    .section {
-      margin-bottom: 56px;
-    }
+    .section { margin-bottom: 60px; }
 
     .section-label {
       font-size: 11px;
       font-weight: 600;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.09em;
       text-transform: uppercase;
       color: var(--overlay0);
       border-bottom: 1px solid var(--bg-surface0);
       padding-bottom: 8px;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     .cards-row {
@@ -118,274 +119,6 @@
       align-items: flex-start;
     }
 
-    /* ── Handle pill ── */
-    .handle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--bg-surface0);
-      border: 2px solid var(--overlay1);
-      flex-shrink: 0;
-      font-size: 7px;
-      color: var(--overlay1);
-      line-height: 1;
-      user-select: none;
-    }
-
-    .handle--target { /* left / incoming */
-      position: absolute;
-      left: -8px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .handle--source { /* right / outgoing */
-      position: absolute;
-      right: -8px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    /* ── Primary Card ── */
-    .primary-card {
-      width: 360px;
-      background: var(--node-bg);
-      border: 1.5px solid var(--node-border);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-md);
-      overflow: visible;
-      position: relative;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .primary-card:hover:not(.primary-card--selected):not(.primary-card--modified):not(.primary-card--error) {
-      border-color: var(--bg-surface1);
-    }
-
-    .primary-card--selected {
-      border-color: var(--node-selected);
-      box-shadow: var(--shadow-md), 0 0 0 1px var(--node-selected), 0 0 16px var(--blue-glow-md);
-    }
-
-    .primary-card--modified {
-      border-color: var(--yellow);
-      box-shadow: var(--shadow-md), 0 0 0 1px rgba(249,226,175,0.4), 0 0 16px rgba(249,226,175,0.15);
-    }
-
-    .primary-card--error {
-      border-color: var(--red);
-      box-shadow: var(--shadow-md), 0 0 0 1px rgba(243,139,168,0.4), 0 0 16px rgba(243,139,168,0.1);
-      background: color-mix(in srgb, var(--node-bg) 95%, #f38ba8 5%);
-    }
-
-    /* Accent bar */
-    .card-accent-bar {
-      height: 4px;
-      border-radius: var(--radius-md) var(--radius-md) 0 0;
-      width: 100%;
-    }
-
-    /* Header */
-    .card-header {
-      padding: 12px 14px 11px;
-      position: relative;
-      border-radius: 0;
-    }
-
-    .card-header-inner {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .card-module-name {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.2;
-      letter-spacing: -0.01em;
-    }
-
-    .card-drill-btn {
-      flex-shrink: 0;
-      width: 26px;
-      height: 26px;
-      border-radius: var(--radius-xs);
-      background: transparent;
-      border: 1px solid var(--bg-surface0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--overlay1);
-      font-size: 13px;
-      transition: background 0.1s ease, color 0.1s ease, border-color 0.1s ease;
-      margin-top: 2px;
-    }
-
-    .card-drill-btn:hover {
-      background: var(--bg-surface0);
-      color: var(--subtext1);
-      border-color: var(--bg-surface1);
-    }
-
-    .card-uuid {
-      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
-      font-size: 11px;
-      color: var(--overlay0);
-      opacity: 0.9;
-      margin-top: 3px;
-      letter-spacing: 0.04em;
-    }
-
-    /* Divider */
-    .card-divider {
-      height: 1px;
-      background: var(--bg-surface0);
-      margin: 0;
-    }
-
-    /* Description section */
-    .card-description-section {
-      padding: 13px 18px;
-      position: relative;
-      min-height: 56px;
-      display: flex;
-      align-items: center;
-    }
-
-    .card-description-text {
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--subtext1);
-      flex: 1;
-    }
-
-    /* Port section */
-    .card-ports-section {
-      padding: 4px 0 6px;
-    }
-
-    .port-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 5px 18px;
-      position: relative;
-      min-height: 30px;
-      gap: 8px;
-    }
-
-    .port-row:hover {
-      background: rgba(255,255,255,0.03);
-    }
-
-    .port-name {
-      font-size: 12px;
-      color: var(--subtext0);
-      font-weight: 500;
-    }
-
-    .port-name--left {
-      margin-left: 6px;
-    }
-
-    .port-name--right {
-      margin-right: 6px;
-      text-align: right;
-      margin-left: auto;
-    }
-
-    .port-handle {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--bg-surface0);
-      border: 1.5px solid var(--overlay0);
-      flex-shrink: 0;
-      position: absolute;
-    }
-
-    .port-handle--left {
-      left: -7px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .port-handle--right {
-      right: -7px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    /* ── External Reference Card ── */
-    .ext-card {
-      width: 180px;
-      background: var(--bg-mantle);
-      border: 1.5px solid var(--node-border);
-      border-radius: var(--radius-sm);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      position: relative;
-      cursor: grab;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-      user-select: none;
-    }
-
-    .ext-card:hover {
-      border-color: var(--bg-surface1);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-    }
-
-    .ext-card:active {
-      cursor: grabbing;
-    }
-
-    .ext-card--selected {
-      border-color: var(--node-selected);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 10px var(--blue-glow-sm);
-    }
-
-    .ext-card-body {
-      padding: 10px 12px 10px;
-    }
-
-    .ext-card-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--subtext1);
-      line-height: 1.3;
-    }
-
-    .ext-card-uuid {
-      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
-      font-size: 10px;
-      color: var(--overlay0);
-      opacity: 0.85;
-      margin-top: 3px;
-      letter-spacing: 0.04em;
-    }
-
-    .ext-handle {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--bg-surface0);
-      border: 1.5px solid var(--overlay1);
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .ext-handle--left { left: -7px; }
-    .ext-handle--right { right: -7px; }
-
-    /* State badge */
     .state-badge {
       display: inline-flex;
       align-items: center;
@@ -394,50 +127,33 @@
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 3px 8px;
+      padding: 3px 9px;
       border-radius: 20px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
-    .state-badge--default {
-      background: rgba(69,71,90,0.5);
-      color: var(--overlay2);
-      border: 1px solid var(--bg-surface0);
+    .click-hint {
+      font-size: 12px;
+      color: var(--overlay0);
+      margin-bottom: 20px;
+      font-style: italic;
     }
 
-    .state-badge--selected {
-      background: rgba(137,180,250,0.12);
-      color: var(--blue);
-      border: 1px solid rgba(137,180,250,0.3);
+    /* Accent swatch */
+    .accent-variants { display: flex; gap: 10px; flex-wrap: wrap; }
+    .accent-swatch {
+      width: 88px;
+      background: var(--node-bg);
+      border: 1.5px solid var(--node-border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.35);
     }
+    .accent-swatch-bar { height: 3px; }
+    .accent-swatch-body { padding: 7px 9px; }
 
-    .state-badge--modified {
-      background: rgba(249,226,175,0.1);
-      color: var(--yellow);
-      border: 1px solid rgba(249,226,175,0.25);
-    }
-
-    .state-badge--error {
-      background: rgba(243,139,168,0.1);
-      color: var(--red);
-      border: 1px solid rgba(243,139,168,0.25);
-    }
-
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    /* Ext cards group */
-    .ext-cards-group {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .ext-card-label {
+    /* External card label */
+    .ext-label {
       font-size: 10px;
       color: var(--overlay0);
       text-transform: uppercase;
@@ -445,876 +161,522 @@
       margin-bottom: 6px;
     }
 
-    /* Accent color variants strip */
-    .accent-variants {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    /* ── Animation classes ── */
+    @keyframes accentGrow    { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+    @keyframes titleReveal   { from { clip-path: inset(110% 0 0 0); transform: translateY(8px); opacity: 0 } to { clip-path: inset(0% 0 0 0); transform: translateY(0); opacity: 1 } }
+    @keyframes fadeSlideUp   { from { opacity: 0; transform: translateY(5px) } to { opacity: 1; transform: translateY(0) } }
+    @keyframes cardEntrance  { from { opacity: 0; transform: scale(.97) translateY(10px) } to { opacity: 1; transform: scale(1) translateY(0) } }
 
-    .accent-swatch-card {
-      width: 100px;
-      background: var(--node-bg);
-      border: 1.5px solid var(--node-border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    }
+    .anim-card-wrap      { animation: cardEntrance 0.42s cubic-bezier(0.16,1,0.3,1) both; }
+    .anim-accent-bar     { transform-origin: left center; animation: accentGrow 0.32s cubic-bezier(0.16,1,0.3,1) 0.04s both; }
+    .anim-title          { animation: titleReveal 0.4s cubic-bezier(0.16,1,0.3,1) 0.1s both; }
+    .anim-uuid           { animation: fadeSlideUp 0.3s ease 0.25s both; }
+    .anim-desc           { animation: fadeSlideUp 0.3s ease 0.35s both; }
+    .anim-port           { animation: fadeSlideUp 0.26s ease calc(0.43s + var(--pi,0) * 0.07s) both; }
 
-    .accent-swatch-bar {
-      height: 4px;
-    }
-
-    .accent-swatch-body {
-      padding: 7px 10px;
-      font-size: 10px;
-      color: var(--overlay1);
-      letter-spacing: 0.03em;
-    }
-
-    /* Click hint */
-    .click-hint {
-      font-size: 11px;
-      color: var(--overlay0);
-      margin-bottom: 20px;
-      font-style: italic;
-    }
-
-    /* ── Title Reveal Animation ── */
-    @keyframes accentBarGrow {
-      from { transform: scaleX(0); }
-      to   { transform: scaleX(1); }
-    }
-
-    @keyframes titleReveal {
-      from {
-        clip-path: inset(110% 0 0 0);
-        transform: translateY(10px);
-        opacity: 0;
-      }
-      to {
-        clip-path: inset(0% 0 0 0);
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    @keyframes fadeSlideUp {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes cardEntrance {
-      from {
-        opacity: 0;
-        transform: scale(0.97) translateY(12px);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
-    }
-
-    .anim-card-wrap {
-      animation: cardEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .anim-accent-bar {
-      transform-origin: left center;
-      animation: accentBarGrow 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
-    }
-
-    .anim-title {
-      animation: titleReveal 0.42s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
-    }
-
-    .anim-uuid {
-      animation: fadeSlideUp 0.32s ease 0.28s both;
-    }
-
-    .anim-description {
-      animation: fadeSlideUp 0.32s ease 0.38s both;
-    }
-
-    .anim-port {
-      animation: fadeSlideUp 0.28s ease calc(0.46s + var(--port-i, 0) * 0.07s) both;
-    }
-
-    /* Replay button */
-    .replay-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 6px 14px;
-      border-radius: var(--radius-sm);
-      background: rgba(137,180,250,0.1);
-      color: var(--blue);
-      border: 1px solid rgba(137,180,250,0.25);
-      cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease;
-      margin-bottom: 24px;
-      user-select: none;
-    }
-
-    .replay-btn:hover {
-      background: rgba(137,180,250,0.18);
-      border-color: rgba(137,180,250,0.4);
-    }
-
-    .replay-btn svg {
-      flex-shrink: 0;
-    }
-
-    /* Timing annotation */
-    .timing-row {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      margin-bottom: 28px;
-      font-size: 10px;
-      color: var(--overlay1);
-      max-width: 460px;
-    }
-
+    /* Timing diagram */
+    .timing-row { display: flex; margin-bottom: 28px; max-width: 480px; }
     .timing-step {
       flex: 1;
       text-align: center;
-      padding: 6px 4px;
+      padding: 7px 4px 5px;
       border-top: 2px solid var(--bg-surface0);
+      font-size: 10px;
+      color: var(--overlay1);
       position: relative;
     }
-
     .timing-step::before {
       content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--bg-surface1);
-      border: 1.5px solid var(--overlay0);
-      position: absolute;
-      top: -5px;
-      left: 50%;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--bg-surface1); border: 1.5px solid var(--overlay0);
+      position: absolute; top: -5px; left: 50%;
       transform: translateX(-50%);
     }
-
-    .timing-step-label {
-      font-weight: 600;
-      color: var(--subtext0);
-      margin-bottom: 2px;
-    }
-
-    .timing-step-ms {
-      color: var(--overlay0);
-    }
-
-    .timing-step--accent::before  { border-color: var(--blue); }
+    .timing-step b { display: block; font-weight: 600; color: var(--subtext0); margin-bottom: 2px; }
+    .timing-step--accent::before  { border-color: var(--blue);    }
     .timing-step--title::before   { border-color: var(--lavender); }
-    .timing-step--uuid::before    { border-color: var(--teal); }
-    .timing-step--desc::before    { border-color: var(--green); }
-    .timing-step--ports::before   { border-color: var(--peach); }
+    .timing-step--uuid::before    { border-color: var(--teal);    }
+    .timing-step--desc::before    { border-color: var(--green);   }
+    .timing-step--ports::before   { border-color: var(--peach);   }
+
+    .replay-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(137,180,250,0.08);
+      color: var(--blue);
+      border: 1px solid rgba(137,180,250,0.2);
+      cursor: pointer; margin-bottom: 24px;
+      font-family: inherit;
+      transition: background .15s, border-color .15s;
+    }
+    .replay-btn:hover { background: rgba(137,180,250,0.15); border-color: rgba(137,180,250,0.35); }
   </style>
 </head>
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
-  const { useState, useCallback, useRef } = React;
+const { useState, useRef, useCallback } = React;
 
-  const ACCENT_COLORS = [
-    '#89b4fa', // blue
-    '#b4befe', // lavender
-    '#94e2d5', // teal
-    '#a6e3a1', // green
-    '#f9e2af', // yellow
-    '#fab387', // peach
-    '#f38ba8', // red
-  ];
+/* ── Design tokens ──────────────────────────────────────────────────────── */
+const ACCENTS = ['#89b4fa','#b4befe','#94e2d5','#a6e3a1','#f9e2af','#fab387','#f38ba8'];
+const ACCENT_NAMES = ['Blue','Lavender','Teal','Green','Yellow','Peach','Red'];
 
-  const ACCENT_NAMES = ['Blue', 'Lavender', 'Teal', 'Green', 'Yellow', 'Peach', 'Red'];
-
-  // ── Handle circle ──────────────────────────────────────────────────────────
-  function Handle({ side, color }) {
-    const isLeft = side === 'left';
-    const style = {
-      width: 14,
-      height: 14,
-      borderRadius: '50%',
-      background: '#313244',
-      border: `2px solid ${color || 'var(--overlay1)'}`,
-      flexShrink: 0,
-      position: 'absolute',
-      [isLeft ? 'left' : 'right']: -8,
-      top: '50%',
-      transform: 'translateY(-50%)',
-    };
-    return <div style={style} />;
-  }
-
-  // ── Port Row ───────────────────────────────────────────────────────────────
-  function PortRow({ name, hasLeft, hasRight }) {
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: '5px 18px',
-        position: 'relative',
-        minHeight: 30,
-        gap: 8,
-      }}>
-        {hasLeft && (
-          <div style={{
-            width: 12, height: 12, borderRadius: '50%',
-            background: 'var(--bg-surface0)',
-            border: '1.5px solid var(--overlay0)',
-            position: 'absolute', left: -7, top: '50%', transform: 'translateY(-50%)',
-          }} />
-        )}
-
-        {hasLeft && (
-          <span style={{ fontSize: 12, color: 'var(--subtext0)', fontWeight: 500, marginLeft: hasLeft ? 4 : 0 }}>
-            {name}
-          </span>
-        )}
-
-        {!hasLeft && hasRight && (
-          <span style={{ fontSize: 12, color: 'var(--subtext0)', fontWeight: 500, marginLeft: 'auto', marginRight: 4 }}>
-            {name}
-          </span>
-        )}
-
-        {hasLeft && !hasRight && <span style={{ flex: 1 }} />}
-
-        {hasRight && (
-          <div style={{
-            width: 12, height: 12, borderRadius: '50%',
-            background: 'var(--bg-surface0)',
-            border: '1.5px solid var(--overlay0)',
-            position: 'absolute', right: -7, top: '50%', transform: 'translateY(-50%)',
-          }} />
-        )}
-      </div>
-    );
-  }
-
-  // ── Primary Card ───────────────────────────────────────────────────────────
-  function PrimaryCard({
-    name,
-    uuid,
-    description,
-    accentColor,
-    submodulePorts,
-    hasModuleIncoming,
-    hasModuleOutgoing,
-    cardState,         // 'default' | 'selected' | 'modified' | 'error'
-    onToggleSelect,
-  }) {
-    const isSelected = cardState === 'selected';
-    const isModified = cardState === 'modified';
-    const isError    = cardState === 'error';
-
-    const headerBg = `linear-gradient(to bottom, ${accentColor}18 0%, ${accentColor}00 100%)`;
-
-    let borderColor = 'var(--node-border)';
-    let boxShadow   = 'var(--shadow-md)';
-    let cardBg      = 'var(--node-bg)';
-
-    if (isSelected) {
-      borderColor = 'var(--node-selected)';
-      boxShadow   = 'var(--shadow-md), 0 0 0 1px var(--node-selected), 0 0 18px var(--blue-glow-md)';
-    } else if (isModified) {
-      borderColor = 'var(--yellow)';
-      boxShadow   = 'var(--shadow-md), 0 0 0 1px rgba(249,226,175,0.35), 0 0 16px rgba(249,226,175,0.12)';
-    } else if (isError) {
-      borderColor = 'var(--red)';
-      boxShadow   = 'var(--shadow-md), 0 0 0 1px rgba(243,139,168,0.35), 0 0 16px rgba(243,139,168,0.1)';
-      cardBg      = 'color-mix(in srgb, var(--node-bg) 94%, #f38ba8 6%)';
-    }
-
-    const hasPorts = submodulePorts && submodulePorts.length > 0;
-
-    return (
-      <div
-        onClick={onToggleSelect}
-        style={{
-          width: 360,
-          background: cardBg,
-          border: `1.5px solid ${borderColor}`,
-          borderRadius: 'var(--radius-md)',
-          boxShadow,
-          position: 'relative',
-          overflow: 'visible',
-          cursor: 'pointer',
-          transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-          userSelect: 'none',
-        }}
-      >
-        {/* Accent bar */}
-        <div style={{
-          height: 4,
-          borderRadius: '9px 9px 0 0',
-          background: accentColor,
-          width: '100%',
-        }} />
-
-        {/* Header */}
-        <div style={{
-          padding: '12px 14px 11px',
-          background: headerBg,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
-                {name}
-              </div>
-              <div style={{
-                fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', monospace",
-                fontSize: 11,
-                color: 'var(--overlay0)',
-                marginTop: 3,
-                letterSpacing: '0.04em',
-              }}>
-                {uuid}
-              </div>
-            </div>
-            <button
-              onClick={e => e.stopPropagation()}
-              style={{
-                flexShrink: 0,
-                width: 26, height: 26,
-                borderRadius: 'var(--radius-xs)',
-                background: 'transparent',
-                border: '1px solid var(--bg-surface0)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer',
-                color: 'var(--overlay1)',
-                fontSize: 13,
-                marginTop: 2,
-              }}
-              title="Drill into module"
-            >
-              ↗
-            </button>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div style={{ height: 1, background: 'var(--bg-surface0)' }} />
-
-        {/* Description section */}
-        <div style={{
-          padding: '13px 18px',
-          position: 'relative',
-          minHeight: 56,
-          display: 'flex',
-          alignItems: 'center',
-        }}>
-          {hasModuleIncoming && <Handle side="left" />}
-          <span style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--subtext1)', flex: 1 }}>
-            {description}
-          </span>
-          {hasModuleOutgoing && <Handle side="right" />}
-        </div>
-
-        {/* Port section */}
-        {hasPorts && (
-          <>
-            <div style={{ height: 1, background: 'var(--bg-surface0)' }} />
-            <div style={{ padding: '4px 0 6px', position: 'relative' }}>
-              {submodulePorts.map((port, i) => (
-                <PortRow key={i} {...port} />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
-
-  // ── External Reference Card ────────────────────────────────────────────────
-  function ExternalCard({ name, uuid, handleSide, selected, onToggle }) {
-    return (
-      <div
-        onClick={onToggle}
-        style={{
-          width: 180,
-          background: 'var(--bg-mantle)',
-          border: `1.5px solid ${selected ? 'var(--node-selected)' : 'var(--node-border)'}`,
-          borderRadius: 'var(--radius-sm)',
-          boxShadow: selected
-            ? '0 4px 12px rgba(0,0,0,0.4), 0 0 10px var(--blue-glow-sm)'
-            : '0 4px 12px rgba(0,0,0,0.4)',
-          position: 'relative',
-          cursor: 'grab',
-          userSelect: 'none',
-          transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-        }}
-      >
-        <div style={{ padding: '10px 12px' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--subtext1)', lineHeight: 1.3 }}>
-            {name}
-          </div>
-          <div style={{
-            fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', monospace",
-            fontSize: 10,
-            color: 'var(--overlay0)',
-            marginTop: 3,
-            letterSpacing: '0.04em',
-          }}>
-            {uuid}
-          </div>
-        </div>
-
-        {/* Handle */}
-        <div style={{
-          width: 12, height: 12, borderRadius: '50%',
-          background: 'var(--bg-surface0)',
-          border: '1.5px solid var(--overlay1)',
-          position: 'absolute',
-          [handleSide]: -7,
-          top: '50%', transform: 'translateY(-50%)',
-        }} />
-      </div>
-    );
-  }
-
-  // ── State Badge ────────────────────────────────────────────────────────────
-  function StateBadge({ state }) {
-    const configs = {
-      default:  { label: 'Default',  bg: 'rgba(69,71,90,0.5)',       color: 'var(--overlay2)', border: '1px solid var(--bg-surface0)' },
-      selected: { label: 'Selected', bg: 'rgba(137,180,250,0.12)',    color: 'var(--blue)',     border: '1px solid rgba(137,180,250,0.3)' },
-      modified: { label: 'Modified', bg: 'rgba(249,226,175,0.1)',     color: 'var(--yellow)',   border: '1px solid rgba(249,226,175,0.25)' },
-      error:    { label: 'Error',    bg: 'rgba(243,139,168,0.1)',     color: 'var(--red)',      border: '1px solid rgba(243,139,168,0.25)' },
-    };
-    const c = configs[state] || configs.default;
-    return (
-      <div style={{
-        display: 'inline-flex', alignItems: 'center', gap: 5,
-        fontSize: 10, fontWeight: 600, letterSpacing: '0.08em',
-        textTransform: 'uppercase', padding: '3px 9px',
-        borderRadius: 20, marginBottom: 14,
-        background: c.bg, color: c.color, border: c.border,
-      }}>
-        <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor' }} />
-        {c.label}
-      </div>
-    );
-  }
-
-  // ── Animated Primary Card ─────────────────────────────────────────────────
-  function AnimatedPrimaryCard({ name, uuid, description, accentColor, submodulePorts, animKey }) {
-    const hasPorts = submodulePorts && submodulePorts.length > 0;
-    const headerBg = `linear-gradient(to bottom, ${accentColor}18 0%, ${accentColor}00 100%)`;
-
-    return (
-      <div
-        key={animKey}
-        className="anim-card-wrap"
-        style={{
-          width: 360,
-          background: 'var(--node-bg)',
-          border: '1.5px solid var(--node-border)',
-          borderRadius: 'var(--radius-md)',
-          boxShadow: 'var(--shadow-md)',
-          position: 'relative',
-          overflow: 'visible',
-          userSelect: 'none',
-        }}
-      >
-        {/* Accent bar — grows left→right */}
-        <div
-          className="anim-accent-bar"
-          style={{
-            height: 4,
-            borderRadius: '9px 9px 0 0',
-            background: accentColor,
-            width: '100%',
-          }}
-        />
-
-        {/* Header */}
-        <div style={{ padding: '12px 14px 11px', background: headerBg }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-            <div style={{ overflow: 'hidden' }}>
-              {/* Title — clip-path reveal from bottom */}
-              <div
-                className="anim-title"
-                style={{
-                  fontSize: 20, fontWeight: 700,
-                  color: 'var(--text)',
-                  lineHeight: 1.2,
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {name}
-              </div>
-              {/* UUID — simple fade+slide */}
-              <div
-                className="anim-uuid"
-                style={{
-                  fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', monospace",
-                  fontSize: 11,
-                  color: 'var(--overlay0)',
-                  marginTop: 3,
-                  letterSpacing: '0.04em',
-                }}
-              >
-                {uuid}
-              </div>
-            </div>
-            <button
-              style={{
-                flexShrink: 0,
-                width: 26, height: 26,
-                borderRadius: 'var(--radius-xs)',
-                background: 'transparent',
-                border: '1px solid var(--bg-surface0)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer',
-                color: 'var(--overlay1)',
-                fontSize: 13,
-                marginTop: 2,
-              }}
-            >↗</button>
-          </div>
-        </div>
-
-        <div style={{ height: 1, background: 'var(--bg-surface0)' }} />
-
-        {/* Description */}
-        <div
-          className="anim-description"
-          style={{
-            padding: '13px 18px',
-            minHeight: 56,
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <span style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--subtext1)', flex: 1 }}>
-            {description}
-          </span>
-        </div>
-
-        {/* Ports */}
-        {hasPorts && (
-          <>
-            <div style={{ height: 1, background: 'var(--bg-surface0)' }} />
-            <div style={{ padding: '4px 0 6px', position: 'relative' }}>
-              {submodulePorts.map((port, i) => (
-                <div
-                  key={i}
-                  className="anim-port"
-                  style={{ '--port-i': i }}
-                >
-                  <PortRow {...port} />
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
-
-  // ── Mock data ──────────────────────────────────────────────────────────────
-  const MOCK_PRIMARY = {
-    name: 'GUI',
-    uuid: 'a3f9c201',
-    description: 'Cross-platform visual canvas for navigating the ArchUI knowledge base as an interactive node graph.',
-    accentColor: ACCENT_COLORS[0],
-    submodulePorts: [
-      { name: 'Canvas',     hasLeft: false, hasRight: true  },
-      { name: 'Navigation', hasLeft: true,  hasRight: false },
-      { name: 'Components', hasLeft: true,  hasRight: true  },
-    ],
-    hasModuleIncoming: true,
-    hasModuleOutgoing: true,
+/* ── State badge ────────────────────────────────────────────────────────── */
+function StateBadge({ state }) {
+  const cfg = {
+    default:  { label:'Default',  bg:'rgba(69,71,90,.4)',       c:'var(--overlay2)', b:'var(--bg-surface0)' },
+    selected: { label:'Selected', bg:'rgba(137,180,250,.1)',    c:'var(--blue)',     b:'rgba(137,180,250,.3)' },
+    modified: { label:'Modified', bg:'rgba(249,226,175,.1)',    c:'var(--yellow)',   b:'rgba(249,226,175,.25)' },
+    error:    { label:'Error',    bg:'rgba(243,139,168,.1)',     c:'var(--red)',      b:'rgba(243,139,168,.25)' },
   };
+  const s = cfg[state] || cfg.default;
+  return (
+    <div style={{ display:'inline-flex', alignItems:'center', gap:5, fontSize:10, fontWeight:600,
+      letterSpacing:'0.08em', textTransform:'uppercase', padding:'3px 9px', borderRadius:20,
+      background:s.bg, color:s.c, border:`1px solid ${s.b}`, marginBottom:16 }}>
+      <div style={{ width:6, height:6, borderRadius:'50%', background:'currentColor' }} />
+      {s.label}
+    </div>
+  );
+}
 
-  // ── App ────────────────────────────────────────────────────────────────────
-  function App() {
-    const [selectedCards, setSelectedCards] = useState(new Set());
+/* ── Port handle ────────────────────────────────────────────────────────── */
+function PortHandle({ side, color, handleRef }) {
+  const offset = -7;
+  return (
+    <div
+      ref={handleRef}
+      style={{
+        width:12, height:12, borderRadius:'50%',
+        background:'var(--bg-surface0)',
+        border:`1.5px solid ${color || 'var(--overlay0)'}`,
+        position:'absolute',
+        [side === 'left' ? 'left' : 'right']: offset,
+        top:'50%', transform:'translateY(-50%)',
+        flexShrink:0,
+        transition:'border-color .15s, background .15s',
+      }}
+    />
+  );
+}
 
-    const toggle = useCallback((id) => {
-      setSelectedCards(prev => {
-        const next = new Set(prev);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        return next;
-      });
-    }, []);
+/* ── Module-level handle (description row) ──────────────────────────────── */
+function ModuleHandle({ side, color, handleRef }) {
+  return (
+    <div
+      ref={handleRef}
+      style={{
+        width:14, height:14, borderRadius:'50%',
+        background:'var(--bg-surface0)',
+        border:`2px solid ${color || 'var(--overlay1)'}`,
+        position:'absolute',
+        [side === 'left' ? 'left' : 'right']: -8,
+        top:'50%', transform:'translateY(-50%)',
+        flexShrink:0,
+      }}
+    />
+  );
+}
 
-    const getState = (id, forcedState) => {
-      if (forcedState) return forcedState;
-      return selectedCards.has(id) ? 'selected' : 'default';
-    };
+/* ── Port row ───────────────────────────────────────────────────────────── */
+function PortRow({ name, hasLeft, hasRight, isLast, leftRef, rightRef, accent }) {
+  return (
+    <div style={{
+      display:'flex', alignItems:'center', padding:'5px 18px',
+      position:'relative', minHeight:30,
+      borderBottom: isLast ? 'none' : '1px solid rgba(69,71,90,0.3)',
+    }}>
+      {hasLeft && <PortHandle side="left" handleRef={leftRef} />}
+      {hasLeft && (
+        <span style={{ fontSize:12, color:'var(--subtext0)', fontWeight:500, marginLeft:4 }}>
+          {name}
+        </span>
+      )}
+      {!hasLeft && hasRight && (
+        <span style={{ fontSize:12, color:'var(--subtext0)', fontWeight:500, marginLeft:'auto', marginRight:4 }}>
+          {name}
+        </span>
+      )}
+      {hasLeft && hasRight && <span style={{ flex:1 }} />}
+      {hasRight && <PortHandle side="right" handleRef={rightRef} />}
+    </div>
+  );
+}
 
-    return (
-      <div className="page-content">
-        {/* Page header */}
-        <div style={{ marginBottom: 48 }}>
-          <div className="page-title">ArchUI · Component Preview</div>
-          <div className="page-heading">Primary Module Card</div>
-          <div className="page-subtitle">
-            The focal card displayed in the center of a canvas view, representing the currently scoped module.
-          </div>
-        </div>
+/* ── Primary card ───────────────────────────────────────────────────────── */
+function PrimaryCard({
+  name, uuid, description, accentColor,
+  submodulePorts, hasModuleIncoming, hasModuleOutgoing,
+  cardState, onToggleSelect,
+  moduleInHandleRef, moduleOutHandleRef,
+  animated, animKey,
+}) {
+  const isSelected = cardState === 'selected';
+  const isModified = cardState === 'modified';
+  const isError    = cardState === 'error';
 
-        {/* Section 1 – Default */}
-        <div className="section">
-          <div className="section-label">1 — Primary Card · module-level + port handles</div>
-          <StateBadge state="default" />
-          <p className="click-hint">Click any card to toggle selected state.</p>
-          <div className="cards-row">
-            <PrimaryCard
-              {...MOCK_PRIMARY}
-              cardState={getState('primary-default')}
-              onToggleSelect={() => toggle('primary-default')}
-            />
-          </div>
-        </div>
+  let borderColor = 'var(--node-border)';
+  let boxShadow   = 'var(--shadow-md)';
+  let cardBg      = 'var(--node-bg)';
 
-        {/* Section 2 – Selected */}
-        <div className="section">
-          <div className="section-label">2 — Primary Card · Selected state</div>
-          <StateBadge state="selected" />
-          <div className="cards-row">
-            <PrimaryCard
-              {...MOCK_PRIMARY}
-              cardState={selectedCards.has('primary-sel') ? 'default' : 'selected'}
-              onToggleSelect={() => toggle('primary-sel')}
-            />
-          </div>
-        </div>
+  if (isSelected) {
+    borderColor = 'var(--node-selected)';
+    boxShadow   = 'var(--shadow-md), 0 0 0 1px var(--node-selected), 0 0 18px var(--blue-glow-md)';
+  } else if (isModified) {
+    borderColor = 'var(--yellow)';
+    boxShadow   = 'var(--shadow-md), 0 0 0 1px rgba(249,226,175,.32), 0 0 14px rgba(249,226,175,.1)';
+  } else if (isError) {
+    borderColor = 'var(--red)';
+    boxShadow   = 'var(--shadow-md), 0 0 0 1px rgba(243,139,168,.32), 0 0 14px rgba(243,139,168,.08)';
+    cardBg      = 'color-mix(in srgb, var(--node-bg) 94%, #f38ba8 6%)';
+  }
 
-        {/* Section 3 – Modified */}
-        <div className="section">
-          <div className="section-label">3 — Primary Card · Modified state</div>
-          <StateBadge state="modified" />
-          <div className="cards-row">
-            <PrimaryCard
-              {...MOCK_PRIMARY}
-              name="Canvas"
-              uuid="d7b12e90"
-              description="Infinite-scroll node graph canvas with zoom, pan, and edge routing for the GUI module."
-              accentColor={ACCENT_COLORS[4]}
-              cardState={selectedCards.has('primary-mod') ? 'selected' : 'modified'}
-              onToggleSelect={() => toggle('primary-mod')}
-            />
-          </div>
-        </div>
+  const headerGrad = `linear-gradient(to bottom, ${accentColor}1a 0%, ${accentColor}00 100%)`;
+  const hasPorts   = submodulePorts && submodulePorts.length > 0;
 
-        {/* Section 4 – Error */}
-        <div className="section">
-          <div className="section-label">4 — Primary Card · Error state</div>
-          <StateBadge state="error" />
-          <div className="cards-row">
-            <PrimaryCard
-              {...MOCK_PRIMARY}
-              name="Navigation"
-              uuid="f4c89a17"
-              description="Breadcrumb and history stack for drilling into and back out of module hierarchies."
-              accentColor={ACCENT_COLORS[6]}
-              submodulePorts={[
-                { name: 'History',   hasLeft: true,  hasRight: false },
-                { name: 'Bookmarks', hasLeft: false, hasRight: true  },
-              ]}
-              hasModuleIncoming={true}
-              hasModuleOutgoing={false}
-              cardState={selectedCards.has('primary-err') ? 'selected' : 'error'}
-              onToggleSelect={() => toggle('primary-err')}
-            />
-          </div>
-        </div>
+  return (
+    <div
+      key={animated ? animKey : undefined}
+      onClick={onToggleSelect}
+      className={animated ? 'anim-card-wrap' : undefined}
+      style={{
+        width:360,
+        background:cardBg,
+        border:`1.5px solid ${borderColor}`,
+        borderRadius:'var(--radius-md)',
+        boxShadow,
+        position:'relative', overflow:'visible',
+        cursor:'pointer', userSelect:'none',
+        transition:'border-color .15s, box-shadow .15s',
+      }}
+    >
+      {/* Accent bar */}
+      <div
+        className={animated ? 'anim-accent-bar' : undefined}
+        style={{ height:3, borderRadius:'9px 9px 0 0', background:accentColor, width:'100%' }}
+      />
 
-        {/* Section 5 – External Reference Card variants */}
-        <div className="section">
-          <div className="section-label">5 — External Reference Card · variants</div>
-          <p className="click-hint">External cards have a grab cursor (draggable on canvas). Click to select.</p>
-          <div className="cards-row" style={{ alignItems: 'center' }}>
-
-            <div>
-              <div className="ext-card-label">Incoming link (handle right)</div>
-              <ExternalCard
-                name="CLI"
-                uuid="b8e2d415"
-                handleSide="right"
-                selected={selectedCards.has('ext-cli')}
-                onToggle={() => toggle('ext-cli')}
-              />
+      {/* Header */}
+      <div style={{ padding:'12px 16px 11px', background:headerGrad }}>
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
+          <div style={{ overflow:'hidden', flex:1 }}>
+            <div
+              className={animated ? 'anim-title' : undefined}
+              style={{ fontSize:18, fontWeight:700, color:'var(--text)', lineHeight:1.2, letterSpacing:'-0.01em' }}
+            >
+              {name}
             </div>
-
-            <div>
-              <div className="ext-card-label">Outgoing link (handle left)</div>
-              <ExternalCard
-                name="Core"
-                uuid="c1f0a392"
-                handleSide="left"
-                selected={selectedCards.has('ext-core')}
-                onToggle={() => toggle('ext-core')}
-              />
+            <div
+              className={animated ? 'anim-uuid' : undefined}
+              style={{
+                fontFamily:"'SF Mono','Cascadia Code','Fira Code',monospace",
+                fontSize:10, color:'var(--overlay0)', marginTop:3, letterSpacing:'0.04em',
+              }}
+            >
+              {uuid}
             </div>
-
-            <div>
-              <div className="ext-card-label">Selected</div>
-              <ExternalCard
-                name="UUID System"
-                uuid="e9d30b56"
-                handleSide="left"
-                selected={!selectedCards.has('ext-uuid')}
-                onToggle={() => toggle('ext-uuid')}
-              />
-            </div>
-
           </div>
+          <button
+            onClick={e => e.stopPropagation()}
+            style={{
+              flexShrink:0, width:24, height:24, borderRadius:'var(--radius-xs)',
+              background:'transparent', border:'1px solid var(--bg-surface0)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              cursor:'pointer', color:'var(--overlay1)', fontSize:12, marginTop:1,
+              fontFamily:'inherit', transition:'background .1s, color .1s',
+            }}
+            title="Drill into module"
+          >
+            ↗
+          </button>
         </div>
+      </div>
 
-        {/* Section 6 – Accent color palette */}
-        <div className="section">
-          <div className="section-label">6 — Accent color variants (index 0–6)</div>
-          <div className="accent-variants">
-            {ACCENT_COLORS.map((color, i) => (
-              <div key={i} className="accent-swatch-card">
-                <div className="accent-swatch-bar" style={{ background: color }} />
-                <div className="accent-swatch-body">
-                  <div style={{ color: color, fontWeight: 600, fontSize: 11 }}>{ACCENT_NAMES[i]}</div>
-                  <div style={{ color: 'var(--overlay0)', fontSize: 9, marginTop: 2 }}>{color}</div>
-                </div>
+      {/* Divider */}
+      <div style={{ height:1, background:'var(--bg-surface0)' }} />
+
+      {/* Description section */}
+      <div
+        className={animated ? 'anim-desc' : undefined}
+        style={{ padding:'12px 18px', position:'relative', minHeight:52, display:'flex', alignItems:'center' }}
+      >
+        {hasModuleIncoming && <ModuleHandle side="left" handleRef={moduleInHandleRef} />}
+        <span style={{ fontSize:12.5, lineHeight:1.65, color:'var(--subtext1)', flex:1 }}>
+          {description}
+        </span>
+        {hasModuleOutgoing && <ModuleHandle side="right" handleRef={moduleOutHandleRef} />}
+      </div>
+
+      {/* Port section */}
+      {hasPorts && (
+        <>
+          <div style={{ height:1, background:'var(--bg-surface0)' }} />
+          <div style={{ padding:'2px 0 4px', position:'relative' }}>
+            {submodulePorts.map((port, i) => (
+              <div
+                key={i}
+                className={animated ? 'anim-port' : undefined}
+                style={animated ? { '--pi': i } : {}}
+              >
+                <PortRow
+                  {...port}
+                  isLast={i === submodulePorts.length - 1}
+                />
               </div>
             ))}
           </div>
-        </div>
+        </>
+      )}
+    </div>
+  );
+}
 
-        {/* Section 7 – Module-only links (no ports) */}
-        <div className="section">
-          <div className="section-label">7 — Primary Card · module-level links only (no ports)</div>
-          <div className="cards-row">
-            <PrimaryCard
-              name="Components"
-              uuid="88cc4d02"
-              description="Library of reusable UI primitives used across all GUI canvas views and dialogs."
-              accentColor={ACCENT_COLORS[2]}
-              submodulePorts={[]}
-              hasModuleIncoming={true}
-              hasModuleOutgoing={true}
-              cardState={getState('primary-nports')}
-              onToggleSelect={() => toggle('primary-nports')}
-            />
-          </div>
-        </div>
-
-        {/* Section 8 – Port-only (no module handles) */}
-        <div className="section">
-          <div className="section-label">8 — Primary Card · port handles only (no module-level links)</div>
-          <div className="cards-row">
-            <PrimaryCard
-              name="CLI"
-              uuid="b8e2d415"
-              description="Validator that checks filesystem conformance after agent modifications to ArchUI module trees."
-              accentColor={ACCENT_COLORS[1]}
-              submodulePorts={[
-                { name: 'Import Command', hasLeft: true,  hasRight: false },
-                { name: 'Validate',       hasLeft: false, hasRight: true  },
-                { name: 'Report',         hasLeft: true,  hasRight: true  },
-              ]}
-              hasModuleIncoming={false}
-              hasModuleOutgoing={false}
-              cardState={getState('primary-npmodule')}
-              onToggleSelect={() => toggle('primary-npmodule')}
-            />
-          </div>
-        </div>
-
-        {/* Section 9 – Animation: Title Reveal */}
-        <AnimationSection />
-
+/* ── External reference card ────────────────────────────────────────────── */
+function ExternalCard({ name, uuid, handleSide, selected, onToggle }) {
+  return (
+    <div
+      onClick={onToggle}
+      style={{
+        width:172, background:'var(--bg-mantle)',
+        border:`1.5px solid ${selected ? 'var(--node-selected)' : 'var(--node-border)'}`,
+        borderRadius:'var(--radius-sm)',
+        boxShadow: selected
+          ? '0 4px 12px rgba(0,0,0,.4), 0 0 10px var(--blue-glow-sm)'
+          : '0 3px 10px rgba(0,0,0,.35)',
+        position:'relative', cursor:'pointer', userSelect:'none',
+        transition:'border-color .15s, box-shadow .15s',
+      }}
+    >
+      <div style={{ padding:'10px 12px' }}>
+        <div style={{ fontSize:13, fontWeight:600, color:'var(--subtext1)', lineHeight:1.3 }}>{name}</div>
+        <div style={{
+          fontFamily:"'SF Mono','Cascadia Code','Fira Code',monospace",
+          fontSize:10, color:'var(--overlay0)', marginTop:3, letterSpacing:'0.04em',
+        }}>{uuid}</div>
       </div>
-    );
-  }
+      {/* Handle circle */}
+      <div style={{
+        width:12, height:12, borderRadius:'50%',
+        background:'var(--bg-surface0)',
+        border:'1.5px solid var(--overlay1)',
+        position:'absolute',
+        [handleSide]: -7,
+        top:'50%', transform:'translateY(-50%)',
+      }} />
+    </div>
+  );
+}
 
-  // ── Animation Section ──────────────────────────────────────────────────────
-  function AnimationSection() {
-    const [animKey, setAnimKey] = useState(0);
-    const replay = () => setAnimKey(k => k + 1);
+/* ── Mock data ──────────────────────────────────────────────────────────── */
+const MOCK = {
+  name: 'GUI',
+  uuid: 'a3f9c201',
+  description: 'Cross-platform visual canvas for navigating the ArchUI knowledge base as an interactive node graph.',
+  accentColor: ACCENTS[0],
+  submodulePorts: [
+    { name:'Canvas',     hasLeft:false, hasRight:true  },
+    { name:'Navigation', hasLeft:true,  hasRight:false },
+    { name:'Components', hasLeft:true,  hasRight:true  },
+  ],
+  hasModuleIncoming: true,
+  hasModuleOutgoing: true,
+};
 
-    return (
+/* ── Animation section ──────────────────────────────────────────────────── */
+function AnimSection() {
+  const [key, setKey] = useState(0);
+  return (
+    <div className="section">
+      <div className="section-label">9 — Animation · Title Reveal</div>
+
+      <div className="timing-row">
+        {[
+          { cls:'accent',  label:'Accent bar',  ms:'50ms → 370ms' },
+          { cls:'title',   label:'Title',        ms:'100ms → 520ms' },
+          { cls:'uuid',    label:'UUID',          ms:'250ms → 580ms' },
+          { cls:'desc',    label:'Description',  ms:'350ms → 680ms' },
+          { cls:'ports',   label:'Ports',         ms:'430ms+ stagger' },
+        ].map(s => (
+          <div key={s.cls} className={`timing-step timing-step--${s.cls}`}>
+            <b>{s.label}</b>{s.ms}
+          </div>
+        ))}
+      </div>
+
+      <button className="replay-btn" onClick={() => setKey(k => k + 1)}>
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+          <path d="M10.5 6A4.5 4.5 0 1 1 6 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M6 1.5L8.5 1.5L8.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Replay animation
+      </button>
+
+      <div className="cards-row" key={key}>
+        <PrimaryCard {...MOCK} animated animKey={key}
+          accentColor="#89b4fa" cardState="default" />
+        <PrimaryCard
+          name="UUID System" uuid="e9d30b56" animated animKey={key}
+          description="Generates, validates, and resolves stable UUIDs used for cross-module linking."
+          accentColor="#94e2d5"
+          submodulePorts={[
+            { name:'Generator', hasLeft:false, hasRight:true },
+            { name:'Resolver',  hasLeft:true,  hasRight:true },
+          ]}
+          hasModuleIncoming={false} hasModuleOutgoing={true}
+          cardState="default"
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ── App ────────────────────────────────────────────────────────────────── */
+function App() {
+  const [sel, setSel] = useState(new Set());
+  const toggle = id => setSel(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const state  = (id, forced) => forced || (sel.has(id) ? 'selected' : 'default');
+
+  return (
+    <div className="page-content">
+      {/* Page header */}
+      <div style={{ marginBottom:52 }}>
+        <div className="page-eyebrow">ArchUI · Component Preview</div>
+        <div className="page-heading">Primary Module Card</div>
+        <div className="page-sub">The focal card rendered at the centre of the canvas, representing the currently scoped module.</div>
+      </div>
+
+      {/* 1 — Default with all handles */}
       <div className="section">
-        <div className="section-label">9 — Animation · Title Reveal</div>
-
-        {/* Timing diagram */}
-        <div className="timing-row">
-          <div className="timing-step timing-step--accent">
-            <div className="timing-step-label">Accent bar</div>
-            <div className="timing-step-ms">50ms → 400ms</div>
-          </div>
-          <div className="timing-step timing-step--title">
-            <div className="timing-step-label">Title</div>
-            <div className="timing-step-ms">120ms → 540ms</div>
-          </div>
-          <div className="timing-step timing-step--uuid">
-            <div className="timing-step-label">UUID</div>
-            <div className="timing-step-ms">280ms → 600ms</div>
-          </div>
-          <div className="timing-step timing-step--desc">
-            <div className="timing-step-label">Description</div>
-            <div className="timing-step-ms">380ms → 700ms</div>
-          </div>
-          <div className="timing-step timing-step--ports">
-            <div className="timing-step-label">Ports</div>
-            <div className="timing-step-ms">460ms+ stagger</div>
-          </div>
-        </div>
-
-        <button className="replay-btn" onClick={replay}>
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-            <path d="M10.5 6A4.5 4.5 0 1 1 6 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M6 1.5 L8.5 1.5 L8.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Replay animation
-        </button>
-
-        <div className="cards-row" key={animKey}>
-          <AnimatedPrimaryCard
-            name="GUI"
-            uuid="a3f9c201"
-            description="Cross-platform visual canvas for navigating the ArchUI knowledge base as an interactive node graph."
-            accentColor="#89b4fa"
-            submodulePorts={[
-              { name: 'Canvas',     hasLeft: false, hasRight: true  },
-              { name: 'Navigation', hasLeft: true,  hasRight: false },
-              { name: 'Components', hasLeft: true,  hasRight: true  },
-            ]}
-            animKey={animKey}
-          />
-
-          <AnimatedPrimaryCard
-            name="UUID System"
-            uuid="e9d30b56"
-            description="Generates, validates, and resolves stable UUIDs used for cross-module linking throughout the ArchUI graph."
-            accentColor="#94e2d5"
-            submodulePorts={[
-              { name: 'Generator', hasLeft: false, hasRight: true },
-              { name: 'Resolver',  hasLeft: true,  hasRight: true },
-            ]}
-            animKey={animKey}
-          />
+        <div className="section-label">1 — Primary Card · module handles + port handles (default)</div>
+        <StateBadge state="default" />
+        <p className="click-hint">Click any card to toggle selected state.</p>
+        <div className="cards-row">
+          <PrimaryCard {...MOCK} cardState={state('d')} onToggleSelect={() => toggle('d')} />
         </div>
       </div>
-    );
-  }
 
-  const root = ReactDOM.createRoot(document.getElementById('root'));
-  root.render(<App />);
+      {/* 2 — Selected */}
+      <div className="section">
+        <div className="section-label">2 — Primary Card · Selected state</div>
+        <StateBadge state="selected" />
+        <div className="cards-row">
+          <PrimaryCard {...MOCK}
+            cardState={sel.has('s') ? 'default' : 'selected'}
+            onToggleSelect={() => toggle('s')} />
+        </div>
+      </div>
+
+      {/* 3 — Modified */}
+      <div className="section">
+        <div className="section-label">3 — Primary Card · Modified state</div>
+        <StateBadge state="modified" />
+        <div className="cards-row">
+          <PrimaryCard {...MOCK}
+            name="Canvas" uuid="537c63d3"
+            description="Infinite-scroll node graph canvas with zoom, pan, and edge routing for the GUI module."
+            accentColor={ACCENTS[4]}
+            cardState={sel.has('m') ? 'selected' : 'modified'}
+            onToggleSelect={() => toggle('m')} />
+        </div>
+      </div>
+
+      {/* 4 — Error */}
+      <div className="section">
+        <div className="section-label">4 — Primary Card · Error state</div>
+        <StateBadge state="error" />
+        <div className="cards-row">
+          <PrimaryCard {...MOCK}
+            name="Navigation" uuid="f4c89a17"
+            description="Breadcrumb and history stack for drilling into and back out of module hierarchies."
+            accentColor={ACCENTS[6]}
+            submodulePorts={[
+              { name:'History',    hasLeft:true,  hasRight:false },
+              { name:'Bookmarks',  hasLeft:false, hasRight:true  },
+            ]}
+            hasModuleIncoming={true} hasModuleOutgoing={false}
+            cardState={sel.has('e') ? 'selected' : 'error'}
+            onToggleSelect={() => toggle('e')} />
+        </div>
+      </div>
+
+      {/* 5 — External cards */}
+      <div className="section">
+        <div className="section-label">5 — External Reference Card · variants</div>
+        <p className="click-hint">External cards are smaller and use a grab cursor on canvas.</p>
+        <div className="cards-row" style={{ alignItems:'center' }}>
+          {[
+            { id:'ec1', name:'CLI',        uuid:'b8e2d415', side:'right', label:'Incoming link (handle right)' },
+            { id:'ec2', name:'Core',       uuid:'c1f0a392', side:'left',  label:'Outgoing link (handle left)' },
+            { id:'ec3', name:'UUID System',uuid:'e9d30b56', side:'left',  label:'Selected' },
+          ].map(c => (
+            <div key={c.id}>
+              <div className="ext-label">{c.label}</div>
+              <ExternalCard name={c.name} uuid={c.uuid} handleSide={c.side}
+                selected={c.id === 'ec3' ? !sel.has(c.id) : sel.has(c.id)}
+                onToggle={() => toggle(c.id)} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 6 — Accent palette */}
+      <div className="section">
+        <div className="section-label">6 — Accent colour variants (index 0–6)</div>
+        <div className="accent-variants">
+          {ACCENTS.map((c, i) => (
+            <div key={i} className="accent-swatch">
+              <div className="accent-swatch-bar" style={{ background:c }} />
+              <div className="accent-swatch-body">
+                <div style={{ color:c, fontWeight:600, fontSize:11 }}>{ACCENT_NAMES[i]}</div>
+                <div style={{ color:'var(--overlay0)', fontSize:9, marginTop:2, fontFamily:'monospace' }}>{c}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 7 — Module-level links only */}
+      <div className="section">
+        <div className="section-label">7 — Primary Card · module-level links only (no ports)</div>
+        <div className="cards-row">
+          <PrimaryCard
+            name="Components" uuid="88cc4d02"
+            description="Library of reusable UI primitives used across all GUI canvas views and dialogs."
+            accentColor={ACCENTS[2]} submodulePorts={[]}
+            hasModuleIncoming={true} hasModuleOutgoing={true}
+            cardState={state('np')} onToggleSelect={() => toggle('np')} />
+        </div>
+      </div>
+
+      {/* 8 — Port handles only */}
+      <div className="section">
+        <div className="section-label">8 — Primary Card · port handles only (no module-level links)</div>
+        <div className="cards-row">
+          <PrimaryCard
+            name="CLI" uuid="b8e2d415"
+            description="Validator that checks filesystem conformance after agent modifications to ArchUI module trees."
+            accentColor={ACCENTS[1]}
+            submodulePorts={[
+              { name:'Import Command', hasLeft:true,  hasRight:false },
+              { name:'Validate',       hasLeft:false, hasRight:true  },
+              { name:'Report',         hasLeft:true,  hasRight:true  },
+            ]}
+            hasModuleIncoming={false} hasModuleOutgoing={false}
+            cardState={state('pm')} onToggleSelect={() => toggle('pm')} />
+        </div>
+      </div>
+
+      {/* 9 — Animation */}
+      <AnimSection />
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
 </script>
 </body>
 </html>

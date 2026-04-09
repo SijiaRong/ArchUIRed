@@ -144,6 +144,31 @@ async function handleMkdir(req, res) {
   }
 }
 
+async function handleCopy(req, res) {
+  const body = await readBody(req);
+  if (!body.src || !body.dest) return json(res, 400, { error: 'src and dest required' });
+  try {
+    const absSrc  = safePath(ARCHUI_ROOT, body.src);
+    const absDest = safePath(ARCHUI_ROOT, body.dest);
+    fs.cpSync(absSrc, absDest, { recursive: true });
+    json(res, 200, { ok: true });
+  } catch (e) {
+    json(res, e.message === 'Path traversal detected' ? 403 : 500, { error: e.message });
+  }
+}
+
+async function handleRemove(req, res) {
+  const body = await readBody(req);
+  if (!body.path) return json(res, 400, { error: 'path required' });
+  try {
+    const abs = safePath(ARCHUI_ROOT, body.path);
+    fs.rmSync(abs, { recursive: true, force: true });
+    json(res, 200, { ok: true });
+  } catch (e) {
+    json(res, e.message === 'Path traversal detected' ? 403 : 500, { error: e.message });
+  }
+}
+
 async function handleSync(req, res) {
   const cliPath = path.join(ARCHUI_ROOT, 'cli/resources/dist/index.js');
   execFile('node', [cliPath, 'validate', ARCHUI_ROOT], { cwd: ARCHUI_ROOT }, (err, stdout, stderr) => {
@@ -193,6 +218,8 @@ async function router(req, res) {
     if (url === '/api/fs/write') return handleWrite(req, res);
     if (url === '/api/fs/list')  return handleList(req, res);
     if (url === '/api/fs/mkdir') return handleMkdir(req, res);
+    if (url === '/api/fs/copy') return handleCopy(req, res);
+    if (url === '/api/fs/remove') return handleRemove(req, res);
     if (url === '/api/sync')     return handleSync(req, res);
   }
 

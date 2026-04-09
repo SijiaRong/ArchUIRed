@@ -4,433 +4,806 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Canvas Screen — ArchUI Screen Preview</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <style>
     :root {
-      --bg-base:#11111b;--bg-mantle:#181825;--bg-crust:#1e1e2e;
-      --bg-surface0:#313244;--bg-surface1:#45475a;
-      --text:#cdd6f4;--subtext1:#bac2de;--subtext0:#a6adc8;
-      --overlay2:#9399b2;--overlay1:#7f849c;--overlay0:#6c7086;
-      --blue:#89b4fa;--lavender:#b4befe;--teal:#94e2d5;
-      --green:#a6e3a1;--yellow:#f9e2af;--peach:#fab387;--red:#f38ba8;
-      --canvas-bg:#0f0f17;--node-bg:#1e1e2e;--node-border:#45475a;
-      --blue-glow-sm:rgba(137,180,250,.15);--blue-glow-md:rgba(137,180,250,.25);
-      --radius-md:10px;--radius-sm:6px;--radius-xs:4px;
-      --shadow-md:0 8px 24px rgba(0,0,0,.5);
+      --bg-base:      #11111b;
+      --bg-mantle:    #181825;
+      --bg-crust:     #1e1e2e;
+      --bg-surface0:  #313244;
+      --bg-surface1:  #45475a;
+      --text:         #cdd6f4;
+      --subtext1:     #bac2de;
+      --subtext0:     #a6adc8;
+      --overlay2:     #9399b2;
+      --overlay1:     #7f849c;
+      --overlay0:     #6c7086;
+      --blue:         #89b4fa;
+      --lavender:     #b4befe;
+      --teal:         #94e2d5;
+      --green:        #a6e3a1;
+      --yellow:       #f9e2af;
+      --peach:        #fab387;
+      --red:          #f38ba8;
+      --canvas-bg:    #0f0f17;
+      --canvas-dot:   rgba(99,102,120,0.14);
+      --node-bg:      #1e1e2e;
+      --node-border:  #45475a;
+      --node-selected:#89b4fa;
+      --blue-glow-sm: rgba(137,180,250,.15);
+      --blue-glow-md: rgba(137,180,250,.25);
+      --radius-md:    10px;
+      --radius-sm:    6px;
+      --radius-xs:    4px;
+      --shadow-md:    0 8px 24px rgba(0,0,0,.5);
     }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html,body{width:100%;height:100%;overflow:hidden;background:var(--canvas-bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
-    #root{width:100%;height:100%;display:flex;flex-direction:column}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes panelSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
-    @keyframes panelSlideOut{from{transform:translateX(0)}to{transform:translateX(100%)}}
-    @keyframes cardEntrance{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-    @keyframes ripple{0%{opacity:.5;transform:scale(0)}100%{opacity:0;transform:scale(2.5)}}
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: var(--canvas-bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #root { width: 100%; height: 100%; display: flex; flex-direction: column; }
+
+    @keyframes cardEntrance { from { opacity:0; transform:scale(.96) translateY(10px) } to { opacity:1; transform:scale(1) translateY(0) } }
+    @keyframes fadeIn        { from { opacity:0 } to { opacity:1 } }
   </style>
 </head>
 <body>
 <div id="root"></div>
+
 <script type="text/babel">
-const {useState,useCallback,useEffect,useRef,useMemo}=React;
+const { useState, useCallback, useEffect, useRef, useMemo } = React;
 
-const ACCENTS=['#89b4fa','#b4befe','#94e2d5','#a6e3a1','#f9e2af','#fab387','#f38ba8'];
-const REL_COLOR={'depends-on':'var(--blue)','implements':'var(--green)','extends':'var(--lavender)','references':'var(--overlay1)','related-to':'var(--overlay0)'};
-const REL_STYLE={'depends-on':{s:'#89b4fa',w:2,d:''},'implements':{s:'#a6e3a1',w:2,d:''},'extends':{s:'#b4befe',w:2,d:'8,4'},'references':{s:'#7f849c',w:1.5,d:'3,4'},'related-to':{s:'#6c7086',w:1,d:'2,5'}};
+/* ── Design tokens ──────────────────────────────────────────────────────── */
+const ACCENTS = ['#89b4fa','#b4befe','#94e2d5','#a6e3a1','#f9e2af','#fab387','#f38ba8'];
 
-const MODULE_TREE={
-  id:'root',name:'ArchUI',uuid:'00000001',accent:0,
-  desc:'Dual-interface knowledge management system with filesystem as source of truth.',
-  children:[
-    {id:'gui',name:'GUI',uuid:'a3f9c201',accent:0,
-     desc:'Cross-platform visual canvas for navigating the ArchUI knowledge base as an interactive node graph.',
-     children:[
-       {id:'canvas-mod',name:'Canvas',uuid:'537c63d3',accent:2,desc:'Infinite-scroll canvas with zoom, pan, and edge routing.',children:[]},
-       {id:'components',name:'Components',uuid:'88cc4d02',accent:1,desc:'Reusable UI building blocks for GUI screens.',children:[]},
-       {id:'screens',name:'Screens',uuid:'855df7a8',accent:4,desc:'Top-level screen modules: landing and canvas.',children:[]},
-     ],
-     links:[{target:'core',rel:'depends-on',desc:'Requires the core module index and UUID resolver.'}]
-    },
-    {id:'cli',name:'CLI',uuid:'b8e2d415',accent:5,
-     desc:'Validator that checks filesystem conformance after agent modifications.',
-     children:[
-       {id:'validate',name:'Validate',uuid:'c2d3e4f5',accent:3,desc:'Structural and frontmatter validation.',children:[]},
-       {id:'import-cmd',name:'Import',uuid:'d4e5f6a7',accent:4,desc:'Scaffolds new modules from templates.',children:[]},
-     ],
-     links:[{target:'core',rel:'depends-on',desc:'Uses core schema definitions.'}]
-    },
-    {id:'core',name:'Core',uuid:'c1f0a392',accent:3,
-     desc:'Module graph engine, UUID system, and filesystem rule definitions.',
-     children:[
-       {id:'uuid-sys',name:'UUID System',uuid:'e9d30b56',accent:2,desc:'Generates, validates, and resolves stable UUIDs.',children:[]},
-       {id:'fs-rules',name:'Filesystem Rules',uuid:'f0a1b2c3',accent:6,desc:'Identity document and folder structure constraints.',children:[]},
-     ],
-     links:[]
-    },
-  ],
-  links:[]
+const REL_COLOR = {
+  'depends-on': 'var(--blue)',
+  'implements':  'var(--green)',
+  'extends':     'var(--lavender)',
+  'references':  'var(--overlay1)',
+  'related-to':  'var(--overlay0)',
 };
 
-function findNode(tree,id){
-  if(tree.id===id) return tree;
-  for(const c of (tree.children||[])){const r=findNode(c,id);if(r) return r;}
+const REL_STYLE = {
+  'depends-on': { s:'#89b4fa', w:2,   d:'' },
+  'implements':  { s:'#a6e3a1', w:2,   d:'' },
+  'extends':     { s:'#b4befe', w:2,   d:'8,4' },
+  'references':  { s:'#7f849c', w:1.5, d:'3,4' },
+  'related-to':  { s:'#6c7086', w:1,   d:'2,5' },
+};
+
+/* ── Module tree ────────────────────────────────────────────────────────── */
+const MODULE_TREE = {
+  id:'root', name:'ArchUI', uuid:'00000001', accent:0,
+  desc:'Dual-interface knowledge management system with filesystem as source of truth.',
+  children:[
+    {
+      id:'gui', name:'GUI', uuid:'a3f9c201', accent:0,
+      desc:'Cross-platform visual canvas for navigating the ArchUI knowledge base as an interactive node graph.',
+      children:[
+        { id:'canvas-mod',  name:'Canvas',     uuid:'537c63d3', accent:2, desc:'Infinite-scroll canvas with zoom, pan, and edge routing.', children:[] },
+        { id:'components',  name:'Components', uuid:'88cc4d02', accent:1, desc:'Reusable UI building blocks for GUI screens.', children:[] },
+        { id:'screens',     name:'Screens',    uuid:'855df7a8', accent:4, desc:'Top-level screen modules: landing and canvas.', children:[] },
+      ],
+      links:[{ target:'core', rel:'depends-on', desc:'Requires the core module index and UUID resolver.' }],
+    },
+    {
+      id:'cli', name:'CLI', uuid:'b8e2d415', accent:5,
+      desc:'Validator that checks filesystem conformance after agent modifications.',
+      children:[
+        { id:'validate',   name:'Validate', uuid:'c2d3e4f5', accent:3, desc:'Structural and frontmatter validation.', children:[] },
+        { id:'import-cmd', name:'Import',   uuid:'d4e5f6a7', accent:4, desc:'Scaffolds new modules from templates.', children:[] },
+      ],
+      links:[{ target:'core', rel:'depends-on', desc:'Uses core schema definitions.' }],
+    },
+    {
+      id:'core', name:'Core', uuid:'c1f0a392', accent:3,
+      desc:'Module graph engine, UUID system, and filesystem rule definitions.',
+      children:[
+        { id:'uuid-sys',  name:'UUID System',       uuid:'e9d30b56', accent:2, desc:'Generates, validates, and resolves stable UUIDs.', children:[] },
+        { id:'fs-rules',  name:'Filesystem Rules',  uuid:'f0a1b2c3', accent:6, desc:'Identity document and folder structure constraints.', children:[] },
+      ],
+      links:[],
+    },
+  ],
+  links:[],
+};
+
+function findNode(tree, id) {
+  if (tree.id === id) return tree;
+  for (const c of (tree.children || [])) { const r = findNode(c, id); if (r) return r; }
   return null;
 }
 
-function getExternals(node){
-  const exts=[];
-  for(const link of (node.links||[])){
-    const t=findNode(MODULE_TREE,link.target);
-    if(t) exts.push({...t,...link,linkDir:'out'});
+/* Returns externals linked from node or any of its children */
+function getExternals(node) {
+  const seen = new Set();
+  const exts  = [];
+
+  const add = (t, link, fromPortId) => {
+    if (!t || seen.has(t.id)) return;
+    seen.add(t.id);
+    exts.push({ ...t, rel: link.rel, linkDesc: link.desc, fromPortId });
+  };
+
+  for (const link of (node.links || [])) {
+    add(findNode(MODULE_TREE, link.target), link, null);
   }
-  for(const child of (node.children||[])){
-    for(const link of (child.links||[])){
-      const t=findNode(MODULE_TREE,link.target);
-      if(t && !exts.find(e=>e.id===t.id)) exts.push({...t,...link,linkDir:'out',fromPort:child.name});
+  for (const child of (node.children || [])) {
+    for (const link of (child.links || [])) {
+      add(findNode(MODULE_TREE, link.target), link, child.id);
     }
   }
   return exts;
 }
 
-/* ── Navigation Breadcrumb ─────────────────────────── */
-function BreadcrumbBar({crumbs,onCrumbClick,onBack}){
-  const atRoot=crumbs.length<=1;
-  return(
-    <div style={{flexShrink:0,height:44,background:'var(--bg-crust)',borderBottom:'1px solid var(--node-border)',display:'flex',alignItems:'center',padding:'0 16px',gap:0,zIndex:10,userSelect:'none'}}>
-      <button onClick={onBack} style={{width:32,height:32,borderRadius:'50%',background:'var(--bg-surface0)',border:'none',color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,marginRight:8,opacity:atRoot?0:1,pointerEvents:atRoot?'none':'auto',transition:'opacity 0.2s'}}>←</button>
-      <nav style={{display:'flex',alignItems:'center'}}>
-        {crumbs.map((c,i)=>{
-          const isLast=i===crumbs.length-1;
-          return(
-            <span key={c.id+i} style={{display:'flex',alignItems:'center'}}>
-              {i>0&&<span style={{color:'var(--overlay0)',fontSize:13,padding:'0 3px'}}>›</span>}
-              <button onClick={()=>!isLast&&onCrumbClick(i)} style={{fontSize:13,fontWeight:isLast?600:500,color:isLast?'var(--text)':'var(--overlay1)',cursor:isLast?'default':'pointer',padding:'3px 5px',borderRadius:'var(--radius-xs)',border:'none',background:'transparent',transition:'color 0.15s'}}>{c.name}</button>
+/* ── Breadcrumb ─────────────────────────────────────────────────────────── */
+function BreadcrumbBar({ crumbs, onCrumb, onBack }) {
+  const atRoot = crumbs.length <= 1;
+  return (
+    <div style={{
+      flexShrink:0, height:44,
+      background:'var(--bg-crust)',
+      borderBottom:'1px solid var(--node-border)',
+      display:'flex', alignItems:'center', padding:'0 16px', gap:0,
+      zIndex:10, userSelect:'none',
+    }}>
+      <button
+        onClick={onBack}
+        style={{
+          width:30, height:30, borderRadius:'50%',
+          background:'var(--bg-surface0)', border:'none',
+          color:'var(--text)', cursor:'pointer',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontSize:15, marginRight:8,
+          opacity: atRoot ? 0 : 1,
+          pointerEvents: atRoot ? 'none' : 'auto',
+          transition:'opacity .2s',
+        }}
+      >←</button>
+
+      <nav style={{ display:'flex', alignItems:'center' }}>
+        {crumbs.map((c, i) => {
+          const isLast = i === crumbs.length - 1;
+          return (
+            <span key={c.id + i} style={{ display:'flex', alignItems:'center' }}>
+              {i > 0 && <span style={{ color:'var(--overlay0)', fontSize:13, padding:'0 4px' }}>›</span>}
+              <button
+                onClick={() => !isLast && onCrumb(i)}
+                style={{
+                  fontSize:13, fontWeight: isLast ? 600 : 500,
+                  color: isLast ? 'var(--text)' : 'var(--overlay1)',
+                  cursor: isLast ? 'default' : 'pointer',
+                  padding:'3px 5px', borderRadius:'var(--radius-xs)',
+                  border:'none', background:'transparent',
+                  fontFamily:'inherit', transition:'color .15s',
+                }}
+              >{c.name}</button>
             </span>
           );
         })}
       </nav>
-      <div style={{marginLeft:'auto',display:'flex',gap:12,alignItems:'center'}}>
-        <span style={{fontSize:11,color:'var(--overlay0)',display:'flex',alignItems:'center',gap:5}}>
-          <span style={{background:'var(--bg-surface0)',border:'1px solid var(--bg-surface1)',borderRadius:3,padding:'1px 5px',fontSize:10,color:'var(--subtext0)',fontFamily:'monospace'}}>Esc</span> back
+
+      <div style={{ marginLeft:'auto', display:'flex', gap:12, alignItems:'center' }}>
+        <span style={{ fontSize:11, color:'var(--overlay0)', display:'flex', alignItems:'center', gap:5 }}>
+          <kbd style={{
+            background:'var(--bg-surface0)', border:'1px solid var(--bg-surface1)',
+            borderRadius:3, padding:'1px 5px', fontSize:10, color:'var(--subtext0)', fontFamily:'monospace',
+          }}>Esc</kbd>
+          back
         </span>
-        <span style={{fontSize:11,color:'var(--overlay0)',background:'var(--bg-surface0)',border:'1px solid var(--node-border)',borderRadius:20,padding:'2px 10px'}}>
-          Depth: <span style={{color:'var(--subtext0)'}}>{crumbs.length-1}</span>
+        <span style={{
+          fontSize:11, color:'var(--overlay0)',
+          background:'var(--bg-surface0)', border:'1px solid var(--node-border)',
+          borderRadius:20, padding:'2px 10px',
+        }}>
+          Depth: <span style={{ color:'var(--subtext0)' }}>{crumbs.length - 1}</span>
         </span>
       </div>
     </div>
   );
 }
 
-/* ── Primary Module Card ───────────────────────────── */
-function PrimaryCard({node,selected,onSelect,onDrill,extHandleRefs}){
-  const accent=ACCENTS[node.accent];
-  const hasPorts=(node.children||[]).filter(c=>(c.links||[]).length>0).length>0;
-  const hasModuleLinks=(node.links||[]).length>0;
-  const ports=(node.children||[]).filter(c=>(c.links||[]).length>0);
+/* ── Primary card ───────────────────────────────────────────────────────── */
+/*
+ * FIX: handleRefs are attached to the handle CIRCLES themselves (not row divs).
+ * This means getBoundingClientRect() on handleRefs gives the exact circle position,
+ * and edge endpoints can be computed from circle centers.
+ */
+function PrimaryCard({ node, selected, onSelect, onDrill, handleRefs }) {
+  const accent        = ACCENTS[node.accent];
+  const headerGrad    = `linear-gradient(to bottom, ${accent}1a, ${accent}00)`;
+  const hasModuleLink = (node.links || []).length > 0;
+  const ports         = (node.children || []).filter(c => (c.links || []).length > 0);
 
-  return(
-    <div onClick={onSelect} onDoubleClick={onDrill} style={{
-      width:360,background:'var(--node-bg)',
-      border:`1.5px solid ${selected?'var(--blue)':'var(--node-border)'}`,
-      borderRadius:'var(--radius-md)',
-      boxShadow:selected?'var(--shadow-md), 0 0 0 1px var(--blue), 0 0 18px var(--blue-glow-md)':'var(--shadow-md)',
-      position:'relative',overflow:'visible',cursor:'pointer',userSelect:'none',
-      transition:'border-color 0.15s, box-shadow 0.15s',
-      animation:'cardEntrance 0.45s cubic-bezier(0.16,1,0.3,1) both',
-    }}>
-      <div style={{height:4,borderRadius:'9px 9px 0 0',background:accent,width:'100%'}}/>
-      <div style={{padding:'12px 14px 11px',background:`linear-gradient(to bottom,${accent}18,${accent}00)`}}>
-        <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:8}}>
+  // Register a handle ref: cb is called with the DOM element
+  const reg = useCallback((key, el) => {
+    if (handleRefs && el) handleRefs.current[key] = el;
+  }, [handleRefs]);
+
+  return (
+    <div
+      onClick={onSelect}
+      onDoubleClick={onDrill}
+      style={{
+        width:360, background:'var(--node-bg)',
+        border:`1.5px solid ${selected ? 'var(--node-selected)' : 'var(--node-border)'}`,
+        borderRadius:'var(--radius-md)',
+        boxShadow: selected
+          ? 'var(--shadow-md), 0 0 0 1px var(--node-selected), 0 0 18px var(--blue-glow-md)'
+          : 'var(--shadow-md)',
+        position:'relative', overflow:'visible',
+        cursor:'pointer', userSelect:'none',
+        transition:'border-color .15s, box-shadow .15s',
+        animation:'cardEntrance .42s cubic-bezier(0.16,1,0.3,1) both',
+      }}
+    >
+      {/* Accent bar */}
+      <div style={{ height:3, borderRadius:'9px 9px 0 0', background:accent }} />
+
+      {/* Header */}
+      <div style={{ padding:'12px 16px 11px', background:headerGrad }}>
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
           <div>
-            <div style={{fontSize:20,fontWeight:700,color:'var(--text)',lineHeight:1.2}}>{node.name}</div>
-            <div style={{fontFamily:"'SF Mono',monospace",fontSize:11,color:'var(--overlay0)',marginTop:3,letterSpacing:'0.04em'}}>{node.uuid}</div>
+            <div style={{ fontSize:18, fontWeight:700, color:'var(--text)', lineHeight:1.2, letterSpacing:'-0.01em' }}>
+              {node.name}
+            </div>
+            <div style={{ fontFamily:"'SF Mono',monospace", fontSize:10, color:'var(--overlay0)', marginTop:3, letterSpacing:'0.04em' }}>
+              {node.uuid}
+            </div>
           </div>
-          <button onClick={e=>{e.stopPropagation();onDrill();}} style={{flexShrink:0,width:26,height:26,borderRadius:'var(--radius-xs)',background:'transparent',border:'1px solid var(--bg-surface0)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'var(--overlay1)',fontSize:13,marginTop:2}}>↗</button>
+          <button
+            onClick={e => { e.stopPropagation(); onDrill(); }}
+            style={{
+              flexShrink:0, width:24, height:24, borderRadius:'var(--radius-xs)',
+              background:'transparent', border:'1px solid var(--bg-surface0)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              cursor:'pointer', color:'var(--overlay1)', fontSize:12, marginTop:1,
+              fontFamily:'inherit',
+            }}
+          >↗</button>
         </div>
       </div>
-      <div style={{height:1,background:'var(--bg-surface0)'}}/>
-      <div ref={el=>{if(extHandleRefs&&el) extHandleRefs.current['module']=el}} style={{padding:'13px 18px',position:'relative',minHeight:56,display:'flex',alignItems:'center'}}>
-        {hasModuleLinks&&<div style={{width:12,height:12,borderRadius:'50%',background:'var(--bg-surface0)',border:'2px solid var(--overlay1)',position:'absolute',right:-7,top:'50%',transform:'translateY(-50%)'}}/>}
-        <span style={{fontSize:13,lineHeight:1.65,color:'var(--subtext1)',flex:1}}>{node.desc}</span>
-      </div>
-      {ports.length>0&&<>
-        <div style={{height:1,background:'var(--bg-surface0)'}}/>
-        <div style={{padding:'4px 0 6px'}}>
-          {ports.map((p,i)=>(
-            <div key={p.id} ref={el=>{if(extHandleRefs&&el) extHandleRefs.current[p.id]=el}} style={{display:'flex',alignItems:'center',padding:'5px 18px',position:'relative',minHeight:30,gap:8}}>
-              <span style={{fontSize:12,color:'var(--subtext0)',fontWeight:500,marginRight:'auto'}}>{p.name}</span>
-              <div style={{width:12,height:12,borderRadius:'50%',background:'var(--bg-surface0)',border:'1.5px solid var(--overlay0)',position:'absolute',right:-7,top:'50%',transform:'translateY(-50%)'}}/>
-            </div>
-          ))}
-        </div>
-      </>}
-    </div>
-  );
-}
 
-/* ── External Reference Card ───────────────────────── */
-function ExtCard({ext,selected,onSelect}){
-  return(
-    <div onClick={onSelect} ref={ext._ref} style={{
-      width:180,background:'var(--bg-mantle)',
-      border:`1.5px solid ${selected?'var(--blue)':'var(--node-border)'}`,
-      borderRadius:'var(--radius-sm)',
-      boxShadow:selected?'0 4px 12px rgba(0,0,0,.4),0 0 10px var(--blue-glow-sm)':'0 4px 12px rgba(0,0,0,.4)',
-      position:'relative',cursor:'pointer',userSelect:'none',
-      transition:'border-color 0.15s, box-shadow 0.15s',
-      animation:'cardEntrance 0.4s cubic-bezier(0.16,1,0.3,1) 0.1s both',
-    }}>
-      <div style={{padding:'10px 12px'}}>
-        <div style={{fontSize:13,fontWeight:600,color:'var(--subtext1)',lineHeight:1.3}}>{ext.name}</div>
-        <div style={{fontFamily:"'SF Mono',monospace",fontSize:10,color:'var(--overlay0)',marginTop:3,letterSpacing:'0.04em'}}>{ext.uuid}</div>
-      </div>
-      <div style={{width:12,height:12,borderRadius:'50%',background:'var(--bg-surface0)',border:'1.5px solid var(--overlay1)',position:'absolute',left:-7,top:'50%',transform:'translateY(-50%)'}}/>
-    </div>
-  );
-}
+      {/* Divider */}
+      <div style={{ height:1, background:'var(--bg-surface0)' }} />
 
-/* ── Detail Panel ──────────────────────────────────── */
-function DetailPanel({node,visible,onClose}){
-  const accent=ACCENTS[node.accent];
-  return(
-    <div style={{
-      position:'absolute',top:0,right:0,width:320,height:'100%',
-      background:'var(--node-bg)',borderLeft:'1px solid var(--node-border)',
-      display:'flex',flexDirection:'column',
-      transform:visible?'translateX(0)':'translateX(100%)',
-      transition:'transform 200ms ease-out',
-      boxShadow:visible?'-8px 0 32px rgba(0,0,0,.45)':'none',
-      zIndex:20,overflowY:'auto',overflowX:'hidden',
-    }}>
-      <div style={{padding:'24px 20px 0',flexShrink:0}}>
-        <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:8}}>
-          <h2 style={{fontSize:24,fontWeight:700,color:accent,lineHeight:1.2}}>{node.name}</h2>
-          <button onClick={onClose} style={{background:'none',border:'none',color:'var(--overlay1)',fontSize:20,cursor:'pointer',padding:'2px 4px',borderRadius:'var(--radius-xs)',flexShrink:0}}>×</button>
-        </div>
-        <div style={{fontFamily:'monospace',fontSize:11,color:'var(--text)',opacity:.45,marginTop:4}}>{node.uuid}</div>
-        <p style={{fontSize:13,color:'var(--subtext0)',marginTop:8,lineHeight:1.6}}>{node.desc}</p>
+      {/* Description section — module-level handle ref is on the CIRCLE */}
+      <div style={{ padding:'12px 18px', position:'relative', minHeight:52, display:'flex', alignItems:'center' }}>
+        {hasModuleLink && (
+          <div
+            ref={el => reg('module', el)}
+            style={{
+              width:14, height:14, borderRadius:'50%',
+              background:'var(--bg-surface0)',
+              border:'2px solid var(--overlay1)',
+              position:'absolute', right:-8,
+              top:'50%', transform:'translateY(-50%)',
+              zIndex:1,
+            }}
+          />
+        )}
+        <span style={{ fontSize:12.5, lineHeight:1.65, color:'var(--subtext1)', flex:1 }}>
+          {node.desc}
+        </span>
       </div>
-      <div style={{padding:'0 20px 32px'}}>
-        {(node.children||[]).length>0&&<>
-          <div style={{borderTop:'1px solid var(--node-border)',margin:'16px 0 12px'}}/>
-          <div style={{fontSize:11,fontWeight:600,letterSpacing:'0.08em',color:'var(--overlay0)',textTransform:'uppercase',marginBottom:6}}>Submodules ({node.children.length})</div>
-          {node.children.map((c,i)=>(
-            <div key={i} style={{padding:'8px',borderRadius:'var(--radius-xs)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
-              <span style={{color:'var(--overlay1)',fontSize:13}}>›</span>
-              <span style={{fontSize:13,color:'var(--text)'}}>{c.name}</span>
-            </div>
-          ))}
-        </>}
-        {(node.links||[]).length>0&&<>
-          <div style={{borderTop:'1px solid var(--node-border)',margin:'16px 0 12px'}}/>
-          <div style={{fontSize:11,fontWeight:600,letterSpacing:'0.08em',color:'var(--overlay0)',textTransform:'uppercase',marginBottom:6}}>Links ({node.links.length})</div>
-          {node.links.map((l,i)=>{
-            const color=REL_COLOR[l.rel]||'var(--overlay0)';
-            return(
-              <div key={i} style={{padding:'8px',display:'flex',alignItems:'flex-start',gap:8}}>
-                <span style={{display:'inline-block',fontSize:10,fontWeight:600,padding:'2px 7px',borderRadius:99,background:'var(--bg-surface0)',color,border:`1px solid ${color}33`,whiteSpace:'nowrap',lineHeight:'16px'}}>{l.rel}</span>
-                <div><div style={{fontSize:13,color:'var(--text)'}}>{findNode(MODULE_TREE,l.target)?.name||l.target}</div>
-                {l.desc&&<div style={{fontSize:11,color:'var(--overlay1)',marginTop:2}}>{l.desc}</div>}</div>
+
+      {/* Port section — each handle ref is on its OWN CIRCLE */}
+      {ports.length > 0 && (
+        <>
+          <div style={{ height:1, background:'var(--bg-surface0)' }} />
+          <div style={{ padding:'2px 0 4px' }}>
+            {ports.map((p, i) => (
+              <div
+                key={p.id}
+                style={{
+                  display:'flex', alignItems:'center', padding:'5px 18px',
+                  position:'relative', minHeight:30,
+                  borderBottom: i < ports.length - 1 ? '1px solid rgba(69,71,90,0.3)' : 'none',
+                }}
+              >
+                <span style={{ fontSize:12, color:'var(--subtext0)', fontWeight:500, marginRight:'auto' }}>
+                  {p.name}
+                </span>
+                {/* Handle ref is on the circle, not the row div */}
+                <div
+                  ref={el => reg(p.id, el)}
+                  style={{
+                    width:12, height:12, borderRadius:'50%',
+                    background:'var(--bg-surface0)',
+                    border:'1.5px solid var(--overlay0)',
+                    position:'absolute', right:-7,
+                    top:'50%', transform:'translateY(-50%)',
+                    zIndex:1,
+                  }}
+                />
               </div>
-            );
-          })}
-        </>}
-      </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
-/* ── SVG Edge Layer ────────────────────────────────── */
-function EdgeLayer({edges}){
-  return(
-    <svg style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',overflow:'visible'}}>
+/* ── External card ──────────────────────────────────────────────────────── */
+/*
+ * FIX: handleRef is attached to the handle CIRCLE itself.
+ * onHandleRef callback is called with the element to register it in extHandleRefs.
+ */
+function ExtCard({ ext, selected, onSelect, onHandleRef }) {
+  return (
+    <div
+      onClick={onSelect}
+      style={{
+        width:172, background:'var(--bg-mantle)',
+        border:`1.5px solid ${selected ? 'var(--node-selected)' : 'var(--node-border)'}`,
+        borderRadius:'var(--radius-sm)',
+        boxShadow: selected
+          ? '0 4px 12px rgba(0,0,0,.4), 0 0 10px var(--blue-glow-sm)'
+          : '0 3px 10px rgba(0,0,0,.35)',
+        position:'relative', cursor:'pointer', userSelect:'none',
+        transition:'border-color .15s, box-shadow .15s',
+        animation:'cardEntrance .38s cubic-bezier(0.16,1,0.3,1) .08s both',
+      }}
+    >
+      <div style={{ padding:'10px 12px' }}>
+        <div style={{ fontSize:13, fontWeight:600, color:'var(--subtext1)', lineHeight:1.3 }}>
+          {ext.name}
+        </div>
+        <div style={{ fontFamily:"'SF Mono',monospace", fontSize:10, color:'var(--overlay0)', marginTop:3, letterSpacing:'0.04em' }}>
+          {ext.uuid}
+        </div>
+        {ext.rel && (
+          <div style={{
+            display:'inline-block', marginTop:5,
+            padding:'2px 6px', borderRadius:'var(--radius-xs)',
+            background:'var(--bg-surface0)',
+            fontSize:10, fontFamily:"'SF Mono',monospace",
+            color: REL_COLOR[ext.rel] || 'var(--overlay1)',
+            border:`1px solid ${(REL_COLOR[ext.rel] || 'var(--overlay1)').replace('var','').replace('(','').replace(')','').trim()}22`,
+          }}>
+            {ext.rel}
+          </div>
+        )}
+      </div>
+
+      {/* Handle circle — ref is on this element */}
+      <div
+        ref={onHandleRef}
+        style={{
+          width:12, height:12, borderRadius:'50%',
+          background:'var(--bg-surface0)',
+          border:'1.5px solid var(--overlay1)',
+          position:'absolute', left:-7,
+          top:'50%', transform:'translateY(-50%)',
+          zIndex:1,
+        }}
+      />
+    </div>
+  );
+}
+
+/* ── SVG edge layer ─────────────────────────────────────────────────────── */
+function EdgeLayer({ edges }) {
+  const CP = 180;
+  return (
+    <svg
+      style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%', pointerEvents:'none', overflow:'visible' }}
+    >
       <defs>
-        {Object.entries(REL_STYLE).map(([k,v])=>(
+        {Object.entries(REL_STYLE).map(([k, v]) => (
           <marker key={k} id={`arr-${k}`} markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,8 L10,4 z" fill={v.s}/>
+            <path d="M0,0 L0,8 L10,4 z" fill={v.s} />
           </marker>
         ))}
+        <marker id="arr-default" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,8 L10,4 z" fill="#7f849c" />
+        </marker>
       </defs>
-      {edges.map((e,i)=>{
-        const st=REL_STYLE[e.rel]||REL_STYLE['depends-on'];
-        const cp=180;
-        const d=`M ${e.x1},${e.y1} C ${e.x1+cp},${e.y1} ${e.x2-cp},${e.y2} ${e.x2},${e.y2}`;
-        return <path key={i} d={d} fill="none" stroke={st.s} strokeWidth={st.w} strokeOpacity={0.7} strokeDasharray={st.d} markerEnd={`url(#arr-${e.rel})`}/>;
+      {edges.map((e, i) => {
+        const st = REL_STYLE[e.rel] || { s:'#7f849c', w:1.5, d:'' };
+        const markerId = REL_STYLE[e.rel] ? `arr-${e.rel}` : 'arr-default';
+        const d = `M ${e.x1},${e.y1} C ${e.x1 + CP},${e.y1} ${e.x2 - CP},${e.y2} ${e.x2},${e.y2}`;
+        return (
+          <path
+            key={i}
+            d={d}
+            fill="none"
+            stroke={st.s}
+            strokeWidth={st.w}
+            strokeOpacity={0.72}
+            strokeDasharray={st.d || undefined}
+            markerEnd={`url(#${markerId})`}
+          />
+        );
       })}
     </svg>
   );
 }
 
-/* ── State Badge ───────────────────────────────────── */
-function StateBadge({state}){
-  const cfg={idle:{l:'Idle',bg:'rgba(69,71,90,.5)',c:'var(--overlay2)',b:'var(--bg-surface0)'},'node-selected':{l:'Node Selected',bg:'rgba(137,180,250,.12)',c:'var(--blue)',b:'rgba(137,180,250,.3)'},drilled:{l:'Drilled',bg:'rgba(148,226,213,.1)',c:'var(--teal)',b:'rgba(148,226,213,.25)'}};
-  const s=cfg[state]||cfg.idle;
-  return(
-    <div style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:10,fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',padding:'3px 9px',borderRadius:20,background:s.bg,color:s.c,border:`1px solid ${s.b}`}}>
-      <div style={{width:6,height:6,borderRadius:'50%',background:'currentColor'}}/>{s.l}
+/* ── Detail panel ───────────────────────────────────────────────────────── */
+function DetailPanel({ node, visible, onClose }) {
+  const accent = ACCENTS[node.accent];
+  return (
+    <div style={{
+      position:'absolute', top:0, right:0, width:300, height:'100%',
+      background:'var(--node-bg)', borderLeft:'1px solid var(--node-border)',
+      display:'flex', flexDirection:'column',
+      transform: visible ? 'translateX(0)' : 'translateX(100%)',
+      transition:'transform 200ms ease-out',
+      boxShadow: visible ? '-8px 0 28px rgba(0,0,0,.45)' : 'none',
+      zIndex:20, overflowY:'auto',
+    }}>
+      <div style={{ padding:'22px 20px 0', flexShrink:0 }}>
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
+          <h2 style={{ fontSize:22, fontWeight:700, color:accent, lineHeight:1.2 }}>{node.name}</h2>
+          <button
+            onClick={onClose}
+            style={{
+              background:'none', border:'none', color:'var(--overlay1)',
+              fontSize:18, cursor:'pointer', padding:'2px 5px',
+              borderRadius:'var(--radius-xs)', flexShrink:0, fontFamily:'inherit',
+            }}
+          >×</button>
+        </div>
+        <div style={{ fontFamily:'monospace', fontSize:10, color:'var(--text)', opacity:.4, marginTop:4 }}>
+          {node.uuid}
+        </div>
+        <p style={{ fontSize:12.5, color:'var(--subtext0)', marginTop:8, lineHeight:1.6 }}>
+          {node.desc}
+        </p>
+      </div>
+
+      <div style={{ padding:'0 20px 32px' }}>
+        {(node.children || []).length > 0 && (
+          <>
+            <div style={{ borderTop:'1px solid var(--node-border)', margin:'16px 0 10px' }} />
+            <div style={{ fontSize:10, fontWeight:600, letterSpacing:'0.08em', color:'var(--overlay0)', textTransform:'uppercase', marginBottom:6 }}>
+              Submodules ({node.children.length})
+            </div>
+            {node.children.map((c, i) => (
+              <div key={i} style={{ padding:'7px 8px', borderRadius:'var(--radius-xs)', display:'flex', alignItems:'center', gap:8 }}>
+                <span style={{ color:'var(--overlay1)', fontSize:13 }}>›</span>
+                <span style={{ fontSize:12.5, color:'var(--text)' }}>{c.name}</span>
+              </div>
+            ))}
+          </>
+        )}
+
+        {(node.links || []).length > 0 && (
+          <>
+            <div style={{ borderTop:'1px solid var(--node-border)', margin:'16px 0 10px' }} />
+            <div style={{ fontSize:10, fontWeight:600, letterSpacing:'0.08em', color:'var(--overlay0)', textTransform:'uppercase', marginBottom:6 }}>
+              Links ({node.links.length})
+            </div>
+            {node.links.map((l, i) => {
+              const color = REL_COLOR[l.rel] || 'var(--overlay0)';
+              return (
+                <div key={i} style={{ padding:'7px 8px', display:'flex', alignItems:'flex-start', gap:8 }}>
+                  <span style={{
+                    display:'inline-block', fontSize:10, fontWeight:600,
+                    padding:'2px 7px', borderRadius:99,
+                    background:'var(--bg-surface0)', color,
+                    border:`1px solid ${color}33`, whiteSpace:'nowrap', lineHeight:'16px',
+                  }}>{l.rel}</span>
+                  <div>
+                    <div style={{ fontSize:12.5, color:'var(--text)' }}>
+                      {findNode(MODULE_TREE, l.target)?.name || l.target}
+                    </div>
+                    {l.desc && (
+                      <div style={{ fontSize:11, color:'var(--overlay1)', marginTop:2 }}>{l.desc}</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
-/* ── Main App ──────────────────────────────────────── */
-function App(){
-  const [navStack,setNavStack]=useState([]);
-  const [selectedId,setSelectedId]=useState(null);
-  const [panelVisible,setPanelVisible]=useState(false);
+/* ── State badge ────────────────────────────────────────────────────────── */
+function StateBadge({ state }) {
+  const cfg = {
+    idle:          { l:'Idle',          bg:'rgba(69,71,90,.45)',      c:'var(--overlay2)', b:'var(--bg-surface0)' },
+    'node-selected':{ l:'Node Selected', bg:'rgba(137,180,250,.1)',   c:'var(--blue)',     b:'rgba(137,180,250,.3)' },
+    drilled:       { l:'Drilled',        bg:'rgba(148,226,213,.1)',   c:'var(--teal)',     b:'rgba(148,226,213,.25)' },
+  };
+  const s = cfg[state] || cfg.idle;
+  return (
+    <div style={{
+      display:'inline-flex', alignItems:'center', gap:5,
+      fontSize:10, fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase',
+      padding:'3px 9px', borderRadius:20,
+      background:s.bg, color:s.c, border:`1px solid ${s.b}`,
+    }}>
+      <div style={{ width:6, height:6, borderRadius:'50%', background:'currentColor' }} />
+      {s.l}
+    </div>
+  );
+}
 
-  const currentNode=useMemo(()=>{
-    let node=MODULE_TREE;
-    for(const id of navStack){const c=(node.children||[]).find(x=>x.id===id);if(!c)break;node=c;}
+/* ── App ────────────────────────────────────────────────────────────────── */
+function App() {
+  const [navStack,    setNavStack]    = useState([]);
+  const [selectedId,  setSelectedId]  = useState(null);
+  const [panelVisible,setPanelVisible] = useState(false);
+
+  const currentNode = useMemo(() => {
+    let node = MODULE_TREE;
+    for (const id of navStack) {
+      const c = (node.children || []).find(x => x.id === id);
+      if (!c) break;
+      node = c;
+    }
     return node;
-  },[navStack]);
+  }, [navStack]);
 
-  const crumbs=useMemo(()=>{
-    const r=[{id:'root',name:MODULE_TREE.name}];
-    let node=MODULE_TREE;
-    for(const id of navStack){const c=(node.children||[]).find(x=>x.id===id);if(!c)break;node=c;r.push({id:node.id,name:node.name});}
+  const crumbs = useMemo(() => {
+    const r = [{ id:'root', name:MODULE_TREE.name }];
+    let node = MODULE_TREE;
+    for (const id of navStack) {
+      const c = (node.children || []).find(x => x.id === id);
+      if (!c) break;
+      node = c;
+      r.push({ id:node.id, name:node.name });
+    }
     return r;
-  },[navStack]);
+  }, [navStack]);
 
-  const externals=useMemo(()=>getExternals(currentNode),[currentNode]);
+  const externals = useMemo(() => getExternals(currentNode), [currentNode]);
 
-  const selectedNode=useMemo(()=>{
-    if(!selectedId) return null;
-    if(currentNode.id===selectedId) return currentNode;
-    const inChildren=(currentNode.children||[]).find(c=>c.id===selectedId);
-    if(inChildren) return inChildren;
-    return externals.find(e=>e.id===selectedId)||null;
-  },[selectedId,currentNode,externals]);
+  const selectedNode = useMemo(() => {
+    if (!selectedId) return null;
+    if (currentNode.id === selectedId) return currentNode;
+    const child = (currentNode.children || []).find(c => c.id === selectedId);
+    if (child) return child;
+    return externals.find(e => e.id === selectedId) || null;
+  }, [selectedId, currentNode, externals]);
 
-  const screenState=useMemo(()=>{
-    if(navStack.length>0) return 'drilled';
-    if(selectedId && panelVisible) return 'node-selected';
+  const screenState = useMemo(() => {
+    if (navStack.length > 0)        return 'drilled';
+    if (selectedId && panelVisible)  return 'node-selected';
     return 'idle';
-  },[navStack,selectedId,panelVisible]);
+  }, [navStack, selectedId, panelVisible]);
 
-  const drillIn=useCallback((id)=>{
-    const node=findNode(MODULE_TREE,id);
-    if(!node||(node.children||[]).length===0) return;
-    setNavStack(prev=>[...prev,id]);
+  const drillIn = useCallback(id => {
+    const node = findNode(MODULE_TREE, id);
+    if (!node || (node.children || []).length === 0) return;
+    setNavStack(prev => [...prev, id]);
     setSelectedId(null);
     setPanelVisible(false);
-  },[]);
+  }, []);
 
-  const goBack=useCallback(()=>{
-    if(navStack.length===0)return;
-    setNavStack(prev=>prev.slice(0,-1));
+  const goBack = useCallback(() => {
+    if (navStack.length === 0) return;
+    setNavStack(prev => prev.slice(0, -1));
     setSelectedId(null);
     setPanelVisible(false);
-  },[navStack]);
+  }, [navStack]);
 
-  const goToCrumb=useCallback((i)=>{
-    setNavStack(prev=>prev.slice(0,i));
+  const goToCrumb = useCallback(i => {
+    setNavStack(prev => prev.slice(0, i));
     setSelectedId(null);
     setPanelVisible(false);
-  },[]);
+  }, []);
 
-  const selectNode=useCallback((id)=>{
-    if(selectedId===id){setSelectedId(null);setPanelVisible(false);}
-    else{setSelectedId(id);setPanelVisible(true);}
-  },[selectedId]);
+  const selectNode = useCallback(id => {
+    if (selectedId === id) { setSelectedId(null); setPanelVisible(false); }
+    else { setSelectedId(id); setPanelVisible(true); }
+  }, [selectedId]);
 
-  useEffect(()=>{
-    const h=(e)=>{
-      if(e.key==='Backspace'||e.key==='Escape'){
-        if(document.activeElement?.tagName==='INPUT')return;
-        e.preventDefault();goBack();
+  useEffect(() => {
+    const h = e => {
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        if (document.activeElement?.tagName === 'INPUT') return;
+        e.preventDefault();
+        goBack();
       }
     };
-    window.addEventListener('keydown',h);
-    return()=>window.removeEventListener('keydown',h);
-  },[goBack]);
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [goBack]);
 
-  const primaryRef=useRef(null);
-  const extRefs=useRef({});
-  const handleRefs=useRef({});
-  const [edges,setEdges]=useState([]);
+  /* ── Edge computation ────────────────────────────────────────────── */
+  /*
+   * handleRefs: refs to handle CIRCLES on the primary card
+   *   key='module' → module-level handle circle
+   *   key=childId  → port-row handle circle for that child
+   *
+   * extHandleRefs: refs to handle CIRCLES on ext cards
+   *   key=extId    → left-side handle circle of the ext card
+   *
+   * Edge endpoints are computed as the CENTER of each handle circle
+   * using getBoundingClientRect() on the circle element itself.
+   * This eliminates the separation that occurs when refs are on parent divs.
+   */
+  const handleRefs    = useRef({});
+  const extHandleRefs = useRef({});
+  const [edges, setEdges] = useState([]);
 
-  useEffect(()=>{
-    const timer=setTimeout(()=>{
-      const canvas=document.getElementById('canvas-area');
-      if(!canvas)return;
-      const cr=canvas.getBoundingClientRect();
-      const newEdges=[];
-      for(const ext of externals){
-        const extEl=extRefs.current[ext.id];
-        const srcKey=ext.fromPort?(currentNode.children||[]).find(c=>c.name===ext.fromPort)?.id:'module';
-        const srcEl=handleRefs.current[srcKey||'module'];
-        if(!extEl||!srcEl)continue;
-        const sr=srcEl.getBoundingClientRect();
-        const er=extEl.getBoundingClientRect();
-        newEdges.push({x1:sr.right-cr.left,y1:sr.top+sr.height/2-cr.top,x2:er.left-cr.left,y2:er.top+er.height/2-cr.top,rel:ext.rel});
+  useEffect(() => {
+    // Clear stale refs when module changes
+    handleRefs.current    = {};
+    extHandleRefs.current = {};
+  }, [currentNode, navStack]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const canvas = document.getElementById('canvas-area');
+      if (!canvas) return;
+      const cr = canvas.getBoundingClientRect();
+      const newEdges = [];
+
+      for (const ext of externals) {
+        // Source: handle circle on the primary card (by port id or 'module')
+        const srcKey = ext.fromPortId || 'module';
+        const srcEl  = handleRefs.current[srcKey];
+
+        // Target: handle circle on the ext card
+        const tgtEl  = extHandleRefs.current[ext.id];
+
+        if (!srcEl || !tgtEl) continue;
+
+        const sr = srcEl.getBoundingClientRect();
+        const er = tgtEl.getBoundingClientRect();
+
+        // Compute CENTER of each handle circle relative to the canvas area
+        const x1 = (sr.left + sr.right)  / 2 - cr.left;
+        const y1 = (sr.top  + sr.bottom) / 2 - cr.top;
+        const x2 = (er.left + er.right)  / 2 - cr.left;
+        const y2 = (er.top  + er.bottom) / 2 - cr.top;
+
+        newEdges.push({ x1, y1, x2, y2, rel: ext.rel });
       }
+
       setEdges(newEdges);
-    },100);
-    return()=>clearTimeout(timer);
-  },[currentNode,externals,navStack]);
+    }, 80);
 
-  return(
+    return () => clearTimeout(timer);
+  }, [currentNode, externals, navStack, panelVisible]);
+
+  /* Re-compute edges when panel opens/closes (primary card shifts) */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const canvas = document.getElementById('canvas-area');
+      if (!canvas) return;
+      const cr = canvas.getBoundingClientRect();
+      const newEdges = [];
+
+      for (const ext of externals) {
+        const srcKey = ext.fromPortId || 'module';
+        const srcEl  = handleRefs.current[srcKey];
+        const tgtEl  = extHandleRefs.current[ext.id];
+        if (!srcEl || !tgtEl) continue;
+
+        const sr = srcEl.getBoundingClientRect();
+        const er = tgtEl.getBoundingClientRect();
+        newEdges.push({
+          x1: (sr.left + sr.right)  / 2 - cr.left,
+          y1: (sr.top  + sr.bottom) / 2 - cr.top,
+          x2: (er.left + er.right)  / 2 - cr.left,
+          y2: (er.top  + er.bottom) / 2 - cr.top,
+          rel: ext.rel,
+        });
+      }
+
+      setEdges(newEdges);
+    }, 220); // wait for panel slide animation
+
+    return () => clearTimeout(timer);
+  }, [panelVisible]);
+
+  return (
     <>
-      <BreadcrumbBar crumbs={crumbs} onCrumbClick={goToCrumb} onBack={goBack}/>
+      <BreadcrumbBar crumbs={crumbs} onCrumb={goToCrumb} onBack={goBack} />
 
-      <div id="canvas-area" style={{flex:1,position:'relative',overflow:'hidden'}}>
-        {/* dot grid */}
-        <div style={{position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,rgba(99,102,120,.12) 1px,transparent 1px)',backgroundSize:'28px 28px',pointerEvents:'none'}}/>
+      <div id="canvas-area" style={{ flex:1, position:'relative', overflow:'hidden' }}>
+        {/* Dot grid */}
+        <div style={{
+          position:'absolute', inset:0,
+          backgroundImage:'radial-gradient(circle, var(--canvas-dot) 1px, transparent 1px)',
+          backgroundSize:'28px 28px',
+          pointerEvents:'none',
+        }} />
 
-        {/* edges */}
-        <EdgeLayer edges={edges}/>
+        {/* SVG edge layer */}
+        <EdgeLayer edges={edges} />
 
-        {/* primary card centered-left */}
-        <div style={{position:'absolute',left:60,top:'50%',transform:'translateY(-50%)'}} ref={primaryRef}>
+        {/* Primary card — centred on the left half */}
+        <div style={{
+          position:'absolute',
+          left: panelVisible ? 48 : 64,
+          top:'50%', transform:'translateY(-50%)',
+          transition:'left 0.2s ease',
+        }}>
           <PrimaryCard
             node={currentNode}
-            selected={selectedId===currentNode.id}
-            onSelect={()=>selectNode(currentNode.id)}
-            onDrill={()=>{}}
-            extHandleRefs={handleRefs}
+            selected={selectedId === currentNode.id}
+            onSelect={() => selectNode(currentNode.id)}
+            onDrill={() => {}}
+            handleRefs={handleRefs}
           />
         </div>
 
-        {/* external cards stacked on right */}
-        <div style={{position:'absolute',right:panelVisible?340:60,top:'50%',transform:'translateY(-50%)',display:'flex',flexDirection:'column',gap:16,transition:'right 0.2s ease'}}>
-          {externals.map((ext,i)=>(
-            <div key={ext.id} ref={el=>{if(el)extRefs.current[ext.id]=el}}>
-              <ExtCard ext={ext} selected={selectedId===ext.id} onSelect={()=>selectNode(ext.id)}/>
-            </div>
-          ))}
-          {externals.length===0&&(
-            <div style={{fontSize:12,color:'var(--overlay0)',fontStyle:'italic',padding:20,textAlign:'center',animation:'fadeIn 0.3s ease both'}}>
+        {/* External cards — stacked on the right */}
+        <div style={{
+          position:'absolute',
+          right: panelVisible ? 316 : 64,
+          top:'50%', transform:'translateY(-50%)',
+          display:'flex', flexDirection:'column', gap:14,
+          transition:'right 0.2s ease',
+        }}>
+          {externals.length === 0 ? (
+            <div style={{
+              fontSize:12, color:'var(--overlay0)', fontStyle:'italic',
+              padding:20, textAlign:'center',
+              animation:'fadeIn .3s ease both',
+            }}>
               No external links at this level.
             </div>
-          )}
+          ) : externals.map(ext => (
+            <ExtCard
+              key={ext.id}
+              ext={ext}
+              selected={selectedId === ext.id}
+              onSelect={() => selectNode(ext.id)}
+              onHandleRef={el => { if (el) extHandleRefs.current[ext.id] = el; }}
+            />
+          ))}
         </div>
 
-        {/* detail panel */}
-        {selectedNode&&(
+        {/* Detail panel */}
+        {selectedNode && (
           <DetailPanel
             node={selectedNode}
             visible={panelVisible}
-            onClose={()=>{setPanelVisible(false);setSelectedId(null);}}
+            onClose={() => { setPanelVisible(false); setSelectedId(null); }}
           />
         )}
       </div>
 
-      {/* status bar */}
-      <div style={{flexShrink:0,height:36,background:'var(--bg-mantle)',borderTop:'1px solid var(--node-border)',display:'flex',alignItems:'center',padding:'0 16px',gap:12}}>
-        <StateBadge state={screenState}/>
-        <div style={{width:1,height:16,background:'var(--node-border)'}}/>
-        <span style={{fontSize:11,color:'var(--overlay0)'}}>Click node to select · Double-click to drill in · Esc to go back</span>
-        <div style={{flex:1}}/>
-        <span style={{fontSize:11,color:'var(--overlay0)',letterSpacing:'0.06em'}}>ArchUI · Canvas Screen Preview</span>
+      {/* Status bar */}
+      <div style={{
+        flexShrink:0, height:36,
+        background:'var(--bg-mantle)', borderTop:'1px solid var(--node-border)',
+        display:'flex', alignItems:'center', padding:'0 16px', gap:12,
+      }}>
+        <StateBadge state={screenState} />
+        <div style={{ width:1, height:16, background:'var(--node-border)' }} />
+        <span style={{ fontSize:11, color:'var(--overlay0)' }}>
+          Click to select · Double-click to drill in · Esc to go back
+        </span>
+        <div style={{ flex:1 }} />
+        <span style={{ fontSize:11, color:'var(--overlay0)', letterSpacing:'0.05em' }}>
+          ArchUI · Canvas Preview
+        </span>
       </div>
     </>
   );
 }
 
-const root=ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App/>);
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
 </script>
 </body>
 </html>

@@ -1,59 +1,87 @@
 import { useState } from 'react'
 import { openDirectory } from '../../filesystem/fsa'
 import serverAdapter from '../../filesystem/serverAdapter'
+import { brandAssetUrls } from '../../generated/brand-assets.generated'
+import { workspaceContent } from '../../generated/workspace-content.generated'
 import { useCanvasStore } from '../../store/canvas'
 import s from './OpenFolder.module.css'
 
-export function OpenFolder() {
+interface OpenFolderProps {
+  theme: 'light' | 'dark'
+  onToggleTheme: () => void
+}
+
+export function OpenFolder({ theme, onToggleTheme }: OpenFolderProps) {
+  const brand = workspaceContent.brand
+  const landingContent = workspaceContent.landing
+  const logoMark = brand.logoMark
+  const logoMarkUrl = brandAssetUrls[logoMark.assetKey]
   const setAdapter = useCanvasStore(s => s.setAdapter)
-  const [serverUrl, setServerUrl] = useState(import.meta.env.VITE_SERVER_URL ?? 'http://localhost:3001')
+  const [serverUrl, setServerUrl] = useState(
+    import.meta.env.VITE_SERVER_URL ?? landingContent.actions.serverUrlPlaceholder,
+  )
   const [showUrl, setShowUrl] = useState(false)
 
   async function handleFsa() {
     try {
       const { adapter, root } = await openDirectory()
       await setAdapter(adapter, '/', 'fsa')
-      void root // keep reference
+      void root
     } catch (e) {
       if ((e as Error).name !== 'AbortError') console.error(e)
     }
   }
 
   async function handleServer() {
-    // serverAdapter reads VITE_SERVER_URL from env at import time, but
-    // for dynamic URL we just point the user to set the env var.
     await setAdapter(serverAdapter, '.', 'server')
   }
 
   return (
     <div className={s.root}>
-      <div className={s.logo}>ArchUI</div>
-      <div className={s.subtitle}>Knowledge canvas for humans & AI agents</div>
+      <button className={s.themeBtn} onClick={onToggleTheme}>
+        {theme === 'light' ? landingContent.themeToggle.toDark : landingContent.themeToggle.toLight}
+      </button>
+
+      <div className={s.hero}>
+        <img
+          className={s.logoMark}
+          src={logoMarkUrl}
+          alt={logoMark.alt}
+          width={logoMark.sizes.hero.width}
+          height={logoMark.sizes.hero.height}
+        />
+        <div className={s.logo}>{landingContent.brandWordmark}</div>
+        <div className={s.subtitle}>{landingContent.subtitle}</div>
+      </div>
+
       <div className={s.card}>
-        <button className={s.btn} onClick={handleServer}>
-          Connect to local server
+        <div className={s.cardKicker}>{landingContent.card.kicker}</div>
+        <h1>{landingContent.card.title}</h1>
+        <p>{landingContent.card.body}</p>
+
+        <div className={s.actionGrid}>
+          <button className={s.btnPrimary} onClick={handleServer}>
+            {landingContent.actions.connectServer}
+          </button>
+          <button className={s.btnSecondary} onClick={handleFsa}>
+            {landingContent.actions.openFolder}
+          </button>
+        </div>
+
+        <button className={s.inlineBtn} onClick={() => setShowUrl(v => !v)}>
+          {showUrl ? landingContent.actions.hideServerUrl : landingContent.actions.showServerUrl}
         </button>
-        <span className={s.divider}>or</span>
-        <button className={`${s.btn} ${s.btnSecondary}`} onClick={handleFsa}>
-          Open folder (FSA — Chrome/Edge)
-        </button>
+
         {showUrl && (
           <div className={s.urlRow}>
             <input
               className={s.urlInput}
               value={serverUrl}
               onChange={e => setServerUrl(e.target.value)}
-              placeholder="http://localhost:3001"
+              placeholder={landingContent.actions.serverUrlPlaceholder}
             />
           </div>
         )}
-        <button
-          className={`${s.btn} ${s.btnSecondary}`}
-          style={{ fontSize: '0.75rem', padding: '4px 0' }}
-          onClick={() => setShowUrl(v => !v)}
-        >
-          {showUrl ? 'Hide server URL' : 'Change server URL'}
-        </button>
       </div>
     </div>
   )

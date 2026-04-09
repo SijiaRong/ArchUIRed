@@ -11,7 +11,7 @@ Generated files carry a header guard comment (`AUTO-GENERATED — do not edit ma
 
 ## Web Output
 
-The generator produces `design-tokens.css` containing CSS custom properties organized by token category (surface, text, border, edge, status, interactive, port, spacing, typography, dimension, elevation). Both Light and Dark mode values are included. The generator maps every Figma token name to a CSS variable using the pattern `--<category>-<token-path>` with slashes replaced by hyphens.
+The generator produces `design-tokens.generated.css` containing CSS custom properties organized by token category (surface, text, border, edge, status, interactive, port, spacing, typography, dimension, elevation). Both Light and Dark mode values are included. The generator maps every Figma token name to a CSS variable using the pattern `--<category>-<token-path>` with slashes replaced by hyphens.
 
 ## Generation Rules
 

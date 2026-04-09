@@ -5,6 +5,7 @@ submodules:
   preview-phase: 05f43c1a
   apply-phase: a28ea4a9
   partial-mode: 9e10465a
+  import-command-harness: 39ca3c29
 links:
   - uuid: b7ba3280
     relation: depends-on

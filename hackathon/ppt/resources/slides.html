@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArchUI — AI 开发基础设施 | Arch Park</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* === THEME VARIABLES === */
+        :root {
+            --bg: #0b0e17;
+            --bg-card: rgba(255,255,255,0.04);
+            --bg-card-hover: rgba(255,255,255,0.07);
+            --coral: #FD6C40;
+            --coral-dim: rgba(253,108,64,0.15);
+            --coral-glow: rgba(253,108,64,0.3);
+            --white: #eaedf2;
+            --gray: #8892a4;
+            --dark-gray: #4a5060;
+            --font: 'Noto Sans SC', sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+            --title: clamp(2rem, 12vh, 8rem);
+            --h2: clamp(1.4rem, 8vh, 5rem);
+            --h3: clamp(1rem, 5vh, 3rem);
+            --body: clamp(0.75rem, 3.2vh, 2rem);
+            --small: clamp(0.6rem, 2.8vh, 1.6rem);
+            --pad: clamp(1.5rem, 3vh, 3rem);
+            --ease: cubic-bezier(0.16,1,0.3,1);
+        }
+
+        /* === RESET + VIEWPORT === */
+        *{margin:0;padding:0;box-sizing:border-box}
+        html,body{height:100%;overflow-x:hidden;background:var(--bg);color:var(--white);font-family:var(--font);-webkit-font-smoothing:antialiased}
+        html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+
+        .slide{width:100vw;height:100vh;height:100dvh;overflow:hidden;scroll-snap-align:start;position:relative}
+        .slide-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:85%;z-index:1}
+
+        /* === GRID BG === */
+        .slide::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+
+        /* === GLOW BLOBS === */
+        .glow-tr::after{content:'';position:absolute;top:-15%;right:-5%;width:40%;height:50%;background:radial-gradient(ellipse,var(--coral-glow) 0%,transparent 70%);pointer-events:none;z-index:0}
+        .glow-bl::after{content:'';position:absolute;bottom:-15%;left:-5%;width:40%;height:50%;background:radial-gradient(ellipse,rgba(67,97,238,0.15) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+        /* === PROGRESS BAR === */
+        .progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--coral),#4361ee);width:0%;z-index:9999;transition:width .3s ease;display:none}
+
+        /* === NAV DOTS === */
+        .nav-dots{position:fixed;right:clamp(10px,1.5vw,20px);top:50%;transform:translateY(-50%);z-index:9998;display:none;flex-direction:column;gap:8px}
+        .nav-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;padding:0;transition:all .3s}
+        .nav-dot.active{background:var(--coral);box-shadow:0 0 8px var(--coral-glow);transform:scale(1.4)}
+
+        /* === ANIMATIONS === */
+        .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+        .slide.visible .reveal{opacity:1;transform:translateY(0)}
+        .reveal:nth-child(2){transition-delay:.1s}
+        .reveal:nth-child(3){transition-delay:.2s}
+        .reveal:nth-child(4){transition-delay:.3s}
+        .reveal:nth-child(5){transition-delay:.4s}
+        .reveal:nth-child(6){transition-delay:.5s}
+
+        .reveal-s{opacity:0;transform:scale(0.92);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+        .slide.visible .reveal-s{opacity:1;transform:scale(1)}
+
+        /* === COMMON ELEMENTS === */
+        .label{font-size:var(--small);font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--coral);margin-bottom:clamp(.3rem,.8vh,.6rem)}
+        .heading{font-size:var(--h2);font-weight:700;line-height:1.2;margin-bottom:clamp(.4rem,1vh,.8rem)}
+        .sub{font-size:var(--body);color:var(--gray);line-height:1.6;max-width:680px}
+        .accent{color:var(--coral)}
+        .tag{display:inline-block;padding:clamp(.3rem,1.2vh,.7rem) clamp(.5rem,1.5vw,1.2rem);background:var(--coral-dim);border:1px solid rgba(253,108,64,0.25);border-radius:100px;font-size:var(--small);color:var(--coral);letter-spacing:.03em}
+
+        /* === CARD === */
+        .card{background:var(--bg-card);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:clamp(.7rem,3.5vh,2.5rem);transition:border-color .3s,transform .3s}
+        .card:hover{border-color:var(--coral);transform:translateY(-2px)}
+        .card .num{font-family:var(--mono);font-size:var(--small);color:var(--coral);font-weight:700;margin-bottom:.2rem}
+        .card h3{font-size:var(--h3);font-weight:600;margin-bottom:.2rem}
+        .card p{font-size:var(--small);color:var(--gray);line-height:1.5}
+
+        /* === GRIDS === */
+        .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.5rem,1vw,1rem)}
+        .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(.5rem,1vw,1rem)}
+        .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(.5rem,1vw,1rem)}
+        @media(max-width:700px){.grid-3,.grid-2,.grid-4{grid-template-columns:1fr}}
+
+        /* === RESPONSIVE === */
+        @media(max-height:700px){:root{--pad:clamp(.75rem,3vw,2rem);--title:clamp(1.5rem,4.5vw,2.5rem);--h2:clamp(1.1rem,3vw,1.8rem)}}
+        @media(max-height:500px){:root{--pad:clamp(.5rem,2vw,1rem);--title:clamp(1rem,3.5vw,1.5rem);--body:clamp(.6rem,1vw,.85rem)}.nav-dots{display:none}}
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}html{scroll-behavior:auto}}
+
+        /* ========================
+           SLIDE-SPECIFIC STYLES
+           ======================== */
+
+        /* P1: Title */
+        .title-slide .slide-inner{text-align:center}
+        .logo-img{width:clamp(60px,15vh,150px);margin-bottom:clamp(.5rem,2vh,1.5rem)}
+        .title-main{font-size:var(--title);font-weight:900;background:linear-gradient(135deg,var(--white) 30%,var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .title-tagline{font-size:var(--h3);color:var(--gray);margin-top:.3rem}
+        .title-badge{display:inline;margin-top:clamp(.6rem,1.5vh,1rem);padding:clamp(.25rem,.5vh,.4rem) clamp(.8rem,1.5vw,1.2rem);border:1px solid var(--coral);border-radius:100px;font-size:var(--small);color:var(--coral);letter-spacing:.12em;white-space:nowrap}
+        .title-team{margin-top:clamp(.8rem,2vh,1.5rem);font-size:var(--small);color:var(--dark-gray);letter-spacing:.1em}
+
+        /* P2: Pain overview */
+        .pain-quote{font-size:var(--h2);font-weight:700;line-height:1.3;max-width:600px}
+        .pain-quote .accent{font-weight:900}
+
+        /* P4: Solution */
+        .solution-flow{display:flex;align-items:center;gap:clamp(.3rem,.6vw,.5rem);flex-wrap:wrap;margin-bottom:clamp(.5rem,1vh,.8rem)}
+        .flow-step{padding:clamp(.2rem,.4vh,.3rem) clamp(.5rem,.8vw,.7rem);background:var(--bg-card);border-radius:6px;font-size:var(--small);color:var(--white)}
+        .flow-arrow{color:var(--coral);font-size:var(--small)}
+
+        /* P6-7: Demo placeholders */
+        .demo-box{background:var(--bg-card);border:1px dashed rgba(255,255,255,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--dark-gray);font-size:var(--body);min-height:clamp(120px,25vh,280px)}
+
+        /* P8: Comparison table */
+        .cmp-table{width:100%;border-collapse:collapse;font-size:var(--small)}
+        .cmp-table th,.cmp-table td{padding:clamp(.4rem,1.5vh,.8rem) clamp(.4rem,1vw,.8rem);text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);font-size:var(--body)}
+        .cmp-table th{color:var(--gray);font-weight:500}
+        .cmp-table td{color:var(--gray)}
+        .cmp-table td:first-child{color:var(--white);font-weight:500}
+        .cmp-table td:last-child{color:var(--coral);font-weight:500}
+        .cmp-table thead th:last-child{color:var(--coral)}
+
+        /* P9: Market */
+        .tam-card{text-align:center;padding:clamp(.8rem,1.5vw,1.5rem)}
+        .tam-card .big{font-size:clamp(1.5rem,3vw,2.5rem);font-weight:900;color:var(--coral);font-family:var(--mono)}
+        .tam-card .tam-label{font-size:var(--h3);font-weight:700;margin-bottom:.3rem}
+        .tam-card .tam-desc{font-size:var(--small);color:var(--gray);line-height:1.5}
+
+        /* P11: Dogfooding */
+        .moment-item{display:flex;gap:clamp(.3rem,.6vw,.6rem);font-size:var(--body);color:var(--gray);line-height:1.6;margin-bottom:clamp(.3rem,.6vh,.5rem)}
+        .moment-item .arr{color:var(--coral);flex-shrink:0;font-weight:700}
+
+        /* P12: Comic pipeline */
+        .pipeline{display:inline-flex;align-items:center;gap:clamp(.2rem,.4vw,.4rem);flex-wrap:wrap;justify-content:center}
+        .pipe-stage{background:var(--bg-card);border:1px solid rgba(253,108,64,0.2);border-radius:8px;padding:clamp(.8rem,3vh,2rem) clamp(1rem,3vw,2.5rem);text-align:center;min-width:clamp(100px,14vw,220px)}
+        .pipe-stage .pnum{font-family:var(--mono);font-size:var(--small);color:var(--dark-gray)}
+        .pipe-stage .pname{font-size:var(--h3);font-weight:600;color:var(--white)}
+        .pipe-arrow{color:var(--coral);font-size:clamp(.8rem,1.5vw,1.2rem)}
+
+        /* P13: Roadmap */
+        .phase{display:flex;gap:clamp(.6rem,1.2vw,1.2rem);align-items:flex-start;margin-bottom:clamp(.5rem,1vh,.8rem)}
+        .phase-dot{width:clamp(10px,1vw,14px);height:clamp(10px,1vw,14px);border-radius:50%;flex-shrink:0;margin-top:.3rem}
+        .phase-dot.now{background:var(--coral);box-shadow:0 0 10px var(--coral-glow)}
+        .phase-dot.next{background:#4361ee}
+        .phase-dot.far{background:#9333ea}
+        .phase-body h3{font-size:var(--h3);font-weight:600}
+        .phase-body p{font-size:var(--small);color:var(--gray);line-height:1.5}
+        .phase-body .market{font-size:var(--small);color:var(--coral);font-family:var(--mono);margin-top:.15rem}
+        .roadmap-quote{margin-top:clamp(.5rem,1vh,.8rem);padding-left:clamp(.6rem,1vw,1rem);border-left:2px solid var(--coral);font-size:var(--body);font-style:italic;line-height:1.5;color:var(--white)}
+
+        /* P14: Thanks */
+        .thanks-slide .slide-inner{text-align:center}
+        .thanks-title{font-size:var(--title);font-weight:900;background:linear-gradient(135deg,var(--coral),#9333ea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .qr-box{margin-top:clamp(.5rem,1.5vh,1rem);width:clamp(80px,12vw,140px);height:clamp(80px,12vw,140px);border:1px dashed rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:var(--small);color:var(--dark-gray)}
+    </style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="nav-dots" id="navDots"></nav>
+
+<!-- ====== P1: 封面 ====== -->
+<section class="slide glow-tr" id="s1">
+    <div class="slide-inner title-slide">
+        <img src="logo.png" alt="ArchUI" class="logo-img reveal">
+        <h1 class="title-main reveal">ArchUI</h1>
+        <p class="title-tagline reveal">模块化文档编排系统</p>
+        <span class="title-badge reveal">AI 开发基础设施</span>
+        <p class="title-team reveal">Arch Park</p>
+    </div>
+</section>
+
+<!-- ====== P2: 痛点总述 ====== -->
+<section class="slide glow-bl" id="s2">
+    <div class="slide-inner">
+        <p class="label reveal">怎么决定做这个的</p>
+        <div class="pain-quote reveal">
+            代码和文档，<br>是<span class="accent">割裂</span>的。
+        </div>
+        <p class="sub reveal" style="margin-top:clamp(.5rem,1.5vh,1rem)">我们发现每个用 AI 写代码的人，都在重复同一个问题。</p>
+    </div>
+</section>
+
+<!-- ====== P3: 痛点详解 ====== -->
+<section class="slide glow-tr" id="s3">
+    <div class="slide-inner">
+        <p class="label reveal">三个核心痛点</p>
+        <div class="grid-3" style="margin-top:clamp(.5rem,1vh,.8rem)">
+            <div class="card reveal-s" style="transition-delay:.15s">
+                <div class="num">01</div>
+                <h3>文档与代码脱节</h3>
+                <p>文档写完就过时，代码改了文档没跟上，新人看文档写出的代码和实际架构不一致</p>
+            </div>
+            <div class="card reveal-s" style="transition-delay:.3s">
+                <div class="num">02</div>
+                <h3>上下文冗余</h3>
+                <p>AI agent 生成代码时需要加载大量文档，大部分与当前任务无关，浪费 token 和注意力</p>
+            </div>
+            <div class="card reveal-s" style="transition-delay:.45s">
+                <div class="num">03</div>
+                <h3>知识不可复用</h3>
+                <p>同样的登录逻辑、同样的鉴权方案，每个项目重新写一遍文档、重新让 AI 理解一遍</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== P4: 解决方案概述 ====== -->
+<section class="slide glow-bl" id="s4">
+    <div class="slide-inner">
+        <p class="label reveal">ta 会帮到谁 / 解决什么问题</p>
+        <h2 class="heading reveal">文档模块化，模块直接生成代码</h2>
+        <p class="sub reveal">面向使用 AI agent 做开发的团队和独立开发者</p>
+        <div class="solution-flow reveal" style="margin-top:clamp(.6rem,1.5vh,1rem)">
+            <span class="flow-step">文档拆成模块树</span><span class="flow-arrow">→</span>
+            <span class="flow-step">人类用画布编排</span><span class="flow-arrow">→</span>
+            <span class="flow-step">AI 按需加载上下文</span><span class="flow-arrow">→</span>
+            <span class="flow-step">直接生成代码</span>
+        </div>
+        <p class="sub reveal" style="font-size:var(--small)">文件系统即知识库，git 天然版本管理，文档改了代码跟着更新</p>
+    </div>
+</section>
+
+<!-- ====== P5: 四大核心能力 ====== -->
+<section class="slide glow-tr" id="s5">
+    <div class="slide-inner">
+        <p class="label reveal">核心能力</p>
+        <div class="grid-2" style="margin-top:clamp(.3rem,.8vh,.5rem)">
+            <div class="card reveal-s" style="transition-delay:.1s">
+                <div class="num">01</div>
+                <h3>文档即编排</h3>
+                <p>文档模块化，AI 按需加载，告别长文档。每个模块独立可理解、可嵌套。</p>
+            </div>
+            <div class="card reveal-s" style="transition-delay:.2s">
+                <div class="num">02</div>
+                <h3>模块可复用</h3>
+                <p>拉取一个登录模块文档，AI agent 直接基于它生成代码 — 不用从零写 spec。</p>
+            </div>
+            <div class="card reveal-s" style="transition-delay:.3s">
+                <div class="num">03</div>
+                <h3>UUID 跨模块链接</h3>
+                <p>模块之间用 UUID 链接，重命名、移动都不断链，结构稳定可靠。</p>
+            </div>
+            <div class="card reveal-s" style="transition-delay:.4s">
+                <div class="num">04</div>
+                <h3>模块广场</h3>
+                <p>发布、发现、组合 — 知识模块的 npm。社区共享，用户既是消费者也是生产者。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== P6: Demo 模块替换 ====== -->
+<section class="slide glow-bl" id="s6">
+    <div class="slide-inner">
+        <p class="label reveal">Demo</p>
+        <h2 class="heading reveal">模块替换：换一个文档，换一套代码</h2>
+        <p class="sub reveal">替换一个登录模块文档，AI 自动生成新的登录代码</p>
+        <div class="grid-2" style="margin-top:clamp(.5rem,1.2vh,.8rem);gap:clamp(1rem,2vw,2rem);align-items:center">
+            <div>
+                <div class="demo-box reveal-s" style="transition-delay:.2s">[ 替换前截图 ]</div>
+                <p class="reveal" style="text-align:center;font-size:var(--small);color:var(--dark-gray);margin-top:.3rem">登录模块 A</p>
+            </div>
+            <div>
+                <div class="demo-box reveal-s" style="transition-delay:.35s">[ 替换后截图 ]</div>
+                <p class="reveal" style="text-align:center;font-size:var(--small);color:var(--dark-gray);margin-top:.3rem">登录模块 B → 代码自动更新</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== P7: Demo 画布 ====== -->
+<section class="slide glow-tr" id="s7">
+    <div class="slide-inner">
+        <p class="label reveal">Demo</p>
+        <h2 class="heading reveal">模块树画布</h2>
+        <p class="sub reveal">人类用节点画布编排模块关系，AI agent 按需加载上下文</p>
+        <div class="demo-box reveal-s" style="transition-delay:.2s;margin-top:clamp(.5rem,1.2vh,.8rem);min-height:clamp(150px,35vh,350px)">
+            [ ArchUI 画布截图 ]
+        </div>
+    </div>
+</section>
+
+<!-- ====== P8: 竞品对比 ====== -->
+<section class="slide glow-bl" id="s8">
+    <div class="slide-inner">
+        <p class="label reveal">竞品对比</p>
+        <h2 class="heading reveal">为什么不是现有方案？</h2>
+        <table class="cmp-table reveal" style="margin-top:clamp(.4rem,1vh,.6rem)">
+            <thead><tr><th>维度</th><th>RAG</th><th>LLM Wiki</th><th>Monorepo</th><th>ArchUI</th></tr></thead>
+            <tbody>
+                <tr><td>管什么</td><td>文档检索</td><td>文档生成维护</td><td>代码构建编排</td><td>文档+代码一体编排</td></tr>
+                <tr><td>知识组织</td><td>向量切片，碎片化</td><td>扁平页面</td><td>代码包+依赖图</td><td>模块树，层级化</td></tr>
+                <tr><td>上下文控制</td><td>检索不可预测</td><td>规模大后崩溃</td><td>只管代码</td><td>按需加载，渐进披露</td></tr>
+                <tr><td>代码生成</td><td>片段拼接 prompt</td><td>不生成代码</td><td>不生成，只编排构建</td><td>模块即 spec，直接生成</td></tr>
+                <tr><td>可复用性</td><td>每次重新检索</td><td>不可即插即用</td><td>代码可复用，文档不可</td><td>文档模块可复用</td></tr>
+            </tbody>
+        </table>
+        <p class="reveal" style="margin-top:clamp(.4rem,.8vh,.6rem);font-size:var(--small);color:var(--coral)">Monorepo 只管"怎么建"，ArchUI 从文档层定义"建什么" — 文档即编排。</p>
+    </div>
+</section>
+
+<!-- ====== P9: 市场 ====== -->
+<section class="slide glow-tr" id="s9">
+    <div class="slide-inner">
+        <p class="label reveal">市场</p>
+        <h2 class="heading reveal">AI 开发基础设施</h2>
+        <p class="sub reveal">AI agent 能读懂代码了，但还读不懂文档 — 这是一个尚未被解决的基础设施层。</p>
+        <div class="grid-3" style="margin-top:clamp(.5rem,1.2vh,.8rem)">
+            <div class="card tam-card reveal-s" style="transition-delay:.15s">
+                <div class="tam-label">TAM</div>
+                <div class="big">$240亿</div>
+                <div class="tam-desc">AI 代码工具市场（2030）<br>CAGR 26.6%</div>
+            </div>
+            <div class="card tam-card reveal-s" style="transition-delay:.3s">
+                <div class="tam-label">SAM</div>
+                <div class="big" style="font-size:clamp(1rem,2vw,1.6rem)">文档×AI编码</div>
+                <div class="tam-desc">AI agent 的<br>上下文基础设施</div>
+            </div>
+            <div class="card tam-card reveal-s" style="transition-delay:.45s">
+                <div class="tam-label">SOM</div>
+                <div class="big" style="font-size:clamp(1rem,2vw,1.6rem)">AI 开发者</div>
+                <div class="tam-desc">使用 AI agent 做开发的<br>团队和独立开发者</div>
+            </div>
+        </div>
+        <p class="reveal" style="margin-top:clamp(.4rem,.8vh,.5rem);font-size:var(--small);color:var(--dark-gray)">Cursor $20亿 ARR · Copilot 470万付费用户 · AI代码工具 2026年达 $128亿</p>
+    </div>
+</section>
+
+<!-- ====== P10: 盈利模式 ====== -->
+<section class="slide glow-bl" id="s10">
+    <div class="slide-inner">
+        <p class="label reveal">盈利模式</p>
+        <h2 class="heading reveal">开源核心 + 模块市场</h2>
+        <div class="grid-4" style="margin-top:clamp(.4rem,1vh,.6rem)">
+            <div class="card reveal-s" style="transition-delay:.1s">
+                <div class="num">01</div>
+                <h3>开源核心+云</h3>
+                <p>CLI 和文件系统规范开源，托管画布 GUI 和团队协作收费（类似 GitLab）</p>
+            </div>
+            <div class="card reveal-s" style="transition-delay:.2s">
+                <div class="num">02</div>
+                <h3>模块市场</h3>
+                <p>社区共享文档模块，高质量模块收费或订阅（类似 npm + Vercel 模板市场）</p>
+            </div>
+            <div class="card reveal-s" style="transition-delay:.3s">
+                <div class="num">03</div>
+                <h3>团队订阅</h3>
+                <p>多人协作、权限管理、私有模块仓库按座收费</p>
+            </div>
+            <div class="card reveal-s" style="transition-delay:.4s">
+                <div class="num">04</div>
+                <h3>企业版</h3>
+                <p>私有部署 + 自定义 AI agent 集成</p>
+            </div>
+        </div>
+        <p class="reveal" style="margin-top:clamp(.4rem,.8vh,.5rem);font-size:var(--small);color:var(--coral)">重点：模块市场 — "复用一个登录模块文档就能生成登录代码"</p>
+    </div>
+</section>
+
+<!-- ====== P11: Dogfooding ====== -->
+<section class="slide glow-tr" id="s11">
+    <div class="slide-inner">
+        <p class="label reveal">创作中最惊喜的时刻</p>
+        <h2 class="heading reveal">Dogfooding — 用 ArchUI 编排自己</h2>
+        <div style="margin-top:clamp(.4rem,1vh,.6rem)">
+            <div class="moment-item reveal" style="transition-delay:.15s"><span class="arr">▸</span><span>用 ArchUI 模块树管理 PPT、易拉宝、视频、宣传册的全套黑客松材料</span></div>
+            <div class="moment-item reveal" style="transition-delay:.25s"><span class="arr">▸</span><span>用 ArchUI 编排 AI 漫剧制作的 5 阶段生产流程（策划→角色→场景→动画→后期）</span></div>
+            <div class="moment-item reveal" style="transition-delay:.35s"><span class="arr">▸</span><span>证明了模块化编排不限于代码，可以扩展到任何创作流程</span></div>
+        </div>
+        <div class="reveal" style="display:flex;flex-wrap:wrap;gap:clamp(.2rem,.4vw,.4rem);margin-top:clamp(.5rem,1.2vh,.8rem);transition-delay:.45s">
+            <span class="tag">dogfooding</span><span class="tag">模块化</span><span class="tag">AI 漫剧</span><span class="tag">创作编排</span><span class="tag">自举</span>
+        </div>
+    </div>
+</section>
+
+<!-- ====== P12: AI 漫剧流程 ====== -->
+<section class="slide glow-bl" id="s12">
+    <div class="slide-inner" style="text-align:center">
+        <p class="label reveal">案例</p>
+        <h2 class="heading reveal" style="text-align:center">AI 漫剧：模块化创作编排</h2>
+        <p class="sub reveal" style="text-align:center">用 ArchUI 编排 5 阶段生产流程 — 证明模块化不限于代码</p>
+        <div class="pipeline reveal" style="margin-top:clamp(.6rem,1.5vh,1rem)">
+            <div class="pipe-stage"><div class="pnum">Phase 1</div><div class="pname">前期策划</div></div>
+            <span class="pipe-arrow">→</span>
+            <div class="pipe-stage"><div class="pnum">Phase 2</div><div class="pname">角色设计</div></div>
+            <span class="pipe-arrow">→</span>
+            <div class="pipe-stage"><div class="pnum">Phase 3</div><div class="pname">场景合成</div></div>
+            <span class="pipe-arrow">→</span>
+            <div class="pipe-stage"><div class="pnum">Phase 4</div><div class="pname">动态制作</div></div>
+            <span class="pipe-arrow">→</span>
+            <div class="pipe-stage"><div class="pnum">Phase 5</div><div class="pname">声音后期</div></div>
+        </div>
+        <p class="reveal" style="margin-top:clamp(.4rem,.8vh,.5rem);font-size:var(--small);color:var(--dark-gray);text-align:center">每个阶段是一个 SPEC 模块，工具链和提示词在 resources 里，流程可复用可迭代</p>
+    </div>
+</section>
+
+<!-- ====== P13: 路线图 ====== -->
+<section class="slide glow-tr" id="s13">
+    <div class="slide-inner">
+        <p class="label reveal">后面还会继续完成它吗</p>
+        <h2 class="heading reveal">三步走路线图</h2>
+        <div style="margin-top:clamp(.4rem,1vh,.6rem)">
+            <div class="phase reveal" style="transition-delay:.15s">
+                <div class="phase-dot now"></div>
+                <div class="phase-body">
+                    <h3>Phase 1 · 代码开发编排<span style="font-size:var(--small);color:var(--dark-gray);font-weight:400;margin-left:.5rem">当前</span></h3>
+                    <p>文档模块化、AI agent 按需加载、模块即 spec 直接生成代码</p>
+                    <div class="market">TAM $240 亿（2030）</div>
+                </div>
+            </div>
+            <div class="phase reveal" style="transition-delay:.3s">
+                <div class="phase-dot next"></div>
+                <div class="phase-body">
+                    <h3>Phase 2 · 模块广场<span style="font-size:var(--small);color:var(--dark-gray);font-weight:400;margin-left:.5rem">近期</span></h3>
+                    <p>共享生态，用户发布/获取模块，网络效应 + 商业化基础</p>
+                </div>
+            </div>
+            <div class="phase reveal" style="transition-delay:.45s">
+                <div class="phase-dot far"></div>
+                <div class="phase-body">
+                    <h3>Phase 3 · 创作编排<span style="font-size:var(--small);color:var(--dark-gray);font-weight:400;margin-left:.5rem">未来</span></h3>
+                    <p>从代码扩展到视频、漫剧、课程 — 一切创作流程</p>
+                    <div class="market">TAM $801 亿（2030）</div>
+                </div>
+            </div>
+        </div>
+        <blockquote class="roadmap-quote reveal" style="transition-delay:.6s">今天用模块编排代码，明天用模块编排一切创作流程。</blockquote>
+    </div>
+</section>
+
+<!-- ====== P14: Thanks ====== -->
+<section class="slide glow-bl glow-tr" id="s14">
+    <div class="slide-inner thanks-slide">
+        <img src="logo.png" alt="ArchUI" class="logo-img reveal">
+        <h1 class="thanks-title reveal">THANKS</h1>
+        <p class="reveal" style="font-size:var(--h3);color:var(--gray);margin-top:.3rem">ArchUI — 模块化文档编排系统</p>
+        <img src="qr.png" alt="Demo QR" class="reveal" style="transition-delay:.3s;width:clamp(80px,12vw,140px);border-radius:8px;">
+        <p class="reveal" style="font-size:var(--small);color:var(--dark-gray);letter-spacing:.12em;margin-top:clamp(.5rem,1vh,.8rem);transition-delay:.4s">ARCH PARK</p>
+    </div>
+</section>
+
+<script>
+class SlidePresentation{
+    constructor(){
+        this.slides=[...document.querySelectorAll('.slide')];
+        this.cur=0;
+        this.setupObserver();
+        this.setupKeys();
+        this.setupTouch();
+        this.setupDots();
+        this.bar=document.getElementById('progress');
+    }
+    setupObserver(){
+        const o=new IntersectionObserver(es=>{
+            es.forEach(e=>{
+                if(e.isIntersecting){
+                    e.target.classList.add('visible');
+                    const i=this.slides.indexOf(e.target);
+                    if(i>=0){this.cur=i;this.update()}
+                }
+            });
+        },{threshold:0.45});
+        this.slides.forEach(s=>o.observe(s));
+    }
+    setupKeys(){
+        document.addEventListener('keydown',e=>{
+            if(['ArrowDown','ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();this.go(this.cur+1)}
+            if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();this.go(this.cur-1)}
+        });
+    }
+    setupTouch(){
+        let y=0;
+        document.addEventListener('touchstart',e=>{y=e.touches[0].clientY});
+        document.addEventListener('touchend',e=>{
+            const d=y-e.changedTouches[0].clientY;
+            if(Math.abs(d)>50){d>0?this.go(this.cur+1):this.go(this.cur-1)}
+        });
+    }
+    setupDots(){
+        const c=document.getElementById('navDots');
+        this.dots=this.slides.map((_,i)=>{
+            const b=document.createElement('button');
+            b.className='nav-dot'+(i===0?' active':'');
+            b.setAttribute('aria-label','Slide '+(i+1));
+            b.addEventListener('click',()=>this.go(i));
+            c.appendChild(b);
+            return b;
+        });
+    }
+    go(i){if(i>=0&&i<this.slides.length)this.slides[i].scrollIntoView({behavior:'smooth'})}
+    update(){
+        this.bar.style.width=((this.cur+1)/this.slides.length*100)+'%';
+        this.dots.forEach((d,i)=>d.classList.toggle('active',i===this.cur));
+    }
+}
+document.addEventListener('DOMContentLoaded',()=>new SlidePresentation());
+</script>
+</body>
+</html>

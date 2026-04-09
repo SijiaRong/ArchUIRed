@@ -46,3 +46,42 @@ All commands exit 0 on success and non-zero on violations, inconsistencies, or f
 - **Composable validators.** Each sub-validator in `validator/` can be invoked independently, making it easy to run only the check that is relevant.
 - **Actionable output.** Every error message includes the file path and the specific rule that was violated, so fixes are unambiguous.
 - **No hidden state.** The only persistent artifact the CLI produces is `.archui/index.yaml`, and that file is always regenerable from the filesystem.
+
+## Installation
+
+### During development — `npm link`
+
+Use `npm link` to register the CLI as a global command on your local machine. The symlink points directly to the source directory, so changes to `cli/resources/src/` take effect immediately after rebuilding without reinstalling.
+
+```bash
+cd cli/resources
+npm install
+npm run build
+npm link
+```
+
+After linking, `archui` is available globally on your machine:
+
+```bash
+archui validate .
+```
+
+To unlink: `npm unlink archui`
+
+### For distribution — publish to npm
+
+When the CLI is stable and ready for others to use, publish to npm so any engineer can install it without cloning this repository.
+
+```bash
+cd cli/resources
+npm publish
+```
+
+Anyone can then install it globally:
+
+```bash
+npm install -g archui
+archui validate .
+```
+
+Each publish requires a version bump in `package.json`. Published versions are immutable — use `npm version patch|minor|major` before publishing.

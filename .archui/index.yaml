@@ -14,3 +14,6 @@ submodules:
   ArchUIRed-harness: ff000001
   hackathon: aa100001
   wiki: bb100001
+links:
+  - uuid: aa100001
+    relation: related-to

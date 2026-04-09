@@ -1,0 +1,8 @@
+schema_version: 1
+uuid: 14c7ec75
+submodules:
+  version-control-harness: "07249f63"
+links:
+  - uuid: 1a5b9c3d
+    relation: depends-on
+    description: This module describes the versioning policy of the CLI package it belongs to.

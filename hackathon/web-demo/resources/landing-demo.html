@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchUI — 开始</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a2e;
+  --ink-light: #3d3f52;
+  --ink-muted: #7a7d90;
+  --ink-faint: #b0b3c0;
+  --surface: #ffffff;
+  --surface-warm: #fafafa;
+  --surface-cool: #f5f5f5;
+  --border: #e8e8ec;
+  --border-light: #f0f0f2;
+  --accent: #F07040;
+  --accent-soft: rgba(240,112,64,0.06);
+  --accent-dark: #d85a2a;
+  --green: #3a8a5a;
+  --green-soft: #e6f2eb;
+  --blue: #5a7a9a;
+  --blue-soft: #e8eff5;
+  --gold: #c08030;
+  --gold-soft: #faf0dd;
+  --purple: #6a4aaa;
+  --purple-soft: #ede6f5;
+  --sans: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --radius: 6px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--sans); color: var(--ink); background: var(--surface-warm); min-height: 100vh; }
+
+/* ==================== SCREENS ==================== */
+.screen {
+  display: none;
+  min-height: 100vh;
+}
+.screen.active { display: block; }
+
+/* ==================== SCREEN 1: PROJECT SELECTION ==================== */
+.landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 48px 32px;
+}
+
+.landing-logo {
+  font-family: var(--sans);
+  font-weight: 900;
+  font-size: 2rem;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+.landing-logo span { color: var(--accent); }
+
+.landing-tagline {
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+  margin-bottom: 48px;
+}
+
+.landing-actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 56px;
+}
+
+.action-card {
+  width: 240px;
+  padding: 32px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.action-card:hover {
+  border-color: var(--ink-muted);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.action-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 1.4rem;
+}
+
+.action-card:nth-child(1) .action-card-icon { background: var(--blue-soft); }
+.action-card:nth-child(2) .action-card-icon { background: var(--green-soft); }
+
+.action-card-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.action-card-desc {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+
+/* Recent projects */
+.recent-section {
+  width: 100%;
+  max-width: 520px;
+}
+
+.recent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.recent-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.recent-item:hover {
+  border-color: var(--ink-muted);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.recent-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.recent-item:nth-child(1) .recent-item-icon { background: var(--accent-soft); }
+.recent-item:nth-child(2) .recent-item-icon { background: var(--blue-soft); }
+.recent-item:nth-child(3) .recent-item-icon { background: var(--green-soft); }
+
+.recent-item-info { flex: 1; min-width: 0; }
+
+.recent-item-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 2px;
+}
+
+.recent-item-path {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-item-time {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+}
+
+.recent-item-badge {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.badge-archui { background: var(--green-soft); color: var(--green); }
+.badge-normal { background: var(--surface-cool); color: var(--ink-muted); }
+
+/* ==================== SCREEN 2: INIT WIZARD ==================== */
+.wizard {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 48px 32px;
+}
+
+.wizard-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  cursor: pointer;
+  margin-bottom: 32px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.15s;
+  border: none;
+  background: none;
+  font-family: var(--sans);
+}
+.wizard-back:hover { color: var(--ink); background: var(--surface-cool); }
+
+.wizard-header {
+  margin-bottom: 36px;
+}
+
+.wizard-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+
+.wizard-desc {
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  line-height: 1.6;
+}
+
+/* Progress steps */
+.wizard-steps {
+  display: flex;
+  gap: 0;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.wizard-steps::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 32px;
+  right: 32px;
+  height: 2px;
+  background: var(--border);
+}
+
+.wizard-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.wizard-step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--ink-muted);
+  transition: all 0.3s;
+}
+
+.wizard-step.active .wizard-step-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.wizard-step.done .wizard-step-dot {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.wizard-step-label {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+.wizard-step.active .wizard-step-label { color: var(--ink); font-weight: 500; }
+.wizard-step.done .wizard-step-label { color: var(--green); }
+
+/* Wizard content panels */
+.wizard-panel { display: none; }
+.wizard-panel.active { display: block; }
+
+/* Step 1: Folder selection */
+.folder-drop {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 48px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--surface);
+  margin-bottom: 24px;
+}
+
+.folder-drop:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.folder-drop-icon {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.folder-drop-text {
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  margin-bottom: 4px;
+}
+
+.folder-drop-hint {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+.folder-selected {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+}
+
+.folder-selected-icon {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  background: var(--green-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.folder-selected-info { flex: 1; }
+
+.folder-selected-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-bottom: 2px;
+}
+
+.folder-selected-path {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+}
+
+.folder-selected-stats {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--green);
+  text-align: right;
+}
+
+/* Step 2: Scan & Preview */
+.scan-progress {
+  margin-bottom: 32px;
+}
+
+.scan-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.scan-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+.scan-status {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+/* Module tree preview */
+.tree-preview {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.tree-header {
+  padding: 12px 20px;
+  background: var(--surface-cool);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tree-header-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.tree-header-count {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+}
+
+.tree-body {
+  padding: 8px 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 20px;
+  font-size: 0.82rem;
+  cursor: default;
+  transition: background 0.1s;
+}
+
+.tree-node:hover { background: var(--surface-warm); }
+
+.tree-node-indent {
+  display: inline-block;
+  width: 20px;
+  flex-shrink: 0;
+}
+
+.tree-node-icon {
+  font-size: 0.8rem;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.tree-node-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.tree-node-type {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.type-module { background: var(--blue-soft); color: var(--blue); }
+.type-resource { background: var(--surface-cool); color: var(--ink-muted); }
+.type-ignore { background: var(--surface-cool); color: var(--ink-faint); text-decoration: line-through; }
+
+.tree-node-action {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-muted);
+  transition: all 0.15s;
+}
+
+.tree-node-action:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Step 3: Confirm & Write */
+.confirm-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.confirm-stat {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.confirm-stat-value {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.confirm-stat-label {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.confirm-files {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.confirm-files-header {
+  padding: 12px 20px;
+  background: var(--surface-cool);
+  border-bottom: 1px solid var(--border-light);
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.confirm-file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.confirm-file-row:last-child { border-bottom: none; }
+
+.confirm-file-action {
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.action-create { background: var(--green-soft); color: var(--green); }
+.action-skip { background: var(--surface-cool); color: var(--ink-muted); }
+
+.confirm-file-path { color: var(--ink-light); }
+
+/* Write progress */
+.write-progress {
+  margin-top: 24px;
+}
+
+.write-log {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 2;
+  padding: 16px 20px;
+  background: var(--ink);
+  color: #a0e8a0;
+  border-radius: var(--radius);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.write-log .dim { color: #666; }
+.write-log .ok { color: #a0e8a0; }
+.write-log .accent { color: #f0a080; }
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.btn {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 28px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--ink-muted); }
+
+.btn-success {
+  background: var(--green);
+  color: white;
+}
+.btn-success:hover { background: #256b43; }
+
+/* ==================== SCREEN 3: NEW PROJECT ==================== */
+.new-project-form {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.form-hint {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-input-mono {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.35s ease forwards;
+}
+
+.animate-in-d1 { animation-delay: 0.05s; opacity: 0; }
+.animate-in-d2 { animation-delay: 0.1s; opacity: 0; }
+.animate-in-d3 { animation-delay: 0.15s; opacity: 0; }
+.animate-in-d4 { animation-delay: 0.2s; opacity: 0; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.scanning .scan-status { animation: pulse 1.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SCREEN 1: PROJECT SELECTION ==================== -->
+<div class="screen active" id="screenLanding">
+  <div class="landing">
+    <div class="landing-logo animate-in">Arch<span>UI</span></div>
+    <div class="landing-tagline animate-in animate-in-d1">模块化文档编排系统</div>
+
+    <div class="landing-actions animate-in animate-in-d2">
+      <div class="action-card" onclick="showScreen('screenImport')">
+        <div class="action-card-icon">📂</div>
+        <div class="action-card-title">打开文件夹</div>
+        <div class="action-card-desc">打开本地项目文件夹，自动检测并初始化为 ArchUI 模块结构</div>
+      </div>
+      <div class="action-card" onclick="showScreen('screenNew')">
+        <div class="action-card-icon">✨</div>
+        <div class="action-card-title">新建项目</div>
+        <div class="action-card-desc">创建全新的 ArchUI 项目，从空画布开始搭建模块</div>
+      </div>
+    </div>
+
+    <div class="recent-section animate-in animate-in-d3">
+      <div class="recent-header">
+        <span class="recent-title">最近打开</span>
+      </div>
+      <div class="recent-list">
+        <div class="recent-item" onclick="openCanvas()">
+          <div class="recent-item-icon">📐</div>
+          <div class="recent-item-info">
+            <div class="recent-item-name">ArchUI</div>
+            <div class="recent-item-path">~/projects/ArchUIRed</div>
+          </div>
+          <span class="recent-item-badge badge-archui">ArchUI 项目</span>
+          <span class="recent-item-time">2 小时前</span>
+        </div>
+        <div class="recent-item" onclick="showScreen('screenImport')">
+          <div class="recent-item-icon">🛒</div>
+          <div class="recent-item-info">
+            <div class="recent-item-name">my-saas-app</div>
+            <div class="recent-item-path">~/projects/my-saas-app</div>
+          </div>
+          <span class="recent-item-badge badge-normal">普通项目</span>
+          <span class="recent-item-time">昨天</span>
+        </div>
+        <div class="recent-item" onclick="openCanvas()">
+          <div class="recent-item-icon">📝</div>
+          <div class="recent-item-info">
+            <div class="recent-item-name">blog-system</div>
+            <div class="recent-item-path">~/projects/blog-system</div>
+          </div>
+          <span class="recent-item-badge badge-archui">ArchUI 项目</span>
+          <span class="recent-item-time">3 天前</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 2: IMPORT WIZARD ==================== -->
+<div class="screen" id="screenImport">
+  <div class="wizard">
+    <button class="wizard-back" onclick="showScreen('screenLanding')">← 返回</button>
+
+    <div class="wizard-header">
+      <div class="wizard-title">初始化项目</div>
+      <div class="wizard-desc">扫描现有文件夹结构，自动生成 ArchUI 模块树。你可以在预览中调整，确认后写入元数据。</div>
+    </div>
+
+    <div class="wizard-steps">
+      <div class="wizard-step active" id="ws1">
+        <div class="wizard-step-dot">1</div>
+        <div class="wizard-step-label">选择文件夹</div>
+      </div>
+      <div class="wizard-step" id="ws2">
+        <div class="wizard-step-dot">2</div>
+        <div class="wizard-step-label">扫描 & 预览</div>
+      </div>
+      <div class="wizard-step" id="ws3">
+        <div class="wizard-step-dot">3</div>
+        <div class="wizard-step-label">确认 & 写入</div>
+      </div>
+    </div>
+
+    <!-- Step 1: Select folder -->
+    <div class="wizard-panel active" id="panel1">
+      <div class="folder-drop" onclick="selectFolder()">
+        <div class="folder-drop-icon">📁</div>
+        <div class="folder-drop-text">点击选择项目文件夹</div>
+        <div class="folder-drop-hint">或将文件夹拖拽到此处</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" disabled id="btnStep1Next" onclick="goStep(2)">下一步</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Scan & Preview -->
+    <div class="wizard-panel" id="panel2">
+      <div class="scan-progress" id="scanProgress">
+        <div class="scan-bar-bg">
+          <div class="scan-bar-fill" id="scanBar"></div>
+        </div>
+        <div class="scan-status" id="scanStatus">准备扫描…</div>
+      </div>
+
+      <div class="tree-preview" id="treePreview" style="display:none">
+        <div class="tree-header">
+          <span class="tree-header-title">模块树预览</span>
+          <span class="tree-header-count" id="treeCount"></span>
+        </div>
+        <div class="tree-body" id="treeBody"></div>
+      </div>
+
+      <div class="btn-row" id="step2Btns" style="display:none">
+        <button class="btn btn-secondary" onclick="goStep(1)">上一步</button>
+        <button class="btn btn-primary" onclick="goStep(3)">确认结构，下一步</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirm & Write -->
+    <div class="wizard-panel" id="panel3">
+      <div class="confirm-summary">
+        <div class="confirm-stat">
+          <div class="confirm-stat-value" id="confirmModules">0</div>
+          <div class="confirm-stat-label">模块</div>
+        </div>
+        <div class="confirm-stat">
+          <div class="confirm-stat-value" id="confirmFiles">0</div>
+          <div class="confirm-stat-label">文件待创建</div>
+        </div>
+        <div class="confirm-stat">
+          <div class="confirm-stat-value" id="confirmSkip">0</div>
+          <div class="confirm-stat-label">文件夹跳过</div>
+        </div>
+      </div>
+
+      <div class="confirm-files">
+        <div class="confirm-files-header">将要创建的文件</div>
+        <div id="confirmFileList"></div>
+      </div>
+
+      <div class="btn-row" id="step3Btns">
+        <button class="btn btn-secondary" onclick="goStep(2)">上一步</button>
+        <button class="btn btn-success" id="btnWrite" onclick="startWrite()">写入元数据</button>
+      </div>
+
+      <div class="write-progress" id="writeProgress" style="display:none">
+        <div class="write-log" id="writeLog"></div>
+        <div class="btn-row" style="margin-top:20px">
+          <button class="btn btn-primary" onclick="openCanvas()">进入画布 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 3: NEW PROJECT ==================== -->
+<div class="screen" id="screenNew">
+  <div class="wizard">
+    <button class="wizard-back" onclick="showScreen('screenLanding')">← 返回</button>
+
+    <div class="wizard-header">
+      <div class="wizard-title">新建项目</div>
+      <div class="wizard-desc">创建一个全新的 ArchUI 项目，从空画布开始搭建你的模块体系。</div>
+    </div>
+
+    <div class="new-project-form">
+      <div class="form-group">
+        <label class="form-label">项目名称</label>
+        <input class="form-input" type="text" placeholder="例如：My SaaS App" id="newProjectName" value="My SaaS App">
+      </div>
+      <div class="form-group">
+        <label class="form-label">项目描述</label>
+        <div class="form-hint">一句话描述项目，会写入根模块的 description 字段</div>
+        <input class="form-input" type="text" placeholder="例如：一个面向开发者的 SaaS 产品" id="newProjectDesc" value="一个面向开发者的 SaaS 产品">
+      </div>
+      <div class="form-group">
+        <label class="form-label">项目路径</label>
+        <input class="form-input form-input-mono" type="text" placeholder="~/projects/my-project" id="newProjectPath" value="~/projects/my-saas-app">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showScreen('screenLanding')">取消</button>
+        <button class="btn btn-primary" onclick="createProject()">创建项目</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== SCREEN MANAGEMENT ====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screenImport') resetWizard();
+}
+
+// ==================== IMPORT WIZARD ====================
+let wizardStep = 1;
+let folderSelected = false;
+
+const mockTree = [
+  { name: 'my-saas-app', depth: 0, type: 'module', icon: '📁' },
+  { name: 'src', depth: 1, type: 'module', icon: '📁' },
+  { name: 'components', depth: 2, type: 'module', icon: '📁' },
+  { name: 'auth', depth: 3, type: 'module', icon: '📁' },
+  { name: 'LoginForm.tsx', depth: 4, type: 'resource', icon: '📄' },
+  { name: 'SignupForm.tsx', depth: 4, type: 'resource', icon: '📄' },
+  { name: 'dashboard', depth: 3, type: 'module', icon: '📁' },
+  { name: 'DashboardView.tsx', depth: 4, type: 'resource', icon: '📄' },
+  { name: 'StatCards.tsx', depth: 4, type: 'resource', icon: '📄' },
+  { name: 'settings', depth: 3, type: 'module', icon: '📁' },
+  { name: 'SettingsPage.tsx', depth: 4, type: 'resource', icon: '📄' },
+  { name: 'payment', depth: 3, type: 'module', icon: '📁' },
+  { name: 'Checkout.tsx', depth: 4, type: 'resource', icon: '📄' },
+  { name: 'lib', depth: 2, type: 'module', icon: '📁' },
+  { name: 'api.ts', depth: 3, type: 'resource', icon: '📄' },
+  { name: 'utils.ts', depth: 3, type: 'resource', icon: '📄' },
+  { name: 'pages', depth: 2, type: 'module', icon: '📁' },
+  { name: 'public', depth: 1, type: 'ignore', icon: '📁' },
+  { name: 'node_modules', depth: 1, type: 'ignore', icon: '📁' },
+  { name: 'package.json', depth: 1, type: 'resource', icon: '📄' },
+  { name: 'README.md', depth: 1, type: 'resource', icon: '📄' },
+];
+
+function resetWizard() {
+  wizardStep = 1;
+  folderSelected = false;
+  updateWizardUI();
+}
+
+function selectFolder() {
+  // Simulate folder selection
+  const drop = document.querySelector('.folder-drop');
+  drop.outerHTML = `
+    <div class="folder-selected">
+      <div class="folder-selected-icon">📂</div>
+      <div class="folder-selected-info">
+        <div class="folder-selected-name">my-saas-app</div>
+        <div class="folder-selected-path">~/projects/my-saas-app</div>
+      </div>
+      <div class="folder-selected-stats">
+        21 个文件夹<br>47 个文件
+      </div>
+    </div>
+  `;
+  folderSelected = true;
+  document.getElementById('btnStep1Next').disabled = false;
+}
+
+function goStep(step) {
+  wizardStep = step;
+  updateWizardUI();
+  if (step === 2) startScan();
+}
+
+function updateWizardUI() {
+  // Update step indicators
+  for (let i = 1; i <= 3; i++) {
+    const ws = document.getElementById('ws' + i);
+    ws.className = 'wizard-step';
+    if (i < wizardStep) ws.classList.add('done');
+    if (i === wizardStep) ws.classList.add('active');
+  }
+  // Update panels
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('panel' + i).classList.toggle('active', i === wizardStep);
+  }
+}
+
+function startScan() {
+  const progress = document.getElementById('scanProgress');
+  const bar = document.getElementById('scanBar');
+  const status = document.getElementById('scanStatus');
+  const tree = document.getElementById('treePreview');
+  const btns = document.getElementById('step2Btns');
+
+  progress.classList.add('scanning');
+  tree.style.display = 'none';
+  btns.style.display = 'none';
+  bar.style.width = '0%';
+
+  const steps = [
+    { pct: 15, msg: '扫描目录结构…' },
+    { pct: 35, msg: '识别文件夹层级…' },
+    { pct: 55, msg: '分析模块边界…' },
+    { pct: 75, msg: '检测 resources 文件…' },
+    { pct: 90, msg: '生成模块树建议…' },
+    { pct: 100, msg: '扫描完成' },
+  ];
+
+  steps.forEach((s, i) => {
+    setTimeout(() => {
+      bar.style.width = s.pct + '%';
+      status.textContent = s.msg;
+      if (i === steps.length - 1) {
+        progress.classList.remove('scanning');
+        setTimeout(() => renderTree(), 300);
+      }
+    }, 400 * (i + 1));
+  });
+}
+
+function renderTree() {
+  const tree = document.getElementById('treePreview');
+  const body = document.getElementById('treeBody');
+  const btns = document.getElementById('step2Btns');
+
+  const moduleCount = mockTree.filter(n => n.type === 'module').length;
+  document.getElementById('treeCount').textContent = `${moduleCount} 个模块识别`;
+
+  body.innerHTML = mockTree.map(node => {
+    const indent = '<span class="tree-node-indent"></span>'.repeat(node.depth);
+    const typeClass = node.type === 'module' ? 'type-module' : node.type === 'ignore' ? 'type-ignore' : 'type-resource';
+    const typeLabel = node.type === 'module' ? '模块' : node.type === 'ignore' ? '跳过' : '资源';
+    const action = node.type === 'module'
+      ? `<span class="tree-node-action" onclick="this.textContent=this.textContent==='设为资源'?'设为模块':'设为资源'">设为资源</span>`
+      : node.type === 'resource'
+      ? ''
+      : `<span class="tree-node-action" onclick="this.textContent=this.textContent==='取消跳过'?'跳过':'取消跳过'">取消跳过</span>`;
+
+    return `
+      <div class="tree-node">
+        ${indent}
+        <span class="tree-node-icon">${node.icon}</span>
+        <span class="tree-node-name" style="${node.type === 'ignore' ? 'color:var(--ink-faint);text-decoration:line-through' : ''}">${node.name}</span>
+        <span class="tree-node-type ${typeClass}">${typeLabel}</span>
+        ${action}
+      </div>
+    `;
+  }).join('');
+
+  tree.style.display = 'block';
+  btns.style.display = 'flex';
+
+  // Animate in
+  tree.style.opacity = '0';
+  tree.style.transform = 'translateY(8px)';
+  tree.style.transition = 'all 0.3s ease';
+  requestAnimationFrame(() => {
+    tree.style.opacity = '1';
+    tree.style.transform = 'translateY(0)';
+  });
+}
+
+function goToStep3() {
+  goStep(3);
+  populateConfirm();
+}
+
+// Auto-populate confirm when entering step 3
+const origGoStep = goStep;
+goStep = function(step) {
+  origGoStep(step);
+  if (step === 3) populateConfirm();
+};
+
+function populateConfirm() {
+  const modules = mockTree.filter(n => n.type === 'module');
+  const ignored = mockTree.filter(n => n.type === 'ignore');
+
+  document.getElementById('confirmModules').textContent = modules.length;
+  document.getElementById('confirmFiles').textContent = modules.length * 2; // README.md + index.yaml each
+  document.getElementById('confirmSkip').textContent = ignored.length;
+
+  const files = [];
+  modules.forEach(m => {
+    const path = m.name;
+    files.push({ action: 'create', path: `${path}/.archui/index.yaml` });
+    files.push({ action: 'create', path: `${path}/README.md (frontmatter)` });
+  });
+  ignored.forEach(m => {
+    files.push({ action: 'skip', path: `${m.name}/` });
+  });
+
+  document.getElementById('confirmFileList').innerHTML = files.map(f => `
+    <div class="confirm-file-row">
+      <span class="confirm-file-action ${f.action === 'create' ? 'action-create' : 'action-skip'}">${f.action === 'create' ? 'CREATE' : 'SKIP'}</span>
+      <span class="confirm-file-path">${f.path}</span>
+    </div>
+  `).join('');
+}
+
+function startWrite() {
+  document.getElementById('step3Btns').style.display = 'none';
+  const wp = document.getElementById('writeProgress');
+  const log = document.getElementById('writeLog');
+  wp.style.display = 'block';
+  log.innerHTML = '';
+
+  const modules = mockTree.filter(n => n.type === 'module');
+  const lines = [
+    { text: '<span class="dim">$</span> archui import ~/projects/my-saas-app --apply', delay: 0 },
+    { text: '', delay: 200 },
+  ];
+
+  modules.forEach((m, i) => {
+    lines.push({
+      text: `<span class="ok">✓</span> 创建 ${m.name}/.archui/index.yaml <span class="dim">(uuid: ${randomHex()})</span>`,
+      delay: 300 + i * 180
+    });
+    lines.push({
+      text: `<span class="ok">✓</span> 写入 ${m.name}/README.md <span class="dim">frontmatter</span>`,
+      delay: 390 + i * 180
+    });
+  });
+
+  lines.push({ text: '', delay: 300 + modules.length * 180 + 100 });
+  lines.push({
+    text: `<span class="accent">完成！</span> 已初始化 ${modules.length} 个模块，${modules.length * 2} 个文件`,
+    delay: 300 + modules.length * 180 + 300
+  });
+  lines.push({
+    text: '<span class="dim">$</span> archui validate . <span class="ok">✓ all checks passed</span>',
+    delay: 300 + modules.length * 180 + 600
+  });
+
+  lines.forEach(line => {
+    setTimeout(() => {
+      log.innerHTML += line.text + '\n';
+      log.scrollTop = log.scrollHeight;
+    }, line.delay);
+  });
+}
+
+function randomHex() {
+  return Array.from({ length: 8 }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
+}
+
+// ==================== NEW PROJECT ====================
+function createProject() {
+  const name = document.getElementById('newProjectName').value || 'Untitled';
+  alert(`项目「${name}」创建成功！即将进入画布…`);
+  openCanvas();
+}
+
+// ==================== OPEN CANVAS ====================
+function openCanvas() {
+  window.location.href = 'canvas-demo.html';
+}
+</script>
+
+</body>
+</html>

@@ -6,38 +6,57 @@ export interface LinkEdgeData {
   relation?: string
 }
 
+function relationColor(relation?: string): string {
+  switch (relation) {
+    case 'depends-on':
+      return 'var(--edge-depends-on)'
+    case 'implements':
+      return 'var(--edge-implements)'
+    case 'extends':
+      return 'var(--edge-extends)'
+    case 'references':
+      return 'var(--edge-references)'
+    case 'related-to':
+    default:
+      return 'var(--edge-related-to)'
+  }
+}
+
 export function LinkEdge({
   id,
   sourceX, sourceY, targetX, targetY,
   sourcePosition, targetPosition,
   data,
-  markerEnd,
   style,
 }: EdgeProps & { data?: LinkEdgeData }) {
+  const relation = data?.relation ?? ''
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX, sourceY, sourcePosition,
     targetX, targetY, targetPosition,
   })
+
+  const stroke = relationColor(data?.relation)
 
   return (
     <>
       <BaseEdge
         id={id}
         path={edgePath}
-        markerEnd={markerEnd}
-        style={{ stroke: 'var(--edge-color)', strokeWidth: 1.5, ...style }}
+        style={{ stroke, strokeWidth: 1.9, ...style }}
       />
-      {data?.relation && (
+
+      {relation && (
         <EdgeLabelRenderer>
           <div
             className={s.label}
             style={{
+              ['--edge-accent' as string]: stroke,
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-              pointerEvents: 'all',
-            }}
+              pointerEvents: 'none',
+            } as React.CSSProperties}
           >
-            {data.relation}
+            {relation}
           </div>
         </EdgeLabelRenderer>
       )}

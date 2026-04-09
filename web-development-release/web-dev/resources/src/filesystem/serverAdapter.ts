@@ -44,6 +44,19 @@ const serverAdapter: FsAdapter = {
   async mkdir(path: string): Promise<void> {
     await post('/api/fs/mkdir', { path })
   },
+
+  async copyDir(src: string, dest: string): Promise<void> {
+    const res = await fetch(`${BASE}/api/fs/copy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ src, dest }),
+    })
+    if (!res.ok) throw new Error(`copy failed: ${res.status}`)
+  },
+
+  async removeDir(path: string): Promise<void> {
+    await post('/api/fs/remove', { path })
+  },
 }
 
 export default serverAdapter

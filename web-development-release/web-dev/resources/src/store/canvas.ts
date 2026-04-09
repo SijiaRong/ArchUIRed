@@ -1,8 +1,8 @@
 import { create } from 'zustand'
-import type { ArchModule, FsAdapter, ModuleLink } from '../types'
+import type { ArchModule, FsAdapter, ModuleLink, ProjectIndexEntry } from '../types'
 import serverAdapter from '../filesystem/serverAdapter'
 import { createMemAdapter } from '../filesystem/memAdapter'
-import { loadModule, discoverRoot } from '../filesystem/loadProject'
+import { loadModule, discoverRoot, buildProjectIndex } from '../filesystem/loadProject'
 
 type FsMode = 'server' | 'fsa' | 'mem'
 
@@ -15,6 +15,7 @@ interface CanvasState {
   // Navigation
   breadcrumb: Array<{ path: string; name: string }>
   currentModule: ArchModule | null
+  projectIndex: Record<string, ProjectIndexEntry>
   loading: boolean
   error: string | null
 
@@ -34,7 +35,7 @@ function pickAdapter(mode: FsMode): FsAdapter {
   return serverAdapter
 }
 
-const initialMode = (import.meta.env.VITE_FS_MODE ?? 'server') as FsMode
+const initialMode = (import.meta.env.VITE_FS_MODE ?? 'fsa') as FsMode
 
 export const useCanvasStore = create<CanvasState>((set, get) => ({
   rootPath: null,
@@ -42,16 +43,25 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   fsMode: initialMode,
   breadcrumb: [],
   currentModule: null,
+  projectIndex: {},
   loading: false,
   error: null,
 
   async setAdapter(adapter, rootPath, fsMode) {
-    set({ adapter, rootPath, fsMode, breadcrumb: [], currentModule: null, error: null })
+    set({ adapter, rootPath, fsMode, breadcrumb: [], currentModule: null, projectIndex: {}, error: null })
     // Load the root module directly
     set({ loading: true })
     try {
-      const mod = await loadModule(adapter, rootPath)
-      set({ currentModule: mod, breadcrumb: [{ path: rootPath, name: mod.name }], loading: false })
+      const [mod, projectIndex] = await Promise.all([
+        loadModule(adapter, rootPath),
+        buildProjectIndex(adapter, rootPath),
+      ])
+      set({
+        currentModule: mod,
+        projectIndex,
+        breadcrumb: [{ path: rootPath, name: mod.name }],
+        loading: false,
+      })
     } catch (e) {
       set({ error: String(e), loading: false })
     }
@@ -81,16 +91,19 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   },
 
   async reload() {
-    const { currentModule, adapter } = get()
+    const { currentModule, adapter, rootPath } = get()
     if (!currentModule) return
     set({ loading: true })
     try {
-      const mod = await loadModule(adapter, currentModule.path)
+      const [mod, projectIndex] = await Promise.all([
+        loadModule(adapter, currentModule.path),
+        rootPath ? buildProjectIndex(adapter, rootPath) : Promise.resolve({}),
+      ])
       const { breadcrumb } = get()
       const newBreadcrumb = breadcrumb.map(b =>
         b.path === mod.path ? { ...b, name: mod.name } : b
       )
-      set({ currentModule: mod, breadcrumb: newBreadcrumb, loading: false })
+      set({ currentModule: mod, projectIndex, breadcrumb: newBreadcrumb, loading: false })
     } catch (e) {
       set({ error: String(e), loading: false })
     }
@@ -115,7 +128,7 @@ export function resolveLinkName(
 }
 
 /** Auto-detect root path when using server mode */
-export async function detectServerRoot(): Promise<string> {
+export async function detectServerRoot(): Promise<string | null> {
   try {
     const res = await fetch('/api/fs/list', {
       method: 'POST',
@@ -130,7 +143,7 @@ export async function detectServerRoot(): Promise<string> {
       if (hasArchui && hasReadme) return '.'
     }
   } catch { /* ignore */ }
-  return '.'
+  return null
 }
 
 export { discoverRoot }

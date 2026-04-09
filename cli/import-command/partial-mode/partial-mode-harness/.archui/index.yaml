@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: 43e96279
+submodules: {}
+links:
+  - uuid: 9e10465a
+    relation: implements
+    description: Test harness for the import command partial mode
