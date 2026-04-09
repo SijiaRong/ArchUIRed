@@ -2,22 +2,117 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as crypto from 'crypto'
 import * as readline from 'readline'
-import { fileURLToPath } from 'url'
 import { execSync, spawnSync, spawn } from 'child_process'
 import { parse as parseYaml } from 'yaml'
 import { runValidate } from './validate.js'
 
-import CLAUDE_CODE_DEPLOY_SH from './templates/claude-code-deploy.sh'
 import CONVERT_PROJECT_PROMPT from '../../../core/agent-config/command-templates/resources/convert-project.md'
 import RECONSTRUCT_PROJECT_PROMPT from '../../../core/agent-config/command-templates/resources/reconstruct-project.md'
 
-const CURSOR_DEPLOY_SH = ''
+// Skill templates - archui-spec
+import SKILL_ARCHUI_SPEC from '../../../core/agent-config/skill-templates/resources/archui-spec/SKILL.md'
+import SKILL_ARCHUI_SPEC_CLI_USAGE from '../../../core/agent-config/skill-templates/resources/archui-spec/cli-usage.md'
+
+// Skill templates - archui-docs
+import SKILL_ARCHUI_DOCS from '../../../core/agent-config/skill-templates/resources/archui-docs/SKILL.md'
+import SKILL_ARCHUI_DOCS_FRONTMATTER from '../../../core/agent-config/skill-templates/resources/archui-docs/frontmatter-rules.md'
+import SKILL_ARCHUI_DOCS_QUALITY from '../../../core/agent-config/skill-templates/resources/archui-docs/quality-checklist.md'
+import SKILL_ARCHUI_DOCS_READ_MODULE from '../../../core/agent-config/skill-templates/resources/archui-docs/read-module.md'
+import SKILL_ARCHUI_DOCS_READ_SPEC from '../../../core/agent-config/skill-templates/resources/archui-docs/read-spec.md'
+import SKILL_ARCHUI_DOCS_WRITE_HARNESS from '../../../core/agent-config/skill-templates/resources/archui-docs/write-harness.md'
+import SKILL_ARCHUI_DOCS_WRITE_INDEX from '../../../core/agent-config/skill-templates/resources/archui-docs/write-index.md'
+import SKILL_ARCHUI_DOCS_WRITE_LAYOUT from '../../../core/agent-config/skill-templates/resources/archui-docs/write-layout.md'
+import SKILL_ARCHUI_DOCS_WRITE_MEMORY from '../../../core/agent-config/skill-templates/resources/archui-docs/write-memory.md'
+import SKILL_ARCHUI_DOCS_WRITE_README from '../../../core/agent-config/skill-templates/resources/archui-docs/write-readme.md'
+import SKILL_ARCHUI_DOCS_WRITE_SPEC from '../../../core/agent-config/skill-templates/resources/archui-docs/write-spec.md'
+
+// Rule templates
+import RULE_COMMITS from '../../../core/agent-config/rule-templates/resources/archui-spec/commits/README.md'
+import RULE_CONTEXT_LOADING from '../../../core/agent-config/rule-templates/resources/archui-spec/context-loading/README.md'
+import RULE_RESOURCES from '../../../core/agent-config/rule-templates/resources/archui-spec/resources/README.md'
+import RULE_SPEC_FORMAT from '../../../core/agent-config/rule-templates/resources/archui-spec/spec-format/README.md'
+import RULE_SYNC from '../../../core/agent-config/rule-templates/resources/archui-spec/sync/README.md'
+import RULE_UUID from '../../../core/agent-config/rule-templates/resources/archui-spec/uuid/README.md'
+import RULE_VALIDATION from '../../../core/agent-config/rule-templates/resources/archui-spec/validation/README.md'
 
 const SKIP_DIRS = new Set([
   '.git', 'node_modules', '.archui', '.archui-backup', '.archui-temp',
   'dist', 'build', '.next', '__pycache__', 'vendor', '.cache',
   'coverage', 'out', 'tmp',
 ])
+
+// ---------------------------------------------------------------------------
+// Terminal spinner (zero-dep, ANSI-based)
+// ---------------------------------------------------------------------------
+
+class Spinner {
+  private frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+  private index = 0
+  private timer: ReturnType<typeof setInterval> | null = null
+  private startTime = 0
+  private message: string
+  private isTTY: boolean
+
+  constructor(message: string) {
+    this.message = message
+    this.isTTY = Boolean(process.stdout.isTTY)
+  }
+
+  get running(): boolean {
+    return this.timer !== null
+  }
+
+  start(): void {
+    if (this.timer) return
+    this.startTime = Date.now()
+    if (!this.isTTY) return
+    process.stdout.write('\x1B[?25l')
+    this.timer = setInterval(() => {
+      const frame = this.frames[this.index % this.frames.length]
+      const elapsed = this.formatElapsed()
+      process.stdout.write(`\r\x1B[2K${frame} ${this.message} ${elapsed}`)
+      this.index++
+    }, 80)
+  }
+
+  update(message: string): void {
+    this.message = message
+  }
+
+  stop(finalMessage?: string): void {
+    if (this.timer) {
+      clearInterval(this.timer)
+      this.timer = null
+    }
+    if (this.isTTY) {
+      process.stdout.write('\r\x1B[2K')
+      process.stdout.write('\x1B[?25h')
+    }
+    if (finalMessage) console.log(finalMessage)
+  }
+
+  clearLine(): void {
+    if (this.isTTY) process.stdout.write('\r\x1B[2K')
+  }
+
+  private formatElapsed(): string {
+    const seconds = Math.floor((Date.now() - this.startTime) / 1000)
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return m > 0 ? `(${m}m ${s}s)` : `(${s}s)`
+  }
+}
+
+function friendlyToolName(name: string): string {
+  const lower = name.toLowerCase()
+  if (lower.includes('read')) return 'Reading files'
+  if (lower.includes('write') || lower.includes('create')) return 'Writing files'
+  if (lower.includes('shell') || lower.includes('bash') || lower.includes('execute')) return 'Running command'
+  if (lower.includes('grep') || lower.includes('search') || lower.includes('glob')) return 'Searching'
+  if (lower.includes('edit') || lower.includes('strreplace')) return 'Editing files'
+  if (lower.includes('list')) return 'Listing files'
+  return `Calling ${name}`
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -27,7 +122,7 @@ interface AgentInfo {
   name: string
   detected: boolean
   installed: boolean
-  deployScript: string
+  flavor: 'claude' | 'cursor' | null
   sentinelCheck: (targetPath: string) => boolean
 }
 
@@ -265,6 +360,61 @@ async function promptMultiSelect(
 }
 
 // ---------------------------------------------------------------------------
+// Agent plugin deploy (pure JS, no shell scripts)
+// ---------------------------------------------------------------------------
+
+function writeTemplate(basePath: string, relativePath: string, content: string): void {
+  const fullPath = path.join(basePath, relativePath)
+  fs.mkdirSync(path.dirname(fullPath), { recursive: true })
+  fs.writeFileSync(fullPath, content, 'utf8')
+}
+
+function deployAgentPlugin(targetPath: string, flavor: 'claude' | 'cursor'): void {
+  const prefix = flavor === 'claude' ? '.claude' : '.cursor'
+  const dest = path.join(targetPath, prefix, 'skills')
+
+  // archui-spec skill
+  writeTemplate(dest, 'archui-spec/SKILL.md', SKILL_ARCHUI_SPEC)
+  writeTemplate(dest, 'archui-spec/cli-usage.md', SKILL_ARCHUI_SPEC_CLI_USAGE)
+
+  // archui-spec rules
+  const rules: Record<string, string> = {
+    'commits': RULE_COMMITS,
+    'context-loading': RULE_CONTEXT_LOADING,
+    'resources': RULE_RESOURCES,
+    'spec-format': RULE_SPEC_FORMAT,
+    'sync': RULE_SYNC,
+    'uuid': RULE_UUID,
+    'validation': RULE_VALIDATION,
+  }
+  for (const [dir, content] of Object.entries(rules)) {
+    writeTemplate(dest, `archui-spec/rules/${dir}/README.md`, content)
+  }
+
+  // archui-docs skill
+  const docs: Record<string, string> = {
+    'SKILL.md': SKILL_ARCHUI_DOCS,
+    'frontmatter-rules.md': SKILL_ARCHUI_DOCS_FRONTMATTER,
+    'quality-checklist.md': SKILL_ARCHUI_DOCS_QUALITY,
+    'read-module.md': SKILL_ARCHUI_DOCS_READ_MODULE,
+    'read-spec.md': SKILL_ARCHUI_DOCS_READ_SPEC,
+    'write-harness.md': SKILL_ARCHUI_DOCS_WRITE_HARNESS,
+    'write-index.md': SKILL_ARCHUI_DOCS_WRITE_INDEX,
+    'write-layout.md': SKILL_ARCHUI_DOCS_WRITE_LAYOUT,
+    'write-memory.md': SKILL_ARCHUI_DOCS_WRITE_MEMORY,
+    'write-readme.md': SKILL_ARCHUI_DOCS_WRITE_README,
+    'write-spec.md': SKILL_ARCHUI_DOCS_WRITE_SPEC,
+  }
+  for (const [name, content] of Object.entries(docs)) {
+    writeTemplate(dest, `archui-docs/${name}`, content)
+  }
+
+  // commands
+  writeTemplate(dest, 'archui-spec/commands/convert-project.md', CONVERT_PROJECT_PROMPT)
+  writeTemplate(dest, 'archui-spec/commands/reconstruct-project.md', RECONSTRUCT_PROJECT_PROMPT)
+}
+
+// ---------------------------------------------------------------------------
 // Agent setup phase
 // ---------------------------------------------------------------------------
 
@@ -276,28 +426,28 @@ async function runAgentSetup(targetPath: string): Promise<void> {
       name: 'Cursor',
       detected: false,
       installed: false,
-      deployScript: CURSOR_DEPLOY_SH,
+      flavor: 'cursor',
       sentinelCheck: checkCursorInstalled,
     },
     {
       name: 'Claude Code',
       detected: false,
       installed: false,
-      deployScript: CLAUDE_CODE_DEPLOY_SH,
+      flavor: 'claude',
       sentinelCheck: checkClaudeCodeInstalled,
     },
     {
       name: 'Codex',
       detected: false,
       installed: false,
-      deployScript: '',
+      flavor: null,
       sentinelCheck: checkCodexInstalled,
     },
     {
       name: 'Copilot',
       detected: false,
       installed: false,
-      deployScript: '',
+      flavor: null,
       sentinelCheck: checkCopilotInstalled,
     },
   ]
@@ -350,20 +500,14 @@ async function runAgentSetup(targetPath: string): Promise<void> {
     const agent = agents.find((a) => a.name === agentName)
     if (!agent) continue
 
-    if (!agent.deployScript) {
-      console.log(`  ⚠ No deploy script for ${agent.name}, skipping`)
+    if (!agent.flavor) {
+      console.log(`  ⚠ No deploy support for ${agent.name}, skipping`)
       continue
     }
 
     try {
       console.log(`  → Installing ArchUI plugin for ${agent.name}...`)
-      const repoRoot = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../..')
-      execSync('bash -s', {
-        input: agent.deployScript,
-        cwd: targetPath,
-        stdio: ['pipe', 'inherit', 'inherit'],
-        env: { ...process.env, REPO_ROOT: repoRoot },
-      })
+      deployAgentPlugin(targetPath, agent.flavor)
       console.log(`  ✓ ${agent.name} plugin installed`)
     } catch (err) {
       console.log(`  ⚠ Failed to install ${agent.name} plugin (non-fatal): ${(err as Error).message}`)
@@ -441,14 +585,93 @@ function countFiles(dir: string): number {
 }
 
 // ---------------------------------------------------------------------------
-// Conversion agent
+// Agent invocation with progress spinner
 // ---------------------------------------------------------------------------
+
+function spawnClaudeWithProgress(
+  prompt: string,
+  cwd: string,
+  label: string,
+): Promise<number> {
+  const spinner = new Spinner(`${label}: Agent starting...`)
+  spinner.start()
+
+  return new Promise<number>((resolve) => {
+    const child = spawn('claude', [
+      '--dangerously-skip-permissions',
+      '--verbose',
+      '--add-dir', cwd,
+      '-p', prompt,
+      '--output-format', 'stream-json',
+    ], {
+      cwd,
+      stdio: ['inherit', 'pipe', 'inherit'],
+      shell: false,
+    })
+
+    let buffer = ''
+
+    function processEvent(event: any): void {
+      if (event.type === 'assistant' && Array.isArray(event.message?.content)) {
+        for (const block of event.message.content) {
+          if (block.type === 'text') {
+            spinner.clearLine()
+            process.stdout.write(block.text)
+            spinner.update(`${label}: Agent thinking...`)
+          } else if (block.type === 'tool_use') {
+            spinner.update(`${label}: ${friendlyToolName(block.name)}...`)
+          }
+        }
+      } else if (event.type === 'result') {
+        const cost = event.cost_usd != null ? ` ($${Number(event.cost_usd).toFixed(4)})` : ''
+        spinner.stop(`✓ ${label} complete${cost}`)
+      }
+    }
+
+    function processLines(lines: string[]): void {
+      for (const line of lines) {
+        const trimmed = line.trim()
+        if (!trimmed) continue
+        try {
+          processEvent(JSON.parse(trimmed))
+        } catch {
+          spinner.clearLine()
+          process.stdout.write(line + '\n')
+        }
+      }
+    }
+
+    child.stdout?.on('data', (chunk: Buffer) => {
+      buffer += chunk.toString()
+      const lines = buffer.split('\n')
+      buffer = lines.pop() ?? ''
+      processLines(lines)
+    })
+
+    child.stdout?.on('end', () => {
+      if (buffer.trim()) {
+        processLines([buffer])
+        buffer = ''
+      }
+    })
+
+    child.on('close', (code) => {
+      spinner.stop()
+      resolve(code ?? 0)
+    })
+
+    child.on('error', (err) => {
+      spinner.stop()
+      console.error(`Agent CLI error: ${err.message}`)
+      resolve(1)
+    })
+  })
+}
 
 async function runConversionAgent(rootPath: string): Promise<number> {
   let prompt = CONVERT_PROJECT_PROMPT
   prompt = prompt.replace(/\{\{project\.root\}\}/g, rootPath)
 
-  // Detect agent CLI
   const hasClaudeCode = commandExists('claude')
   const hasCodex = detectCodex()
 
@@ -459,74 +682,19 @@ async function runConversionAgent(rootPath: string): Promise<number> {
     return 0
   }
 
+  if (hasClaudeCode) {
+    console.log('\nInvoking Claude Code (autonomous mode)...')
+    return spawnClaudeWithProgress(prompt, rootPath, 'Conversion')
+  }
+
+  console.log('\nInvoking Codex (autonomous mode)...')
   return new Promise<number>((resolve) => {
-    let child: ReturnType<typeof spawn>
-
-    if (hasClaudeCode) {
-      console.log('\nInvoking Claude Code (autonomous mode)...')
-      child = spawn('claude', [
-        '--dangerously-skip-permissions',
-        '--verbose',
-        '--add-dir', rootPath,
-        '-p', prompt,
-        '--output-format', 'stream-json',
-      ], {
-        cwd: rootPath,
-        stdio: ['inherit', 'pipe', 'inherit'],
-        shell: false,
-      })
-
-      // Parse NDJSON stream and forward only assistant text blocks to stdout
-      let buffer = ''
-      child.stdout?.on('data', (chunk: Buffer) => {
-        buffer += chunk.toString()
-        const lines = buffer.split('\n')
-        buffer = lines.pop() ?? ''
-        for (const line of lines) {
-          const trimmed = line.trim()
-          if (!trimmed) continue
-          try {
-            const event = JSON.parse(trimmed)
-            if (event.type === 'assistant' && Array.isArray(event.message?.content)) {
-              for (const block of event.message.content) {
-                if (block.type === 'text') process.stdout.write(block.text)
-              }
-            }
-          } catch {
-            // Non-JSON line — forward as-is
-            process.stdout.write(line + '\n')
-          }
-        }
-      })
-
-      child.stdout?.on('end', () => {
-        // Flush any remaining partial line in the buffer
-        if (buffer.trim()) {
-          try {
-            const event = JSON.parse(buffer.trim())
-            if (event.type === 'assistant' && Array.isArray(event.message?.content)) {
-              for (const block of event.message.content) {
-                if (block.type === 'text') process.stdout.write(block.text)
-              }
-            }
-          } catch {
-            process.stdout.write(buffer + '\n')
-          }
-        }
-      })
-    } else {
-      console.log('\nInvoking Codex (autonomous mode)...')
-      child = spawn('codex', ['--full-auto', prompt], {
-        cwd: rootPath,
-        stdio: 'inherit',
-        shell: false,
-      })
-    }
-
-    child.on('close', (code) => {
-      resolve(code ?? 0)
+    const child = spawn('codex', ['--full-auto', prompt], {
+      cwd: rootPath,
+      stdio: 'inherit',
+      shell: false,
     })
-
+    child.on('close', (code) => resolve(code ?? 0))
     child.on('error', (err) => {
       console.error(`Agent CLI error: ${err.message}`)
       resolve(1)
@@ -552,71 +720,19 @@ async function runReconstructAgent(rootPath: string): Promise<number> {
     return 0
   }
 
+  if (hasClaudeCode) {
+    console.log('\nInvoking Claude Code for reconstruction (autonomous mode)...')
+    return spawnClaudeWithProgress(prompt, rootPath, 'Reconstruction')
+  }
+
+  console.log('\nInvoking Codex for reconstruction (autonomous mode)...')
   return new Promise<number>((resolve) => {
-    let child: ReturnType<typeof spawn>
-
-    if (hasClaudeCode) {
-      console.log('\nInvoking Claude Code for reconstruction (autonomous mode)...')
-      child = spawn('claude', [
-        '--dangerously-skip-permissions',
-        '--verbose',
-        '--add-dir', rootPath,
-        '-p', prompt,
-        '--output-format', 'stream-json',
-      ], {
-        cwd: rootPath,
-        stdio: ['inherit', 'pipe', 'inherit'],
-        shell: false,
-      })
-
-      let buffer = ''
-      child.stdout?.on('data', (chunk: Buffer) => {
-        buffer += chunk.toString()
-        const lines = buffer.split('\n')
-        buffer = lines.pop() ?? ''
-        for (const line of lines) {
-          const trimmed = line.trim()
-          if (!trimmed) continue
-          try {
-            const event = JSON.parse(trimmed)
-            if (event.type === 'assistant' && Array.isArray(event.message?.content)) {
-              for (const block of event.message.content) {
-                if (block.type === 'text') process.stdout.write(block.text)
-              }
-            }
-          } catch {
-            process.stdout.write(line + '\n')
-          }
-        }
-      })
-
-      child.stdout?.on('end', () => {
-        if (buffer.trim()) {
-          try {
-            const event = JSON.parse(buffer.trim())
-            if (event.type === 'assistant' && Array.isArray(event.message?.content)) {
-              for (const block of event.message.content) {
-                if (block.type === 'text') process.stdout.write(block.text)
-              }
-            }
-          } catch {
-            process.stdout.write(buffer + '\n')
-          }
-        }
-      })
-    } else {
-      console.log('\nInvoking Codex for reconstruction (autonomous mode)...')
-      child = spawn('codex', ['--full-auto', prompt], {
-        cwd: rootPath,
-        stdio: 'inherit',
-        shell: false,
-      })
-    }
-
-    child.on('close', (code) => {
-      resolve(code ?? 0)
+    const child = spawn('codex', ['--full-auto', prompt], {
+      cwd: rootPath,
+      stdio: 'inherit',
+      shell: false,
     })
-
+    child.on('close', (code) => resolve(code ?? 0))
     child.on('error', (err) => {
       console.error(`Agent CLI error: ${err.message}`)
       resolve(1)

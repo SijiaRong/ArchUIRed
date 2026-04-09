@@ -1,16 +1,37 @@
 {
-  "name": "archui",
+  "name": "@jerryrsj001/archui",
   "version": "0.2.0",
   "description": "ArchUI CLI — filesystem validator, index manager, and sync tool",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicekid1/ArchUI.git"
+  },
+  "homepage": "https://github.com/nicekid1/ArchUI#readme",
+  "keywords": [
+    "archui",
+    "architecture",
+    "knowledge-management",
+    "cli",
+    "validator",
+    "filesystem"
+  ],
   "type": "module",
   "bin": {
-    "archui": "./dist/index.js"
+    "archui": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
     "build": "node esbuild.config.js",
     "dev": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest --passWithNoTests"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --passWithNoTests",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "commander": "^12.1.0",
@@ -28,12 +49,19 @@
   "jest": {
     "preset": "ts-jest/presets/default-esm",
     "testEnvironment": "node",
-    "extensionsToTreatAsEsm": [".ts"],
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
     "moduleNameMapper": {
       "^(\\.{1,2}/.*)\\.js$": "$1"
     },
     "transform": {
-      "^.+\\.tsx?$": ["ts-jest", { "useESM": true }]
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
     }
   }
 }
