@@ -11,9 +11,10 @@ submodules:
   agent-orchestration: 5e2a8f4b
   release-coordination: 6b3d7f1e
   operations: 4d9a2c6f
-  ArchUIRed-harness: ff000001
+  ArchUI-harness: ff000001
   hackathon: aa100001
   wiki: bb100001
+  login-module: 1754d6e9
 links:
   - uuid: aa100001
     relation: related-to

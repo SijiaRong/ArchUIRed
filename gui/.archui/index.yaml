@@ -13,3 +13,7 @@ links:
     description: The GUI renders and navigates the module graph defined by core —
       every visual node corresponds to a core-conformant module folder with a
       README.md.
+  - uuid: aa100001
+    relation: related-to
+  - uuid: aa100001
+    relation: related-to
