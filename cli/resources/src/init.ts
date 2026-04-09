@@ -485,18 +485,19 @@ async function runAgentSetup(targetPath: string): Promise<void> {
     return
   }
 
-  const choices = detectedNotInstalled.map((a) => ({
-    label: a.name,
-    value: a.name,
-    selected: false,
-  }))
+  // In non-interactive mode, auto-install all detected agents
+  const toInstall: string[] = isInteractiveTTY()
+    ? await promptMultiSelect(
+        '\nInstall ArchUI plugin for (enter numbers, comma-separated, or Enter to skip):',
+        detectedNotInstalled.map((a) => ({ label: a.name, value: a.name, selected: false }))
+      )
+    : detectedNotInstalled.filter((a) => a.flavor).map((a) => a.name)
 
-  const selected = await promptMultiSelect(
-    '\nInstall ArchUI plugin for (enter numbers, comma-separated, or Enter to skip):',
-    choices
-  )
+  if (!isInteractiveTTY() && toInstall.length > 0) {
+    console.log(`\nAuto-installing ArchUI plugin for detected agents (non-interactive mode)...`)
+  }
 
-  for (const agentName of selected) {
+  for (const agentName of toInstall) {
     const agent = agents.find((a) => a.name === agentName)
     if (!agent) continue
 
@@ -776,11 +777,10 @@ export async function runInit(targetPath: string, options: InitOptions): Promise
   }
 
   // 2. Agent setup phase
-  if (!options.skipAgents && isInteractiveTTY()) {
+  if (!options.skipAgents) {
     try {
       await runAgentSetup(resolvedPath)
     } catch (err) {
-      // Agent setup is never fatal
       console.log(`\nAgent setup encountered an error (non-fatal): ${(err as Error).message}`)
     }
     console.log()

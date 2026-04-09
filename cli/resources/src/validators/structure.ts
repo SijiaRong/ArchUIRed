@@ -3,7 +3,7 @@ import path from 'path'
 import { parse as parseYaml } from 'yaml'
 import type { Violation, IndexYaml } from '../types.js'
 
-const ROOT_HIDDEN_WHITELIST = new Set(['.claude', '.cursor', '.aider', '.windsurf', '.github', '.vscode', '.git'])
+const ROOT_HIDDEN_WHITELIST = new Set(['.claude', '.cursor', '.aider', '.windsurf', '.github', '.vscode', '.git', '.archui-backup', '.archui-temp'])
 
 export function validateStructure(rootPath: string, isRoot = true): Violation[] {
   const violations: Violation[] = []

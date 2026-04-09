@@ -1,6 +1,6 @@
 {
   "name": "@jerryrsj001/archui",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "ArchUI CLI — filesystem validator, index manager, and sync tool",
   "license": "MIT",
   "repository": {
