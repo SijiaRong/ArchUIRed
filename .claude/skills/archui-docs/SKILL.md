@@ -1,10 +1,10 @@
 # ArchUI Identity Document Authoring & Reading
 
-Load this skill when **creating, modifying, or reading** any ArchUI identity document (`SPEC.md`, `HARNESS.md`, `MEMORY.md`, `SKILL.md`, `README.md`).
+Load this skill when **creating, modifying, or reading** any ArchUI identity document (`SPEC.md`, `HARNESS.md`, `MEMORY.md`, `SKILL.md`, `README.md`) or any `.archui/` metadata file (`index.yaml`, `layout.yaml`).
 
 This skill uses **progressive disclosure** — the table below dispatches you to the exact sub-document you need. Load only what your task requires.
 
-This skill complements `archui-spec` (structural workflow). `archui-spec` covers *how to create/move/link modules*; this skill covers *how to write and read the prose inside them*.
+This skill complements `archui-spec` (structural workflow). `archui-spec` covers *filesystem structure rules — what folders must exist, what files go inside `.archui/`, and how to use the CLI*. This skill covers *how to write and read the content of identity documents and `.archui/` metadata files*.
 
 ---
 
@@ -19,6 +19,8 @@ This skill complements `archui-spec` (structural workflow). `archui-spec` covers
 | Writing or enriching a **README.md** | [write-readme.md](write-readme.md) |
 | Reading any single module or scanning a module tree | [read-module.md](read-module.md) |
 | Understanding frontmatter rules or the `description` field | [frontmatter-rules.md](frontmatter-rules.md) |
+| Writing or reading a **`.archui/index.yaml`** | [write-index.md](write-index.md) |
+| Writing or reading a **`.archui/layout.yaml`** | [write-layout.md](write-layout.md) |
 | Checking a document before declaring it complete | [quality-checklist.md](quality-checklist.md) |
 
 ---
