@@ -6,7 +6,7 @@ provenance:
     - gui/design-system/visual-orchestration/README.md
 copy:
   intro:
-    kicker: Deep Honey Workspace
+    kicker: ''
     emptyTitle: Open a workspace
     emptyDescription: Pick a local ArchUI project to step into the graph.
   toolbar:
@@ -23,8 +23,8 @@ copy:
   breadcrumb:
     ariaLabel: Breadcrumb
   selectionHint:
-    title: Click a card to inspect it.
-    body: Double-click any visible module to drill into that workspace.
+    title: Inspect on click
+    body: Drill in on double-click
   loading: Loading workspace...
   emptyState:
     title: No submodules yet
@@ -36,6 +36,14 @@ copy:
     openModule: Open module
     newChildModule: New child module
     reloadWorkspace: Reload workspace
+    copyModule: Copy module
+    pasteModule: Paste module
+    copiedToClipboard: Copied to clipboard
+    nothingToPaste: Nothing to paste
+    pasteFailed: Paste failed
+    deleteModule: Delete module
+    deleteConfirm: Delete this module? This cannot be undone.
+    deleteFailed: Delete failed
   commands:
     newChildModule: New child module
     reloadWorkspace: Reload workspace

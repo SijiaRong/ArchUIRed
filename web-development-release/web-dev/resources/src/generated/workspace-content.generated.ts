@@ -1,7 +1,8 @@
 /**
  * AUTO-GENERATED FILE. DO NOT EDIT.
  * Regenerate with: npm run sync:design-docs
- * Document snapshot curated_at: 2026-04-09T11:00:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00 * Sources:
+ * Document snapshot curated_at: 2026-04-09T11:00:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T21:35:00+08:00
+ * Sources:
  * - gui/screens/landing/web-copy.yaml
  * - gui/screens/canvas/web-copy.yaml
  * - gui/components/detail-panel/web-copy.yaml
@@ -63,7 +64,7 @@ export const workspaceContent = {
   },
   "canvas": {
     "intro": {
-      "kicker": "Deep Honey Workspace",
+      "kicker": "",
       "emptyTitle": "Open a workspace",
       "emptyDescription": "Pick a local ArchUI project to step into the graph."
     },
@@ -85,8 +86,8 @@ export const workspaceContent = {
       "ariaLabel": "Breadcrumb"
     },
     "selectionHint": {
-      "title": "Click a card to inspect it.",
-      "body": "Double-click any visible module to drill into that workspace."
+      "title": "Inspect on click",
+      "body": "Drill in on double-click"
     },
     "loading": "Loading workspace...",
     "emptyState": {

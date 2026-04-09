@@ -499,7 +499,7 @@ function CanvasPageInner({}: CanvasPageProps) {
       <Breadcrumb />
       <div className={s.canvas} style={canvasLayoutVars}>
         <div className={s.canvasIntro}>
-          <div className={s.kicker}>{canvasContent.intro.kicker}</div>
+          {canvasContent.intro.kicker ? <div className={s.kicker}>{canvasContent.intro.kicker}</div> : null}
           <h1>{workspaceTitle}</h1>
           <p>{workspaceDescription}</p>
         </div>
@@ -550,6 +550,7 @@ function CanvasPageInner({}: CanvasPageProps) {
         {!selectedEntry && (
           <div className={s.selectionHint}>
             <strong>{canvasContent.selectionHint.title}</strong>
+            <span className={s.selectionHintDivider} aria-hidden="true">·</span>
             <span>{canvasContent.selectionHint.body}</span>
           </div>
         )}
