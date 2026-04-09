@@ -20,6 +20,7 @@ const DESIGN_COPY_SOURCE_PATHS = [
   'gui/screens/canvas/web-copy.yaml',
   'gui/components/detail-panel/web-copy.yaml',
   'gui/components/primary-module-card/web-copy.yaml',
+  'gui/design-system/visual-orchestration/web-brand.yaml',
 ]
 
 function toPosix(value) {
@@ -63,7 +64,7 @@ function buildDesignCopyMatchers() {
   const literals = []
   for (const sourcePath of DESIGN_COPY_SOURCE_PATHS) {
     const document = readYamlFromRepo(sourcePath)
-    collectStringValues(document.copy, literals)
+    collectStringValues(document.copy ?? document.brand, literals)
   }
 
   return [...new Set(literals.filter(literal => literal.length >= 3))].map(literal => ({

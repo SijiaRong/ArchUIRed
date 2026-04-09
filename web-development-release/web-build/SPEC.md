@@ -36,6 +36,7 @@ web-development-release/web-dev:
   - src/design-tokens.generated.css
   - src/generated/workspace-content.generated.ts
   - src/generated/workspace-layout.generated.ts
+  - src/generated/brand-assets.generated.ts
   - vite.config.ts
   - tsconfig.json
   - package.json

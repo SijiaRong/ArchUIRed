@@ -17,7 +17,9 @@ web-development-release/web-dev:
   - src/design-tokens.generated.css
   - src/generated/workspace-content.generated.ts
   - src/generated/workspace-layout.generated.ts
+  - src/generated/brand-assets.generated.ts
   - src/global.css
+  - src/assets/brand/archui-a-mark.svg
   - src/assets/fonts/lexend/Lexend-Regular.woff2
   - src/assets/fonts/lexend/Lexend-Medium.woff2
   - src/assets/fonts/lexend/Lexend-SemiBold.woff2

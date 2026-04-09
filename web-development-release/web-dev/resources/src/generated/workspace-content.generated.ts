@@ -1,16 +1,47 @@
 /**
  * AUTO-GENERATED FILE. DO NOT EDIT.
  * Regenerate with: npm run sync:design-docs
- * Document snapshot curated_at: 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00
+ * Document snapshot curated_at: 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T03:10:00+08:00, 2026-04-09T21:35:00+08:00
  * Sources:
  * - gui/screens/landing/web-copy.yaml
  * - gui/screens/canvas/web-copy.yaml
  * - gui/components/detail-panel/web-copy.yaml
  * - gui/components/primary-module-card/web-copy.yaml
  * - gui/components/link-renderer/web-semantics.yaml
+ * - gui/design-system/visual-orchestration/web-brand.yaml
  */
 
 export const workspaceContent = {
+  "brand": {
+    "wordmark": "ArchUI",
+    "logoMark": {
+      "assetKey": "archui-a-mark",
+      "assetFile": "archui-a-mark.svg",
+      "alt": "ArchUI A logo mark",
+      "treatment": "Deep Honey single-color",
+      "glyphKind": "custom-vector-mark",
+      "geometry": {
+        "silhouette": "rounded-modular",
+        "lean": "forward",
+        "source": "vector-asset",
+        "notes": "Soft rounded strokes with a motion-forward apex cap. This is a custom SVG mark, not a font glyph."
+      },
+      "sizes": {
+        "sm": {
+          "width": 28,
+          "height": 28
+        },
+        "md": {
+          "width": 48,
+          "height": 48
+        },
+        "hero": {
+          "width": 72,
+          "height": 72
+        }
+      }
+    }
+  },
   "landing": {
     "brandWordmark": "ArchUI",
     "subtitle": "Canvas-first knowledge workspace for humans and AI agents.",

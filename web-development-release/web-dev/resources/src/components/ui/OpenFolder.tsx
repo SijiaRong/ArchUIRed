@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { openDirectory } from '../../filesystem/fsa'
 import serverAdapter from '../../filesystem/serverAdapter'
+import { brandAssetUrls } from '../../generated/brand-assets.generated'
 import { workspaceContent } from '../../generated/workspace-content.generated'
 import { useCanvasStore } from '../../store/canvas'
 import s from './OpenFolder.module.css'
@@ -11,7 +12,10 @@ interface OpenFolderProps {
 }
 
 export function OpenFolder({ theme, onToggleTheme }: OpenFolderProps) {
+  const brand = workspaceContent.brand
   const landingContent = workspaceContent.landing
+  const logoMark = brand.logoMark
+  const logoMarkUrl = brandAssetUrls[logoMark.assetKey]
   const setAdapter = useCanvasStore(s => s.setAdapter)
   const [serverUrl, setServerUrl] = useState(
     import.meta.env.VITE_SERVER_URL ?? landingContent.actions.serverUrlPlaceholder,
@@ -39,7 +43,13 @@ export function OpenFolder({ theme, onToggleTheme }: OpenFolderProps) {
       </button>
 
       <div className={s.hero}>
-        <div className={s.logoMark} />
+        <img
+          className={s.logoMark}
+          src={logoMarkUrl}
+          alt={logoMark.alt}
+          width={logoMark.sizes.hero.width}
+          height={logoMark.sizes.hero.height}
+        />
         <div className={s.logo}>{landingContent.brandWordmark}</div>
         <div className={s.subtitle}>{landingContent.subtitle}</div>
       </div>

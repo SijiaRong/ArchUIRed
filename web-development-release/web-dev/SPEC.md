@@ -121,6 +121,7 @@ Screen copy, panel labels, and default workspace layout constants also come from
 - `gui/components/primary-module-card/web-copy.yaml`
 - `gui/components/link-renderer/web-semantics.yaml`
 - `gui/design-system/visual-orchestration/web-layout.yaml`
+- `gui/design-system/visual-orchestration/web-brand.yaml`
 
 Generate their web-facing artifacts with:
 
@@ -133,8 +134,11 @@ The shared SPA consumes only:
 - `resources/src/design-tokens.generated.css`
 - `resources/src/generated/workspace-content.generated.ts`
 - `resources/src/generated/workspace-layout.generated.ts`
+- `resources/src/generated/brand-assets.generated.ts`
 
 Use `npm run verify:design-sync` in CI or before review to ensure the generated artifacts match the checked-in document sources. Component code may keep runtime algorithms, navigation wiring, and data loading logic, but it must not hardcode visual token values, workspace copy, or default orchestration constants.
+
+Brand assets follow the same rule. The landing/header `A` mark is defined in `web-brand.yaml`, previewed in Figma, emitted as a repo-owned SVG asset, and surfaced to React through generated brand metadata and asset registries. Components must not hardcode ad hoc logo paths or redraw the mark inline.
 
 ## Visual Orchestration Contract
 

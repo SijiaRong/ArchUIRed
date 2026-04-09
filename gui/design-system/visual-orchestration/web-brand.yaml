@@ -1,0 +1,29 @@
+provenance:
+  curatedAt: 2026-04-09T21:35:00+08:00
+  command: npm run sync:design-docs
+  sources:
+    - gui/design-system/visual-orchestration/README.md
+    - gui/screens/landing/SPEC.md
+brand:
+  wordmark: ArchUI
+  logoMark:
+    assetKey: archui-a-mark
+    assetFile: archui-a-mark.svg
+    alt: ArchUI A logo mark
+    treatment: Deep Honey single-color
+    glyphKind: custom-vector-mark
+    geometry:
+      silhouette: rounded-modular
+      lean: forward
+      source: vector-asset
+      notes: Soft rounded strokes with a motion-forward apex cap. This is a custom SVG mark, not a font glyph.
+    sizes:
+      sm:
+        width: 28
+        height: 28
+      md:
+        width: 48
+        height: 48
+      hero:
+        width: 72
+        height: 72

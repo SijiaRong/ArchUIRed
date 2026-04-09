@@ -7,6 +7,7 @@ const generatedPaths = [
   'src/design-tokens.generated.css',
   'src/generated/workspace-content.generated.ts',
   'src/generated/workspace-layout.generated.ts',
+  'src/generated/brand-assets.generated.ts',
 ]
 
 function runNodeScript(scriptName) {

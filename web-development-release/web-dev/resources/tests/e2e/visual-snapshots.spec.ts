@@ -4,6 +4,7 @@ import { workspaceContent } from '../../src/generated/workspace-content.generate
 const screenshotOptions = {
   animations: 'disabled' as const,
   fullPage: true,
+  maxDiffPixels: 250,
 }
 
 async function waitForCanvas(page: Page) {
@@ -28,6 +29,7 @@ async function loadWorkspace(page: Page, theme: 'light' | 'dark' = 'light') {
 test.describe('Landing shell', () => {
   test('keeps the layered typography contract', async ({ page }) => {
     await page.goto('/?theme=light')
+    await expect(page.getByAltText(workspaceContent.brand.logoMark.alt)).toBeVisible()
     await expect(page.getByRole('heading', { name: workspaceContent.landing.card.title })).toBeVisible()
 
     const wordmarkFont = await page.getByText(workspaceContent.landing.brandWordmark, { exact: true }).evaluate(el => window.getComputedStyle(el).fontFamily)

@@ -25,7 +25,9 @@ Reverse-engineering a reference UI like ComfyUI should produce a visual delta, n
 
 ## Relationship To Figma And Code
 
-The workflow is: reference evidence -> visual orchestration decision -> Figma update -> document-layer export -> platform implementation -> screenshot verification. For the web wave, the committed orchestration export is `web-layout.yaml`, which is consumed by `npm run sync:design-docs` and rendered into generated layout artifacts. Web and Electron share the same SPA implementation wave; Electron-specific work begins only where the native shell changes behavior rather than presentation.
+The workflow is: reference evidence -> visual orchestration decision -> Figma update -> document-layer export -> platform implementation -> screenshot verification. For the web wave, the committed orchestration exports are `web-layout.yaml` and `web-brand.yaml`, which are consumed by `npm run sync:design-docs` and rendered into generated layout and brand-asset artifacts. Web and Electron share the same SPA implementation wave; Electron-specific work begins only where the native shell changes behavior rather than presentation.
+
+Brand marks belong here when they express workspace character rather than plain typography. The current landing/header `A` mark is defined as a custom vector asset: rounded modular geometry, forward lean, Deep Honey single-color treatment, and explicit `sm` / `md` / `hero` sizing. It must be previewed in Figma and exported into repo-owned assets; it is never implemented as a downloaded font glyph.
 
 ## Applies To
 
