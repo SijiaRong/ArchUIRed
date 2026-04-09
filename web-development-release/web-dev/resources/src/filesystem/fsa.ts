@@ -41,7 +41,7 @@ function createFsaAdapter(root: FileSystemDirectoryHandle, _prefix: string): FsA
     },
 
     async writeFile(filePath: string, content: string): Promise<void> {
-      const parts = filePath.replace(/^\//, '').split('/')
+      const parts = filePath.replace(/^\//, '').split('/').filter(Boolean)
       const name = parts.pop()!
       let dir: FileSystemDirectoryHandle = root
       for (const segment of parts) {
@@ -53,6 +53,18 @@ function createFsaAdapter(root: FileSystemDirectoryHandle, _prefix: string): FsA
       }).createWritable()
       await writable.write(content)
       await writable.close()
+      // Debug: verify write succeeded
+      if (import.meta.env.DEV) {
+        try {
+          const verify = await fh.getFile()
+          const written = await verify.text()
+          if (written !== content) {
+            console.warn(`[FSA] write mismatch for ${filePath}: expected ${content.length} chars, got ${written.length}`)
+          }
+        } catch (e) {
+          console.warn(`[FSA] write verify failed for ${filePath}:`, e)
+        }
+      }
     },
 
     async listDir(dirPath: string): Promise<DirEntry[]> {

@@ -8,10 +8,10 @@ import { parse as parseYaml } from 'yaml'
 import { runValidate } from './validate.js'
 
 import CLAUDE_CODE_DEPLOY_SH from './templates/claude-code-deploy.sh'
+import CODEX_DEPLOY_SH from './templates/codex-deploy.sh'
+import CURSOR_DEPLOY_SH from './templates/cursor-deploy.sh'
 import CONVERT_PROJECT_PROMPT from '../../../core/agent-config/command-templates/resources/convert-project.md'
 import RECONSTRUCT_PROJECT_PROMPT from '../../../core/agent-config/command-templates/resources/reconstruct-project.md'
-
-const CURSOR_DEPLOY_SH = ''
 
 const SKIP_DIRS = new Set([
   '.git', 'node_modules', '.archui', '.archui-backup', '.archui-temp',
@@ -290,7 +290,7 @@ async function runAgentSetup(targetPath: string): Promise<void> {
       name: 'Codex',
       detected: false,
       installed: false,
-      deployScript: '',
+      deployScript: CODEX_DEPLOY_SH,
       sentinelCheck: checkCodexInstalled,
     },
     {

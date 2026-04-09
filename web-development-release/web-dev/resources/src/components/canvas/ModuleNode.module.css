@@ -137,17 +137,23 @@
 }
 
 .handle {
-  width: 12px !important;
-  height: 12px !important;
+  width: 14px !important;
+  height: 14px !important;
   background: var(--node-accent) !important;
   border: 2px solid var(--surface-panel) !important;
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--node-accent) 16%, transparent);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.node:hover .handle {
+  opacity: 1;
 }
 
 .handleLeft {
-  left: -7px !important;
+  left: -8px !important;
 }
 
 .handleRight {
-  right: -7px !important;
+  right: -8px !important;
 }

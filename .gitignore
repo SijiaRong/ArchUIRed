@@ -46,3 +46,4 @@ npm-debug.log*
 
 # Large media files
 *.mov
+.gstack/

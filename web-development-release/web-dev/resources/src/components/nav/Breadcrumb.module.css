@@ -25,19 +25,21 @@
 }
 
 .btn {
-  background: none;
-  border: none;
-  color: var(--text-tertiary);
+  background: color-mix(in srgb, var(--brand-lake) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-lake) 15%, transparent);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 0.82rem;
-  padding: 8px 10px;
+  font-weight: 500;
+  padding: 8px 12px;
   border-radius: var(--radius-pill);
-  transition: color .15s ease, background .15s ease;
+  transition: color .15s ease, background .15s ease, border-color .15s ease;
 }
 
 .btn:hover {
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--brand-lake) 8%, var(--surface-raised));
+  color: var(--brand-lake);
+  background: color-mix(in srgb, var(--brand-lake) 12%, var(--surface-raised));
+  border-color: color-mix(in srgb, var(--brand-lake) 30%, transparent);
 }
 
 .btnActive {
@@ -54,4 +56,22 @@
   color: var(--text-tertiary);
   font-size: 0.75rem;
   user-select: none;
+}
+
+.backBtn {
+  background: var(--brand-honey);
+  border: none;
+  color: var(--surface-panel);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  margin-right: 8px;
+  transition: background .15s ease;
+  white-space: nowrap;
+}
+
+.backBtn:hover {
+  background: var(--brand-honey-strong);
 }

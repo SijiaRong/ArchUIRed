@@ -68,16 +68,19 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   },
 
   async navigate(modulePath) {
-    const { adapter, breadcrumb } = get()
+    const { adapter, breadcrumb, rootPath } = get()
     set({ loading: true, error: null })
     try {
-      const mod = await loadModule(adapter, modulePath)
+      const [mod, projectIndex] = await Promise.all([
+        loadModule(adapter, modulePath),
+        rootPath ? buildProjectIndex(adapter, rootPath) : Promise.resolve({}),
+      ])
       // If already in breadcrumb, slice back to it
       const existingIdx = breadcrumb.findIndex(b => b.path === modulePath)
       const newBreadcrumb = existingIdx !== -1
         ? breadcrumb.slice(0, existingIdx + 1)
         : [...breadcrumb, { path: modulePath, name: mod.name }]
-      set({ currentModule: mod, breadcrumb: newBreadcrumb, loading: false })
+      set({ currentModule: mod, projectIndex, breadcrumb: newBreadcrumb, loading: false })
     } catch (e) {
       set({ error: String(e), loading: false })
     }

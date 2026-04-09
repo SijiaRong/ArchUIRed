@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 — 替换前</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #e8e8e8;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-box {
+  background: #fff;
+  border: 2px solid #999;
+  padding: 32px;
+  width: 380px;
+  box-shadow: 4px 4px 0 #aaa;
+}
+
+.login-box h1 {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.login-box p.sub {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 24px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  font-size: 14px;
+  outline: none;
+}
+
+input:focus {
+  border-color: #666;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #555;
+  color: #fff;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn:hover {
+  background: #333;
+}
+
+.links {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+}
+
+.links a {
+  color: #666;
+  text-decoration: underline;
+}
+
+.divider {
+  margin: 20px 0;
+  border-top: 1px solid #ddd;
+}
+
+.social {
+  display: flex;
+  gap: 8px;
+}
+
+.social button {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  font-size: 13px;
+  cursor: pointer;
+  color: #555;
+}
+
+.social button:hover {
+  background: #eee;
+}
+
+.footer-note {
+  margin-top: 20px;
+  font-size: 11px;
+  color: #bbb;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <h1>用户登录</h1>
+  <p class="sub">请输入您的账号信息</p>
+
+  <label>邮箱地址</label>
+  <input type="email" placeholder="your@email.com">
+
+  <label>密码</label>
+  <input type="password" placeholder="输入密码">
+
+  <button class="btn">登 录</button>
+
+  <div class="links">
+    <a href="#">忘记密码?</a> · <a href="#">注册新账号</a>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="social">
+    <button>微信登录</button>
+    <button>GitHub</button>
+    <button>Google</button>
+  </div>
+
+  <div class="footer-note">登录即表示同意服务条款和隐私政策</div>
+</div>
+
+</body>
+</html>
