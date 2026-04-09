@@ -3,6 +3,8 @@ name: Link Renderer — Direct Edge
 description: "An edge between the primary card's module-level handle (on the description section) and an external reference card, representing a link owned by the focused module itself rather than by a submodule."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 A direct edge connects the focused module's own connection handle (on the primary card's description section) to an external reference card. This edge type represents links in the focused module's own `links` array — as opposed to port edges which represent links owned by submodules.

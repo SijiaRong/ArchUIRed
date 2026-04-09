@@ -1,0 +1,8 @@
+schema_version: 1
+uuid: 76d5c149
+submodules:
+  context-menu-harness: "0e947f97"
+links:
+  - uuid: 6f1c4a9d
+    relation: depends-on
+    description: context menu is triggered by right-click events on primary and external reference cards

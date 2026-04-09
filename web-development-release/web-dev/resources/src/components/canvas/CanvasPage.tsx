@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import {
   ReactFlow,
+  ReactFlowProvider,
   Background,
   Controls,
   MiniMap,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   BackgroundVariant,
   MarkerType,
 } from '@xyflow/react'
@@ -14,7 +16,7 @@ import type { Connection, Edge, Node, NodeMouseHandler, OnNodesChange } from '@x
 import '@xyflow/react/dist/style.css'
 
 import { useCanvasStore } from '../../store/canvas'
-import { saveLayout, addLink, createModule } from '../../filesystem/writeOps'
+import { saveLayout, addLink, createModule, copyModule, deleteModule } from '../../filesystem/writeOps'
 import type { ArchModule, ModuleLink, ProjectIndexEntry } from '../../types'
 import { workspaceContent } from '../../generated/workspace-content.generated'
 import { workspaceLayout } from '../../generated/workspace-layout.generated'
@@ -28,6 +30,7 @@ import { ModuleNode } from './ModuleNode'
 import type { ModuleNodeData } from './ModuleNode'
 import { LinkEdge } from './LinkEdge'
 import { DetailPanel } from './DetailPanel'
+import { Toast } from '../ui/Toast'
 import s from './CanvasPage.module.css'
 
 const NODE_TYPES = { moduleNode: ModuleNode }
@@ -178,10 +181,19 @@ function buildGraph(
   return { nodes, edges }
 }
 
-export function CanvasPage({}: CanvasPageProps) {
+export function CanvasPage(props: CanvasPageProps) {
+  return (
+    <ReactFlowProvider>
+      <CanvasPageInner {...props} />
+    </ReactFlowProvider>
+  )
+}
+
+function CanvasPageInner({}: CanvasPageProps) {
   const currentModule = useCanvasStore(s => s.currentModule)
   const projectIndex = useCanvasStore(s => s.projectIndex)
   const adapter = useCanvasStore(s => s.adapter)
+  const rootPath = useCanvasStore(s => s.rootPath)
   const navigate = useCanvasStore(s => s.navigate)
   const reload = useCanvasStore(s => s.reload)
   const loading = useCanvasStore(s => s.loading)
@@ -192,10 +204,16 @@ export function CanvasPage({}: CanvasPageProps) {
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
+  const { screenToFlowPosition } = useReactFlow()
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
   const [showNewModule, setShowNewModule] = useState(false)
   const [showPalette, setShowPalette] = useState(false)
+  const [toast, setToast] = useState<{ message: string; type?: 'info' | 'error' } | null>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showToast = useCallback((message: string, type?: 'info' | 'error') => {
+    setToast({ message, type })
+  }, [])
 
   useEffect(() => {
     if (!currentModule) return
@@ -232,6 +250,30 @@ export function CanvasPage({}: CanvasPageProps) {
     setSelectedUuid(uuid)
   }, [navigate, projectIndex])
 
+  const doPaste = useCallback(async (screenPos?: { x: number; y: number }) => {
+    try {
+      const text = await navigator.clipboard.readText()
+      const m = /^archui:\/\/copy\?path=(.+)&uuid=([0-9a-f]{8})$/.exec(text)
+      if (!m) {
+        showToast(workspaceContent.canvas.contextMenu.nothingToPaste, 'error')
+        return
+      }
+      const [, sourcePath] = m
+      const destParent = currentModule?.path ?? rootPath ?? ''
+      const flowPos = screenPos
+        ? screenToFlowPosition(screenPos)
+        : screenToFlowPosition({
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2,
+          })
+      await copyModule(adapter, sourcePath, destParent, flowPos)
+      await reload()
+      showToast(workspaceContent.canvas.contextMenu.copiedToClipboard)
+    } catch {
+      showToast(workspaceContent.canvas.contextMenu.pasteFailed, 'error')
+    }
+  }, [adapter, currentModule?.path, rootPath, reload, showToast, screenToFlowPosition])
+
   const handleNodeContextMenu: NodeMouseHandler = useCallback((event, node) => {
     event.preventDefault()
     const uuid = realUuid(node.id)
@@ -244,6 +286,47 @@ export function CanvasPage({}: CanvasPageProps) {
         label: workspaceContent.canvas.contextMenu.openModule,
         icon: '>',
         action: () => { void navigate(entry.path); setSelectedUuid(uuid) },
+      })
+    }
+
+    items.push({
+      id: 'copy',
+      label: workspaceContent.canvas.contextMenu.copyModule,
+      icon: 'C',
+      action: () => {
+        const absPath = entry?.path ?? ''
+        void navigator.clipboard.writeText(
+          `archui://copy?path=${absPath}&uuid=${uuid}`
+        ).then(() => showToast(workspaceContent.canvas.contextMenu.copiedToClipboard))
+      },
+    })
+
+    if (uuid !== currentModule?.uuid) {
+      items.push({
+        id: 'sep',
+        label: '',
+        action: () => {},
+      })
+      items.push({
+        id: 'delete',
+        label: workspaceContent.canvas.contextMenu.deleteModule,
+        icon: 'X',
+        danger: true,
+        action: () => {
+          const entry = projectIndex[uuid]
+          if (!entry) return
+          const parentPath = entry.parentPath ?? currentModule?.path ?? ''
+          const folderName = entry.path.split('/').filter(Boolean).pop() ?? ''
+          if (!confirm(workspaceContent.canvas.contextMenu.deleteConfirm)) return
+          void (async () => {
+            try {
+              await deleteModule(adapter, parentPath, folderName, uuid)
+              await reload()
+            } catch {
+              showToast(workspaceContent.canvas.contextMenu.deleteFailed, 'error')
+            }
+          })()
+        },
       })
     }
 
@@ -267,7 +350,22 @@ export function CanvasPage({}: CanvasPageProps) {
     if (items.length > 0) {
       setCtxMenu({ x: event.clientX, y: event.clientY, items })
     }
-  }, [currentModule?.uuid, navigate, projectIndex, reload])
+  }, [adapter, currentModule?.uuid, currentModule?.path, navigate, projectIndex, reload, showToast])
+
+  const handlePaneContextMenu = useCallback((event: MouseEvent | React.MouseEvent) => {
+    event.preventDefault()
+    const pos = { x: event.clientX, y: event.clientY }
+    setCtxMenu({
+      x: event.clientX,
+      y: event.clientY,
+      items: [{
+        id: 'paste',
+        label: workspaceContent.canvas.contextMenu.pasteModule,
+        icon: 'V',
+        action: () => void doPaste(pos),
+      }],
+    })
+  }, [doPaste])
 
   const onConnect = useCallback(async (connection: Connection) => {
     if (!connection.source || !connection.target) return
@@ -304,6 +402,19 @@ export function CanvasPage({}: CanvasPageProps) {
         event.preventDefault()
         setShowPalette(value => !value)
       }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'c' && selectedUuid) {
+        const selEntry = projectIndex[selectedUuid]
+        if (selEntry?.path) {
+          event.preventDefault()
+          void navigator.clipboard.writeText(
+            `archui://copy?path=${selEntry.path}&uuid=${selectedUuid}`
+          ).then(() => showToast(workspaceContent.canvas.contextMenu.copiedToClipboard))
+        }
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'v') {
+        event.preventDefault()
+        void doPaste()
+      }
       if (event.key === 'Escape') {
         setShowPalette(false)
         setCtxMenu(null)
@@ -313,7 +424,7 @@ export function CanvasPage({}: CanvasPageProps) {
 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [selectedUuid, projectIndex, showToast, doPaste])
 
   const commands = useMemo<Command[]>(() => {
     const list: Command[] = [
@@ -416,6 +527,7 @@ export function CanvasPage({}: CanvasPageProps) {
           onNodeDoubleClick={handleNodeDoubleClick}
           onNodeContextMenu={handleNodeContextMenu}
           onPaneClick={() => { setCtxMenu(null); setSelectedUuid(null) }}
+          onPaneContextMenu={handlePaneContextMenu}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
           fitView
@@ -492,6 +604,14 @@ export function CanvasPage({}: CanvasPageProps) {
         <CommandPalette
           commands={commands}
           onClose={() => setShowPalette(false)}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onDismiss={() => setToast(null)}
         />
       )}
     </div>

@@ -3,6 +3,8 @@ name: Selection Controller
 description: "Defines the selection model for the canvas: how modules become selected (single click on any card), how selection is cleared (click on empty canvas), and how selected state propagates to the primary card visual and the detail panel."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 Selection is a single-value global state: at most one module UUID is selected at any time. The selection controller owns this state and is the single source of truth for which module (if any) is currently selected.

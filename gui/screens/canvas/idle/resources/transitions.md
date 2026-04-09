@@ -13,6 +13,8 @@ All transitions are out of the idle state. Guards are preconditions that must be
 | 3 | Double-click an external reference card | Module found in project index | **idle** (re-rendered at external module's parent canvas) | Update `navStack` to the path of the external module's parent. Canvas re-renders with the external module's parent as primary card. The external card is briefly highlighted (1s pulse animation) to orient the user. |
 | 4 | Cmd+K → select a result from the command palette | Result module found in project index | **idle** (re-rendered at result's canvas) | Compute ancestry path from project root to the selected module. Set `navStack` to that path. Canvas re-renders with the module's parent as primary card; the target module's external card (or primary card if it is the focused module) is centred and highlighted. |
 | 5 | Drag an external reference card (mouse-up / touch-end) | — | **idle** (no state change, same level) | Update the card's position in the in-memory layout. Write the new `{ x, y }` for the card's UUID to `.archui/layout.yaml` under the current parent canvas's UUID entry (single write on mouse-up, not per frame). |
+| 6 | Press `Cmd/Ctrl+V` | Clipboard matches `archui://copy?...` | **idle** (current level, after paste completes) | Invoke file-sync layer to duplicate source module into current canvas level. Run clean --apply + validate. If errors, open agent streaming panel with repair prompt "修复当前项目的archui结构，使得其能通过archui validate测试，修复所有报错。". Re-render canvas with new node at default position. |
+| 7 | Right-click empty canvas → "Paste Module" | Clipboard matches `archui://copy?...` | **idle** (same) | Same actions as transition 6. |
 
 ---
 

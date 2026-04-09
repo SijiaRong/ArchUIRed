@@ -70,7 +70,15 @@ export const workspaceContent = {
     "contextMenu": {
       "openModule": "Open module",
       "newChildModule": "New child module",
-      "reloadWorkspace": "Reload workspace"
+      "reloadWorkspace": "Reload workspace",
+      "copyModule": "Copy module",
+      "pasteModule": "Paste module",
+      "copiedToClipboard": "Copied to clipboard",
+      "nothingToPaste": "Nothing to paste",
+      "pasteFailed": "Paste failed",
+      "deleteModule": "Delete module",
+      "deleteConfirm": "Delete this module? This cannot be undone.",
+      "deleteFailed": "Delete failed"
     },
     "commands": {
       "newChildModule": "New child module",

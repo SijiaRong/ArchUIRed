@@ -3,6 +3,8 @@ name: Primary Module Card — Default State
 description: The baseline visual state for both card types — the primary card uses a white/dark background with elevated shadow, while external reference cards use a subtle bordered rectangle; both have neutral styling.
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 The default state is the baseline appearance for both card types when the module has no uncommitted changes and is not selected.

@@ -69,4 +69,6 @@ export interface FsAdapter {
   listDir(path: string): Promise<DirEntry[]>
   exists(path: string): Promise<boolean>
   mkdir(path: string): Promise<void>
+  copyDir?(src: string, dest: string): Promise<void>
+  removeDir?(path: string): Promise<void>
 }

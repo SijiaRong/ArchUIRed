@@ -2,6 +2,7 @@ import { validateStructure } from './validators/structure.js'
 import { validateFrontmatter } from './validators/frontmatter.js'
 import { validateLinks } from './validators/links.js'
 import { validateIndexSync } from './validators/indexSync.js'
+import { validateLayout } from './validators/layout.js'
 import type { Violation } from './types.js'
 
 export function runValidate(targetPath: string, only?: string): { violations: Violation[]; exitCode: number } {
@@ -13,6 +14,7 @@ export function runValidate(targetPath: string, only?: string): { violations: Vi
   if (!only || only === 'frontmatter') violations.push(...validateFrontmatter(targetPath))
   if (!only || only === 'links')       violations.push(...validateLinks(targetPath))
   if (!only || only === 'index')       violations.push(...validateIndexSync(targetPath))
+  if (!only || only === 'layout')      violations.push(...validateLayout(targetPath))
 
   const errors = violations.filter(v => v.severity !== 'warn')
   const warnings = violations.filter(v => v.severity === 'warn')

@@ -3,6 +3,8 @@ name: Primary Module Card
 description: "Visual card component for the ArchUI canvas — a large card for each module rendered at the current level, with title, UUID, description, and port rows for outgoing links. No external reference cards; cross-hierarchy links are surfaced in the detail panel only."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Architecture Note
 
 This spec describes the **single-primary-card** canvas model: one large card per level (the focused module), with children surfaced as port rows within it.

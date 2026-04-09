@@ -3,6 +3,8 @@ name: "Canvas — Node Selected State Test Playbook"
 description: "Playbook for verifying the behaviour and constraints defined in the Canvas — Node Selected State module."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 This playbook verifies the detail panel slide-in/out animation, Escape key deselection, atomic card re-selection, click-empty-canvas deselection, and panel navigation interactions.

@@ -3,6 +3,8 @@ name: GUI
 description: "A node-based infinite canvas where knowledge modules appear as visual nodes that users can drag, link, and drill into across Web, Electron, iOS, and Android platforms."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 The GUI is ArchUI's human-facing interface: a node-based infinite canvas (in the style of [ComfyUI](https://github.com/comfyanonymous/ComfyUI)) where the knowledge base is rendered as a hierarchy of visual cards. Each canvas level shows one focused module as a large primary card (containing its name, UUID, description, and submodule ports) surrounded by small external reference cards for linked modules outside the hierarchy, connected by directional link edges. Users navigate the knowledge graph by panning and zooming the canvas, drilling into submodules to make them the new primary card, and drawing edges between cards to create cross-module links.

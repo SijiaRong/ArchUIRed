@@ -3,6 +3,8 @@ name: "Primary Module Card — Selected State Test Playbook"
 description: "Playbook for verifying the behaviour and constraints defined in the Primary Module Card — Selected State module."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 This playbook verifies the behaviour and structural constraints defined in the Primary Module Card — Selected State module.

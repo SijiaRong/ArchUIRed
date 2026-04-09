@@ -3,6 +3,8 @@ name: GUI Test Playbook
 description: "Playbook for verifying that the GUI module correctly renders the canvas, syncs with the filesystem, and applies the design system across all supported platforms."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Playbook
 
 ### Group 1: Canvas renders module graph from filesystem

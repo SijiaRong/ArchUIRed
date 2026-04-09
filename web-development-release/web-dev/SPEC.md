@@ -3,6 +3,8 @@ name: Web Dev
 description: "Defines the React web app architecture and local development workflow: canvas component structure, filesystem adapter selection, coding conventions that distributed-generated source files must follow, and Vite dev server setup."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 Web Dev covers the React app architecture and the local development workflow. Source code for the web app is generated in a distributed manner — each GUI spec module (e.g. `gui/components/module-node/default`) generates its own component files in its `resources/`. The `web-build` module assembles these into a compilable project. This module defines the canvas architecture and the conventions all generated files must follow.

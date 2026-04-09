@@ -12,3 +12,6 @@ links:
   - uuid: 1a5b9c3d
     relation: related-to
     description: run-command is a submodule of the CLI
+  - uuid: "1d60422f"
+    relation: depends-on
+    description: run-command uses agent-invocation to spawn the AI agent for executing module commands

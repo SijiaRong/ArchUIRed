@@ -8,6 +8,9 @@ submodules:
   init-command: 485e9c29
   import-command: 5477232e
   version-control: 14c7ec75
+  agent-invocation: "1d60422f"
+  copy-paste-command: 0db1b054
+  delete-command: 559d57c5
 links:
   - uuid: 2c4d8f1a
     relation: depends-on

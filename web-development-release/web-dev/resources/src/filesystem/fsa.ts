@@ -88,5 +88,15 @@ function createFsaAdapter(root: FileSystemDirectoryHandle, _prefix: string): FsA
         dir = await dir.getDirectoryHandle(segment, { create: true })
       }
     },
+
+    async removeDir(dirPath: string): Promise<void> {
+      const parts = dirPath.replace(/^\//, '').split('/').filter(Boolean)
+      const name = parts.pop()!
+      let dir: FileSystemDirectoryHandle = root
+      for (const segment of parts) {
+        dir = await dir.getDirectoryHandle(segment, { create: false })
+      }
+      await dir.removeEntry(name, { recursive: true })
+    },
   }
 }

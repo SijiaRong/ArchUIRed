@@ -1,0 +1,7 @@
+schema_version: 1
+uuid: f72d9d99
+submodules: {}
+links:
+  - uuid: 559d57c5
+    relation: implements
+    description: tests for the delete command spec

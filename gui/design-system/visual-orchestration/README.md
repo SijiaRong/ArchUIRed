@@ -3,6 +3,8 @@ name: Visual Orchestration
 description: "Defines the canvas composition grammar, node hierarchy, panel layout, density rules, and motion language that translate reference UIs such as ComfyUI into ArchUI's Figma-first GUI system."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 Visual Orchestration sits between token foundations and concrete component specs. It defines how ArchUI should feel as a workspace: canvas density, layering, node emphasis, edge readability, panel hierarchy, focus management, and motion. It is the place to translate inspiration or reverse-engineering input from external tools into ArchUI-native design rules without making those tools the source of truth.

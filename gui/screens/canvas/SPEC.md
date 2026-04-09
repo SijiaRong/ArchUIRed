@@ -3,6 +3,8 @@ name: Canvas Screen
 description: "The main workspace screen — an infinite canvas that renders one focused module as a large primary card containing its submodule ports, surrounded by small external reference cards and directional link edges; modeled as a state machine with three named states."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 The canvas screen is the primary workspace. It renders a zoomable, pannable infinite canvas with a single rendering level that contains exactly three element types:

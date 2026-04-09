@@ -3,6 +3,8 @@ name: Link Renderer — External Stub (Deprecated)
 description: Previously rendered compact stub nodes for cross-boundary links. Deprecated — external links now materialize as full external reference cards with name and UUID.
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 External stubs were previously rendered as compact nodes (showing an arrow icon and the target name) when a link crossed the current canvas boundary. They served as lightweight placeholders for non-visible modules.

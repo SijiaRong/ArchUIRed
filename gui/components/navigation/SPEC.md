@@ -3,6 +3,8 @@ name: Navigation
 description: "Manages drill-down navigation between module canvases, maintaining a breadcrumb trail and enabling back-navigation to parent modules."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 Navigation is responsible for moving between canvases in the ArchUI GUI. Because each canvas level renders one module as a primary card, navigating the knowledge base means moving up and down the module tree. Navigation maintains the session's position as a stack of module UUIDs mapping directly to a filesystem path.

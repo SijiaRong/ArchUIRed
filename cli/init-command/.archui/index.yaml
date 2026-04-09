@@ -10,3 +10,6 @@ links:
   - uuid: "8250301b"
     relation: depends-on
     description: init command uses agent-config deployment adapters to install ArchUI plugins for detected AI agents
+  - uuid: "1d60422f"
+    relation: depends-on
+    description: init command uses agent-invocation to spawn the AI agent during the conversion phase

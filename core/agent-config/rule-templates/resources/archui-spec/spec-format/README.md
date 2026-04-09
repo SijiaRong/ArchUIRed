@@ -1,35 +1,22 @@
-# Spec File Format Rules
+# Module Structure Rules
+
+This document covers **structural rules**: module folder layout, node type definitions, and `.archui/index.yaml` format.
+
+For identity document prose format (frontmatter schema, description rules, body writing guidelines), see the `archui-docs` skill → `frontmatter-rules.md`.
 
 ## Node types and identity documents
 
 Every module folder contains exactly one typed identity document. The filename determines the node type:
 
-| File | Node type | When to use |
+| File | Node type | Structural constraints |
 |---|---|---|
-| `SPEC.md` | Spec | An implementation specification with generated `resources/`. Must have exactly one HARNESS as a **direct** submodule; MEMORY submodule is optional (at most one). |
-| `HARNESS.md` | Harness | Test harness for a SPEC. Exactly one link → direct parent SPEC. No other links permitted. |
-| `MEMORY.md` | Memory | Persistent memory record. Links only to parent SPEC. Additional outbound links are a validation **warning** (not an error). |
-| `SKILL.md` | Skill | Reusable skill or knowledge unit. No `resources/` typically. |
-| `README.md` | Generic | Untyped fallback when no stronger type applies. |
+| `SPEC.md` | Spec | Must have exactly one HARNESS as a **direct** submodule; MEMORY submodule is optional (at most one). |
+| `HARNESS.md` | Harness | Exactly one link → direct parent SPEC. No other links permitted. |
+| `MEMORY.md` | Memory | Links only to parent SPEC. Additional outbound links are a validation **warning** (not an error). |
+| `SKILL.md` | Skill | No `resources/` typically. No structural constraints beyond standard module rules. |
+| `README.md` | Generic | Untyped fallback when no stronger type applies. No additional constraints. |
 
 **Precedence when multiple files exist:** `SPEC.md` > `HARNESS.md` > `MEMORY.md` > `SKILL.md` > `README.md`. Only the highest-priority file acts as the identity document.
-
-## Identity document format
-
-All identity document types share the same frontmatter schema. Only two fields are allowed:
-
-```yaml
----
-name: Human-readable module name
-description: One-sentence summary — always loaded into agent context, keep it sharp
----
-
-Body markdown here.
-```
-
-**Forbidden in identity documents:** `uuid`, `submodules`, `links`, `layout`, any other structural field. These belong in `.archui/index.yaml`, not frontmatter.
-
-**Description must be a single, declarative, self-contained sentence.** Multi-paragraph or multi-sentence descriptions trigger a validation warning. Keep it sharp — it is always loaded into agent context.
 
 ## Default names for whitelisted hidden folders
 
@@ -44,11 +31,6 @@ When creating an identity document for a root-level whitelisted hidden folder, u
 | `.vscode` | VS Code Settings |
 | `.aider` | Aider Settings |
 | `.windsurf` | Windsurf Settings |
-
-**Body rules:**
-- Natural language prose only
-- No code snippets, scripts, config files — those belong in `resources/`
-- Keep it as short as the concept allows
 
 ## .archui/index.yaml format
 
@@ -83,7 +65,3 @@ links:
 ## Module design principles
 
 **Split aggressively.** If a module covers more than one coherent concept, split it. Prefer many small focused modules over fewer large ones. Every split must be reversible — child modules together must fully reconstruct the parent's meaning.
-
-## .archui/ data handling
-
-**Use the CLI to query or modify `.archui/` data; do not load raw `.archui/index.yaml` files into context.** Use `archui validate .` to check consistency. Read `.archui/index.yaml` only when you need the exact UUID of a specific module and cannot get it another way.

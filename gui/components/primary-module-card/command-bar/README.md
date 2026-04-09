@@ -3,6 +3,8 @@ name: Command Bar
 description: "The section at the bottom of the primary card that renders a module's commands as clickable buttons — one button per .archui/commands/*.md file, shown only when at least one command exists."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 The command bar is the bottom section of the primary card. It is only rendered when the current module has one or more command files in `.archui/commands/`. It is never shown on external reference cards.

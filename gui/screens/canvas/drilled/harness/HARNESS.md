@@ -3,6 +3,8 @@ name: "Canvas — Drilled State Test Playbook"
 description: "Playbook for verifying the behaviour and constraints defined in the Canvas — Drilled State module."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 This playbook verifies the drill-in canvas re-render, breadcrumb trail updates, back navigation via Escape key and breadcrumb click, and the entry highlight flash animation for the previously-focused module.

@@ -3,6 +3,8 @@ name: 画布编排器
 description: "React Flow 节点画布 — 模块卡片渲染、Link Edge 连线、Drill-down 钻入导航、Detail Panel 详情面板"
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## 概述
 
 画布编排器是 ArchUI Web 版的核心交互界面。用户在无限画布上可视化浏览和编排知识模块的层级与链接关系。

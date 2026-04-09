@@ -14,6 +14,7 @@ export type ValidationCode =
   | 'missing-description'
   | 'forbidden-frontmatter-field'
   | 'link-missing-uuid'
+  | 'layout/node-overlap'
 
 export interface Violation {
   ruleId: ValidationCode | string

@@ -3,6 +3,8 @@ name: Link Renderer Test Playbook
 description: "Playbook for verifying that the link-renderer correctly draws directed edges between nodes, applies relation-type styling, handles external stubs, and shows tooltips."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Playbook
 
 ### Group 1: Direct edge rendering for a focused module's own link

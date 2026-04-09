@@ -3,6 +3,8 @@ name: "Canvas — Idle State Test Playbook"
 description: "Playbook for verifying the behaviour and constraints defined in the Canvas — Idle State module."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 This playbook verifies pan behavior, zoom behavior, card auto-layout placement, Cmd+K navigation, and the sync panel overlay in the idle canvas state.

@@ -3,6 +3,8 @@ name: Link Renderer — Port Edge
 description: "The primary edge type in the current rendering model — connects a submodule port handle on the primary card to an external reference card, with a directional arrowhead pointing toward the passive target end."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 A port edge connects a submodule's port handle on the primary card to an external reference card. This is the primary (and currently only active) edge type rendered on the canvas.

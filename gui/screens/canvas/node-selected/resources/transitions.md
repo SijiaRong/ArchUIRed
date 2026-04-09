@@ -14,6 +14,8 @@ All transitions are out of the node-selected state. Guards are preconditions; if
 | 4 | Double-click a submodule port row | Submodule exists in project index | **drilled** | Clear `selectedUuid`. Close detail panel (instant — no slide animation during drill). Push drilled module UUID onto `navStack`. Canvas entry animation begins (200ms). Breadcrumb appends one crumb. |
 | 5 | Click submodule row in the detail panel | Submodule found in project index | **idle** (at the submodule's parent canvas) | Navigate so the submodule's parent becomes the primary card. Set `selectedUuid` to the submodule's UUID (target card is pre-selected and centred). Detail panel updates to show the submodule's data. Net result: arrives in node-selected at the new level with the target card selected. |
 | 6 | Click a Link to / Linked by row in the detail panel | Target module found in project index | **idle** (at the target's canvas level) | Navigate to the canvas where the target module is visible. If the target is an external reference card at that level, select it (`selectedUuid` = target UUID). If the target is the primary card, select it. Breadcrumb updates. |
+| 7 | Press `Cmd/Ctrl+C` | `selectedUuid` is non-null | **node-selected** (no state change) | Write `archui://copy?path=<abs-path>&uuid=<8hex>` to the system clipboard. Show toast "Copied to clipboard". |
+| 8 | Press `Cmd/Ctrl+V` | Clipboard content matches `archui://copy?...` | **idle** (current level, after paste completes) | Invoke file-sync layer to duplicate source module folder into current canvas level directory. Run clean + validate. If errors occur, open agent streaming panel with prompt "修复当前项目的archui结构，使得其能通过archui validate测试，修复所有报错。". Re-render canvas with new node. |
 
 ---
 

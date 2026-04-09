@@ -3,6 +3,8 @@ name: Link Renderer
 description: "Renders directional edges on the canvas in two categories — direct edges between the primary card's module-level handles and external cards, and port edges between submodule port handles and external cards — with clear arrowheads and a same-card rendering rule."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 The link-renderer draws all directed edges on the canvas. Edges fall into two categories based on which handle they originate from or terminate at on the primary card:

@@ -3,6 +3,8 @@ name: "Canvas Screen Test Playbook"
 description: "Playbook for verifying the behaviour and constraints defined in the Canvas Screen module."
 ---
 
+> **DEPRECATED:** The external reference card concept has been removed. References to external cards in this document are no longer valid.
+
 ## Overview
 
 This playbook verifies the full canvas state machine traversal, card layout initialization, and layout.yaml persistence across the three canvas states (idle, node-selected, drilled).

@@ -1,0 +1,14 @@
+schema_version: 1
+uuid: 0db1b054
+submodules:
+  copy-command: db1eef69
+  paste-command: b70e5031
+  clean-command: 785ff2e5
+  copy-paste-command-harness: 64fce557
+links:
+  - uuid: 8d2f6a4e
+    relation: depends-on
+    description: clean command reuses the UUID index logic from the validator to detect dangling references
+  - uuid: 76d5c149
+    relation: related-to
+    description: CLI copy-paste commands and the GUI context-menu are two entry points for the same module reuse semantics.
