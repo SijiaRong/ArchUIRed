@@ -1,0 +1,365 @@
+/* ======================================================
+   HubOverlay — Module sharing hub (z-1000 overlay)
+   Same overlay pattern as CommandPalette / NewModuleDialog
+   ====================================================== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--overlay-heavy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn .18s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.panel {
+  position: relative;
+  width: 92vw;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: color-mix(in srgb, var(--surface-panel) 94%, transparent);
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp .22s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ---- Header ---- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--line-subtle);
+  flex-shrink: 0;
+}
+
+.kicker {
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brand-honey);
+  margin-bottom: 6px;
+}
+
+.title {
+  font-family: var(--font-heading-sans);
+  font-weight: 700;
+  font-size: 1.55rem;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  max-width: 520px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.myModulesBtn {
+  border: 1px solid color-mix(in srgb, var(--brand-honey) 22%, var(--line-default));
+  background: transparent;
+  color: var(--brand-honey);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .16s ease;
+}
+
+.myModulesBtn:hover {
+  background: color-mix(in srgb, var(--brand-honey) 8%, transparent);
+  border-color: var(--brand-honey);
+}
+
+.closeBtn {
+  border: 1px solid var(--line-default);
+  background: color-mix(in srgb, var(--surface-overlay) 88%, transparent);
+  color: var(--text-secondary);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.closeBtn:hover {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--brand-lake) 28%, var(--line-strong));
+  background: color-mix(in srgb, var(--brand-lake) 8%, var(--surface-overlay));
+}
+
+/* ---- Detail wrap ---- */
+.detailWrap {
+  padding: 24px 32px 32px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ---- Search ---- */
+.searchRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 20px 32px 0;
+}
+
+.searchWrap {
+  flex: 1;
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-control);
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  background: color-mix(in srgb, var(--surface-raised) 86%, transparent);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.searchInput::placeholder { color: var(--text-tertiary); }
+
+.searchInput:focus {
+  border-color: var(--brand-honey);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-honey) 12%, transparent);
+}
+
+.searchKbd {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-xs);
+  color: var(--text-tertiary);
+  background: var(--surface-raised);
+}
+
+.sortSelect {
+  padding: 10px 14px;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-control);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  background: color-mix(in srgb, var(--surface-raised) 86%, transparent);
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  min-width: 120px;
+}
+
+/* ---- Tags ---- */
+.tagsRow {
+  display: flex;
+  gap: 6px;
+  padding: 16px 32px 0;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-default);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all .16s ease;
+  white-space: nowrap;
+}
+
+.tag:hover {
+  border-color: color-mix(in srgb, var(--brand-lake) 28%, var(--line-strong));
+  color: var(--text-primary);
+}
+
+.tagActive {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  border-color: var(--text-primary);
+}
+
+.tagActive:hover { color: var(--text-inverse); }
+
+.tagCount {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  margin-left: 4px;
+  color: var(--text-tertiary);
+}
+
+.tagActive .tagCount {
+  color: color-mix(in srgb, var(--text-inverse) 60%, transparent);
+}
+
+/* ---- Grid ---- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  padding: 20px 32px 32px;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 24px;
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--line-default);
+}
+
+.emptyState h3 {
+  font-family: var(--font-heading-sans);
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.emptyState p {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+/* ---- Compare bar ---- */
+.compareBar {
+  position: sticky;
+  bottom: 0;
+  background: color-mix(in srgb, var(--text-primary) 96%, transparent);
+  color: var(--text-inverse);
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  flex-shrink: 0;
+}
+
+.compareLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.compareLabel {
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.compareItems {
+  display: flex;
+  gap: 6px;
+}
+
+.compareItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(255,255,255,0.1);
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+}
+
+.compareItemRemove {
+  background: none;
+  border: none;
+  color: var(--text-inverse);
+  cursor: pointer;
+  opacity: 0.5;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.compareItemRemove:hover { opacity: 1; }
+
+.compareRight {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.compareClearBtn {
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: var(--text-inverse);
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.compareClearBtn:hover { opacity: 1; }
+
+.compareActionBtn {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 20px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--brand-honey);
+  color: white;
+  cursor: pointer;
+  transition: background .16s ease;
+}
+
+.compareActionBtn:hover { background: var(--brand-honey-strong); }
+
+/* ---- Responsive ---- */
+@media (max-width: 960px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .panel { width: 98vw; max-height: 95vh; }
+  .grid { grid-template-columns: 1fr; }
+  .header, .searchRow, .tagsRow, .grid, .detailWrap { padding-left: 16px; padding-right: 16px; }
+  .searchRow { flex-direction: column; }
+  .sortSelect { width: 100%; }
+  .compareBar { flex-direction: column; gap: 10px; padding: 12px 16px; }
+}

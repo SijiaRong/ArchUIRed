@@ -1,4 +1,5 @@
 import { workspaceContent } from '../../generated/workspace-content.generated'
+import { marketplaceContent } from '../marketplace/marketplace-content'
 import type { ProjectIndexEntry } from '../../types'
 import s from './DetailPanel.module.css'
 
@@ -18,6 +19,7 @@ interface DetailPanelProps {
   accentIndex: number
   onNavigate: (path: string, uuid: string) => void
   onClose: () => void
+  onReplaceModule?: () => void
 }
 
 function unique<T>(items: T[]): T[] {
@@ -31,6 +33,7 @@ export function DetailPanel({
   accentIndex,
   onNavigate,
   onClose,
+  onReplaceModule,
 }: DetailPanelProps) {
   const detailContent = workspaceContent.detailPanel
   const defaultRelation = workspaceContent.linkRenderer.defaultRelation
@@ -64,7 +67,7 @@ export function DetailPanel({
     source.links
       .filter(link => link.uuid === entry.uuid)
       .map(link => ({
-        relation: link.relation ?? 'related-to',
+        relation: link.relation ?? defaultRelation,
         description: link.description,
         source,
       })),
@@ -119,6 +122,16 @@ export function DetailPanel({
         </div>
       </div>
 
+      {onReplaceModule && (
+        <button className={s.replaceBtn} onClick={onReplaceModule}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
+            <polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 0 1 4-4h14" />
+            <polyline points="7 23 3 19 7 15" /><path d="M21 13v2a4 4 0 0 1-4 4H3" />
+          </svg>
+          {marketplaceContent.detailPanel.replaceModule}
+        </button>
+      )}
+
       <div className={s.section}>
         <div className={s.sectionTitle}>{detailContent.sections.submodules}</div>
         {submodules.length === 0 ? (
@@ -143,9 +156,9 @@ export function DetailPanel({
         {outgoing.length === 0 ? (
           <div className={s.empty}>{detailContent.empty.outgoing}</div>
         ) : (
-          outgoing.map(item => (
+          outgoing.map((item, i) => (
             <button
-              key={`${entry.uuid}-${item.target.uuid}-${item.relation}`}
+              key={`out-${i}-${entry.uuid}-${item.target.uuid}`}
               className={s.row}
               onClick={() => item.target.path && onNavigate(item.target.path, item.target.uuid)}
               disabled={!item.target.path}
@@ -168,9 +181,9 @@ export function DetailPanel({
         {incoming.length === 0 ? (
           <div className={s.empty}>{detailContent.empty.incoming}</div>
         ) : (
-          incoming.map(item => (
+          incoming.map((item, i) => (
             <button
-              key={`${item.source.uuid}-${entry.uuid}-${item.relation}`}
+              key={`in-${i}-${item.source.uuid}-${entry.uuid}`}
               className={s.row}
               onClick={() => item.source.path && onNavigate(item.source.path, item.source.uuid)}
             >

@@ -1,0 +1,205 @@
+/* ======================================================
+   ModuleCard — Marketplace module card
+   Follows ArchUI design tokens + visual language
+   ====================================================== */
+
+.card {
+  background: var(--surface-panel);
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-node);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  position: relative;
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--brand-lake) 36%, var(--line-strong));
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+}
+
+/* ---- Preview area ---- */
+.preview {
+  height: 172px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewUi {
+  width: 72%;
+  height: 68%;
+  border-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Generic preview elements */
+.pEl { border-radius: 3px; }
+.pTitle { width: 40%; height: 8px; margin-bottom: 4px; }
+.pInput { width: 65%; height: 9px; }
+.pBtn { width: 45%; height: 11px; border-radius: 4px; margin-top: 2px; }
+.pRow { width: 70%; height: 7px; }
+.pSettingRow { width: 85%; height: 10px; border-radius: 8px; margin-top: 4px; }
+.pSidebar { position: absolute; left: 0; top: 0; bottom: 0; width: 22%; }
+.pContent { position: absolute; right: 8%; top: 12%; width: 62%; display: flex; flex-direction: column; gap: 5px; }
+.pNav { width: 100%; height: 10px; border-radius: 0; position: absolute; top: 0; left: 0; }
+.pHeroBlock { width: 70%; height: 28px; border-radius: 4px; margin-top: 20px; }
+.pGridRow { display: flex; gap: 5px; width: 80%; }
+.pGridItem { flex: 1; height: 18px; border-radius: 3px; }
+
+/* ---- Preview style variants ---- */
+.preview_minimal { background: var(--surface-elevated); }
+.preview_minimal .pTitle { background: var(--line-strong); }
+.preview_minimal .pInput { background: var(--surface-raised); border: 1px solid var(--line-default); }
+.preview_minimal .pBtn { background: var(--text-primary); }
+
+.preview_glass { background: linear-gradient(135deg, #667eea, #764ba2); }
+.preview_glass .pTitle { background: rgba(255,255,255,0.5); }
+.preview_glass .pInput { background: rgba(255,255,255,0.2); }
+.preview_glass .pBtn { background: rgba(255,255,255,0.9); }
+
+.preview_dark { background: #1a1a2e; }
+.preview_dark .pTitle { background: rgba(255,255,255,0.2); }
+.preview_dark .pInput { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); }
+.preview_dark .pBtn { background: #e94560; }
+
+.preview_earth { background: var(--surface-raised); }
+.preview_earth .pTitle { background: color-mix(in srgb, var(--brand-honey) 28%, var(--surface-sunken)); }
+.preview_earth .pInput { background: var(--surface-sunken); }
+.preview_earth .pBtn { background: var(--brand-honey); }
+
+.preview_cards { background: var(--surface-elevated); }
+.preview_cards .pSidebar { background: #1e293b; }
+.preview_cards .pRow { background: var(--surface-sunken); }
+
+.preview_saas { background: var(--surface-elevated); }
+.preview_saas .pNav { background: var(--surface-raised); border-bottom: 1px solid var(--line-subtle); }
+.preview_saas .pHeroBlock { background: linear-gradient(135deg, color-mix(in srgb, var(--brand-lake) 12%, transparent), #e0e7ff); }
+.preview_saas .pGridItem { background: var(--surface-raised); }
+
+.preview_bold { background: #18181b; }
+.preview_bold .pNav { background: rgba(255,255,255,0.05); }
+.preview_bold .pHeroBlock { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+.preview_bold .pGridItem { background: rgba(255,255,255,0.06); }
+
+.preview_ios { background: #f2f2f7; }
+.preview_ios .pSettingRow { background: #fff; }
+
+.preview_stripe { background: var(--surface-elevated); }
+.preview_stripe .pInput { background: #f6f9fc; border: 1px solid #e0e6eb; }
+.preview_stripe .pBtn { background: #635bff; }
+.preview_stripe .pTitle { background: #e0e6eb; }
+
+.preview_social { background: var(--surface-elevated); }
+.preview_social .pBtn { height: 10px; width: 65%; }
+
+.preview_steps { background: linear-gradient(180deg, color-mix(in srgb, var(--status-clean) 12%, transparent), var(--surface-elevated)); }
+.preview_steps .pTitle { background: var(--status-clean); width: 30%; }
+.preview_steps .pRow { background: color-mix(in srgb, var(--status-clean) 22%, var(--surface-raised)); }
+.preview_steps .pBtn { background: var(--status-clean); }
+
+/* ---- Badge ---- */
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  z-index: 2;
+}
+
+.badge_hot { background: var(--brand-honey); color: var(--text-inverse); }
+.badge_new { background: var(--status-clean); color: var(--text-inverse); }
+.badge_popular { background: var(--brand-lake); color: var(--text-inverse); }
+
+/* ---- Body ---- */
+.body {
+  padding: 16px 20px 18px;
+}
+
+.category {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+
+.name {
+  font-family: var(--font-heading-sans);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stats {
+  display: flex;
+  gap: 14px;
+}
+
+.stat {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat svg { opacity: 0.5; }
+
+.compareBtn {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-default);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all .16s ease;
+}
+
+.compareBtn:hover {
+  border-color: var(--brand-lake);
+  color: var(--brand-lake);
+}
+
+.compareBtnActive {
+  background: color-mix(in srgb, var(--brand-lake) 12%, transparent);
+  border-color: var(--brand-lake);
+  color: var(--brand-lake);
+}

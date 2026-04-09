@@ -45,6 +45,13 @@
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(14px);
   z-index: 12;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.canvasIntroHidden {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
 }
 
 .canvasIntro h1 {
@@ -100,38 +107,15 @@
   color: var(--text-primary);
 }
 
-.workspaceMeta {
-  position: absolute;
-  left: var(--canvas-meta-left);
-  top: var(--canvas-meta-top);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 12;
+.toolBtnAccent {
+  border-color: color-mix(in srgb, var(--brand-honey) 22%, var(--line-default));
+  color: var(--brand-honey);
 }
 
-.metricCard {
-  min-width: 150px;
-  padding: 12px 14px;
-  border-radius: var(--radius-control);
-  border: 1px solid var(--line-subtle);
-  background: color-mix(in srgb, var(--surface-overlay) 84%, transparent);
-  box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(14px);
-}
-
-.metricCard strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 1rem;
-  color: var(--text-primary);
-}
-
-.metricLabel {
-  font-size: 0.72rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
+.toolBtnAccent:hover {
+  background: color-mix(in srgb, var(--brand-honey) 10%, var(--surface-overlay));
+  border-color: color-mix(in srgb, var(--brand-honey) 32%, var(--line-default));
+  color: var(--brand-honey-strong);
 }
 
 .selectionHint {
@@ -158,6 +142,26 @@
 
 .selectionHint span {
   font-size: 0.78rem;
+}
+
+.selectionHintClose {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.selectionHintClose:hover {
+  opacity: 1;
 }
 
 .controls {
@@ -207,7 +211,7 @@
   border-radius: var(--radius-lg);
   border: 1px dashed var(--line-subtle);
   background: color-mix(in srgb, var(--surface-panel) 80%, transparent);
-  z-index: 12;
+  z-index: -1;
 }
 
 .emptyHint h3 {
@@ -225,10 +229,6 @@
   .canvasIntro {
     max-width: var(--canvas-intro-tablet-max-width);
   }
-
-  .workspaceMeta {
-    top: var(--canvas-meta-tablet-top);
-  }
 }
 
 @media (max-width: 900px) {
@@ -243,13 +243,6 @@
     top: var(--canvas-toolbar-mobile-top);
     left: var(--canvas-toolbar-mobile-left);
     right: var(--canvas-toolbar-mobile-right);
-  }
-
-  .workspaceMeta {
-    left: var(--canvas-meta-mobile-left);
-    top: var(--canvas-meta-mobile-top);
-    flex-direction: row;
-    flex-wrap: wrap;
   }
 
   .selectionHint {

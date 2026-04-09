@@ -21,19 +21,25 @@ export async function createModule(
   description: string,
 ): Promise<string> {
   const modulePath = join(parentPath, folderName)
-  const archui     = join(modulePath, '.archui')
   const uuid       = nanoid8()
 
-  await adapter.mkdir(modulePath)
-  await adapter.mkdir(archui)
+  // FSA needs a microtask yield after mkdir before writeFile works reliably
+  const tick = () => new Promise(r => setTimeout(r, 50))
 
-  await adapter.writeFile(
-    join(modulePath, 'README.md'),
-    serializeReadme({ name, description }),
-  )
+  await adapter.mkdir(modulePath)
+  await tick()
+
+  await adapter.writeFile(join(modulePath, 'README.md'), serializeReadme({ name, description }))
 
   const index: IndexYaml = { schema_version: '1', uuid, submodules: {}, links: [] }
-  await adapter.writeFile(join(archui, 'index.yaml'), stringifyYaml(index))
+  const indexContent = stringifyYaml(index)
+  const archiuDir = join(modulePath, '.archui')
+
+  await adapter.mkdir(archiuDir)
+  await tick()
+
+  await adapter.writeFile(join(archiuDir, 'index.yaml'), indexContent)
+  await adapter.writeFile(join(archiuDir, 'layout.yaml'), stringifyYaml({ layout: {} }))
 
   // Register in parent's index.yaml
   const parentIndexPath = join(parentPath, '.archui/index.yaml')
@@ -43,6 +49,21 @@ export async function createModule(
 
   parentIndex.submodules = { ...(parentIndex.submodules ?? {}), [folderName]: uuid }
   await adapter.writeFile(parentIndexPath, stringifyYaml(parentIndex))
+
+  // Update parent layout.yaml to include new child position
+  const parentLayoutPath = join(parentPath, '.archui/layout.yaml')
+  const parentLayoutContent = await adapter.readFile(parentLayoutPath).catch(() => '')
+  let parentLayout: Record<string, unknown> = {}
+  try { parentLayout = (parseYaml(parentLayoutContent) as Record<string, unknown>) ?? {} } catch { /* empty */ }
+  if (!parentLayout.layout) parentLayout.layout = {}
+  const layout = parentLayout.layout as Record<string, unknown>
+  const childCount = Object.keys(parentIndex.submodules ?? {}).length
+  const pos = findNonOverlappingPosition(
+    { x: 700 + ((childCount - 1) % 2) * 260, y: 120 + Math.floor((childCount - 1) / 2) * 190 },
+    layout as Record<string, { x?: string | number; y?: string | number }>,
+  )
+  layout[uuid] = { x: String(pos.x), y: String(pos.y) }
+  await adapter.writeFile(parentLayoutPath, stringifyYaml(parentLayout))
 
   return uuid
 }
@@ -191,14 +212,147 @@ export async function deleteModule(
 
   const parentLayoutPath = join(parentPath, '.archui/layout.yaml')
   try {
+    const layoutContent = await adapter.readFile(parentLayoutPath).catch(() => '')
+    if (layoutContent) {
+      const layoutData = (parseYaml(layoutContent) as Record<string, unknown>) ?? {}
+      if (layoutData.layout && typeof layoutData.layout === 'object') {
+        const layout = layoutData.layout as Record<string, unknown>
+        delete layout[uuid]
+        await adapter.writeFile(parentLayoutPath, stringifyYaml(layoutData))
+      }
+    }
+  } catch { /* layout parse/write error */ }
+}
+
+/**
+ * Replace a module with another: delete old, copy new into same location,
+ * rebind all incoming links (oldUuid → newUuid), and transfer layout position.
+ *
+ * This follows the CLI paste logic but adds UUID rebinding which the CLI
+ * delegates to runClean + agent repair.
+ */
+export async function replaceModule(
+  adapter: FsAdapter,
+  rootPath: string,
+  oldModulePath: string,
+  oldUuid: string,
+  newSourcePath: string,
+): Promise<{ newUuid: string }> {
+  if (!adapter.removeDir) {
+    throw new Error('Filesystem adapter does not support removeDir')
+  }
+
+  const pathParts = oldModulePath.split('/').filter(Boolean)
+  const folderName = pathParts.pop()!
+  const parentPath = pathParts.join('/') || '.'
+
+  // 1. Read old module's layout position (to transfer to new module)
+  const parentLayoutPath = join(parentPath, '.archui/layout.yaml')
+  let oldPosition: { x: number; y: number } | null = null
+  try {
     const layoutContent = await adapter.readFile(parentLayoutPath)
-    const layoutData = (parseYaml(layoutContent) as Record<string, unknown>) ?? {}
+    const layoutData = parseYaml(layoutContent) as Record<string, unknown>
+    if (layoutData.layout && typeof layoutData.layout === 'object') {
+      const layout = layoutData.layout as Record<string, { x?: string | number; y?: string | number }>
+      const pos = layout[oldUuid]
+      if (pos) {
+        oldPosition = {
+          x: typeof pos.x === 'number' ? pos.x : parseFloat(String(pos.x ?? '0')) || 0,
+          y: typeof pos.y === 'number' ? pos.y : parseFloat(String(pos.y ?? '0')) || 0,
+        }
+      }
+    }
+  } catch { /* no layout */ }
+
+  // 2. Delete old module folder
+  await adapter.removeDir(oldModulePath)
+
+  // 3. Copy new module into old location (same folder name)
+  const destPath = join(parentPath, folderName)
+  if (adapter.copyDir) {
+    await adapter.copyDir(newSourcePath, destPath)
+  } else {
+    await recursiveCopy(adapter, newSourcePath, destPath)
+  }
+
+  // 4. Read new module's UUID
+  const newIndexContent = await adapter.readFile(join(destPath, '.archui/index.yaml')).catch(() => '')
+  let newUuid = ''
+  try {
+    const newIndex = parseYaml(newIndexContent) as IndexYaml
+    newUuid = newIndex?.uuid ?? ''
+  } catch { /* ignore */ }
+
+  if (!newUuid) {
+    throw new Error('Replacement module has no valid UUID in .archui/index.yaml')
+  }
+
+  // 5. Update parent's index.yaml: swap oldUuid for newUuid
+  const parentIndexPath = join(parentPath, '.archui/index.yaml')
+  const parentIndexContent = await adapter.readFile(parentIndexPath).catch(() => '')
+  let parentIndex: IndexYaml = { schema_version: '1', uuid: '' }
+  try { parentIndex = parseYaml(parentIndexContent) as IndexYaml } catch { /* empty */ }
+  if (parentIndex.submodules) {
+    parentIndex.submodules[folderName] = newUuid
+  }
+  await adapter.writeFile(parentIndexPath, stringifyYaml(parentIndex))
+
+  // 6. Transfer layout position: remove oldUuid entry, add newUuid at same position
+  try {
+    const layoutContent = await adapter.readFile(parentLayoutPath)
+    const layoutData = parseYaml(layoutContent) as Record<string, unknown>
     if (layoutData.layout && typeof layoutData.layout === 'object') {
       const layout = layoutData.layout as Record<string, unknown>
-      delete layout[uuid]
+      delete layout[oldUuid]
+      if (oldPosition) {
+        layout[newUuid] = { x: String(oldPosition.x), y: String(oldPosition.y) }
+      }
       await adapter.writeFile(parentLayoutPath, stringifyYaml(layoutData))
     }
-  } catch { /* layout file may not exist */ }
+  } catch { /* layout error */ }
+
+  // 7. Rebind all incoming links across the project: oldUuid → newUuid
+  await rebindLinks(adapter, rootPath, oldUuid, newUuid)
+
+  return { newUuid }
+}
+
+/**
+ * Traverse the entire project and rewrite any link targeting oldUuid to point to newUuid.
+ */
+async function rebindLinks(
+  adapter: FsAdapter,
+  dirPath: string,
+  oldUuid: string,
+  newUuid: string,
+): Promise<void> {
+  const indexPath = join(dirPath, '.archui/index.yaml')
+  try {
+    const content = await adapter.readFile(indexPath)
+    const index = parseYaml(content) as IndexYaml
+    const links = index.links ?? []
+    let changed = false
+    for (const link of links) {
+      if (link.uuid === oldUuid) {
+        link.uuid = newUuid
+        changed = true
+      }
+    }
+    if (changed) {
+      index.links = links
+      await adapter.writeFile(indexPath, stringifyYaml(index))
+    }
+  } catch { /* no index.yaml at this level, skip */ }
+
+  // Recurse into subfolders
+  try {
+    const entries = await adapter.listDir(dirPath)
+    for (const entry of entries) {
+      if (entry.type === 'dir' && entry.name !== 'resources' && !entry.name.startsWith('.')) {
+        await rebindLinks(adapter, join(dirPath, entry.name), oldUuid, newUuid)
+      }
+    }
+  } catch { /* list error */ }
 }
 
 const NODE_WIDTH = 220

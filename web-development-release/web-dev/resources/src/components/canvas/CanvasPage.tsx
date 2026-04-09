@@ -31,6 +31,10 @@ import type { ModuleNodeData } from './ModuleNode'
 import { LinkEdge } from './LinkEdge'
 import { DetailPanel } from './DetailPanel'
 import { Toast } from '../ui/Toast'
+import { HubOverlay } from '../marketplace/HubOverlay'
+import { MyModulesOverlay } from '../marketplace/MyModulesOverlay'
+import { marketplaceContent } from '../marketplace/marketplace-content'
+import { useMarketplaceStore } from '../../store/marketplace'
 import s from './CanvasPage.module.css'
 
 const NODE_TYPES = { moduleNode: ModuleNode }
@@ -97,16 +101,31 @@ function buildGraph(
   const seenEdges = new Set<string>()
   const edges: Edge[] = []
 
+  // Build position map for left-to-right edge normalization
+  const positionMap = new Map<string, { x: number; y: number }>()
+  positionMap.set(currentModule.uuid, currentModule.layout[currentModule.uuid] ?? workspaceLayout.canvas.graph.primaryNode)
+  currentModule.children.forEach((child, index) => {
+    positionMap.set(child.uuid, currentModule.layout[child.uuid] ?? autoChildPosition(index, currentModule.children.length))
+  })
+
   for (const source of Object.values(projectIndex)) {
     for (const link of source.links) {
       const sourceVisible = visibleIds.has(source.uuid)
       const targetVisible = visibleIds.has(link.uuid)
       if (!sourceVisible && !targetVisible) continue
 
-      const sourceId = source.uuid
-      const targetId = link.uuid
+      let sourceId = source.uuid
+      let targetId = link.uuid
       if (sourceId === targetId) continue
-      if (!sourceVisible || !targetVisible) continue
+
+      // Normalize direction: source on left, target on right
+      const sourcePos = positionMap.get(sourceId)
+      const targetPos = positionMap.get(targetId)
+      if (sourcePos && targetPos && sourcePos.x > targetPos.x) {
+        const tmp = sourceId
+        sourceId = targetId
+        targetId = tmp
+      }
 
       const edgeRelation = link.relation ?? workspaceContent.linkRenderer.defaultRelation
       const edgeKey = `${sourceId}|${targetId}|${edgeRelation}|${link.description ?? ''}`
@@ -142,6 +161,7 @@ function buildGraph(
       type: 'moduleNode',
       position: currentModule.layout[currentModule.uuid] ?? workspaceLayout.canvas.graph.primaryNode,
       draggable: false,
+      connectable: true,
       data: {
         entry: primaryEntry,
         variant: 'primary',
@@ -208,12 +228,39 @@ function CanvasPageInner({}: CanvasPageProps) {
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
   const [showNewModule, setShowNewModule] = useState(false)
   const [showPalette, setShowPalette] = useState(false)
+  const [showHub, setShowHub] = useState(false)
+  const [showMyModules, setShowMyModules] = useState(false)
+  const [myModulesReplaceUuid, setMyModulesReplaceUuid] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; type?: 'info' | 'error' } | null>(null)
+  const [hintDismissed, setHintDismissed] = useState(() => localStorage.getItem('archui-hint-dismissed') === '1')
+  const [hintVisible, setHintVisible] = useState(true)
+  const [introVisible, setIntroVisible] = useState(true)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const showToast = useCallback((message: string, type?: 'info' | 'error') => {
     setToast({ message, type })
   }, [])
+
+  // Clean up save timer on unmount or module change
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current)
+    }
+  }, [currentModule])
+
+  // Auto-hide selection hint after 5s
+  useEffect(() => {
+    if (hintDismissed) return
+    const t = setTimeout(() => setHintVisible(false), 5000)
+    return () => clearTimeout(t)
+  }, [hintDismissed])
+
+  // Auto-hide canvas intro after 4s (re-shows on module change)
+  useEffect(() => {
+    setIntroVisible(true)
+    const t = setTimeout(() => setIntroVisible(false), 4000)
+    return () => clearTimeout(t)
+  }, [currentModule?.uuid])
 
   useEffect(() => {
     if (!currentModule) return
@@ -339,6 +386,12 @@ function CanvasPageInner({}: CanvasPageProps) {
           action: () => setShowNewModule(true),
         },
         {
+          id: 'add-from-collection',
+          label: marketplaceContent.contextMenu.addFromMyModules,
+          icon: '◈',
+          action: () => { setMyModulesReplaceUuid(null); setShowMyModules(true) },
+        },
+        {
           id: 'reload',
           label: workspaceContent.canvas.contextMenu.reloadWorkspace,
           icon: 'R',
@@ -358,12 +411,26 @@ function CanvasPageInner({}: CanvasPageProps) {
     setCtxMenu({
       x: event.clientX,
       y: event.clientY,
-      items: [{
-        id: 'paste',
-        label: workspaceContent.canvas.contextMenu.pasteModule,
-        icon: 'V',
-        action: () => void doPaste(pos),
-      }],
+      items: [
+        {
+          id: 'new-child',
+          label: workspaceContent.canvas.contextMenu.newChildModule,
+          icon: '+',
+          action: () => setShowNewModule(true),
+        },
+        {
+          id: 'add-from-collection',
+          label: marketplaceContent.contextMenu.addFromMyModules,
+          icon: '◈',
+          action: () => { setMyModulesReplaceUuid(null); setShowMyModules(true) },
+        },
+        {
+          id: 'paste',
+          label: workspaceContent.canvas.contextMenu.pasteModule,
+          icon: 'V',
+          action: () => void doPaste(pos),
+        },
+      ],
     })
   }, [doPaste])
 
@@ -385,14 +452,23 @@ function CanvasPageInner({}: CanvasPageProps) {
   }, [adapter, projectIndex, reload, setError])
 
   async function handleCreateModule(folderName: string, name: string, description: string) {
-    if (!currentModule) return
+    const mod = currentModule
+    if (!mod) {
+      showToast('No module selected — please reload and try again', 'error')
+      return
+    }
     setShowNewModule(false)
     try {
-      await createModule(adapter, currentModule.path, folderName, name, description)
+      console.log('[handleCreateModule] path:', mod.path, 'folder:', folderName)
+      await createModule(adapter, mod.path, folderName, name, description)
+      await new Promise(r => setTimeout(r, 500))
       await reload()
-      setSelectedUuid(currentModule.uuid)
+      await new Promise(r => setTimeout(r, 300))
+      await reload()
+      showToast(`Created module "${name}"`)
     } catch (e) {
-      setError(String(e))
+      console.error('[createModule FAILED]', e)
+      showToast(`Failed to create module: ${e}`, 'error')
     }
   }
 
@@ -416,6 +492,14 @@ function CanvasPageInner({}: CanvasPageProps) {
         void doPaste()
       }
       if (event.key === 'Escape') {
+        if (showHub) {
+          // If viewing a detail inside Hub, go back to grid first
+          const hubSelectedId = useMarketplaceStore.getState().selectedModuleId
+          if (hubSelectedId) { useMarketplaceStore.getState().selectModule(null) }
+          else { useMarketplaceStore.getState().resetHubState(); setShowHub(false) }
+          return
+        }
+        if (showMyModules) { setShowMyModules(false); setMyModulesReplaceUuid(null); return }
         setShowPalette(false)
         setCtxMenu(null)
         setSelectedUuid(null)
@@ -424,7 +508,7 @@ function CanvasPageInner({}: CanvasPageProps) {
 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedUuid, projectIndex, showToast, doPaste])
+  }, [selectedUuid, projectIndex, showToast, doPaste, showHub, showMyModules])
 
   const commands = useMemo<Command[]>(() => {
     const list: Command[] = [
@@ -433,6 +517,20 @@ function CanvasPageInner({}: CanvasPageProps) {
         label: canvasContent.commands.newChildModule,
         icon: '+',
         action: () => setShowNewModule(true),
+      },
+      {
+        id: 'add-from-collection',
+        label: marketplaceContent.commands.addFromMyModules,
+        icon: '◈',
+        hint: marketplaceContent.commands.addFromMyModulesHint,
+        action: () => { setMyModulesReplaceUuid(null); setShowMyModules(true) },
+      },
+      {
+        id: 'module-hub',
+        label: marketplaceContent.toolbar.moduleHub,
+        icon: '▤',
+        hint: marketplaceContent.commands.moduleHubHint,
+        action: () => setShowHub(true),
       },
       {
         id: 'reload',
@@ -475,11 +573,6 @@ function CanvasPageInner({}: CanvasPageProps) {
     ['--canvas-toolbar-mobile-top' as string]: `${workspaceLayout.canvas.overlays.toolbar.mobile.top}px`,
     ['--canvas-toolbar-mobile-left' as string]: `${workspaceLayout.canvas.overlays.toolbar.mobile.left}px`,
     ['--canvas-toolbar-mobile-right' as string]: `${workspaceLayout.canvas.overlays.toolbar.mobile.right}px`,
-    ['--canvas-meta-top' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.desktop.top}px`,
-    ['--canvas-meta-left' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.desktop.left}px`,
-    ['--canvas-meta-tablet-top' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.tablet.top}px`,
-    ['--canvas-meta-mobile-top' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.mobile.top}px`,
-    ['--canvas-meta-mobile-left' as string]: `${workspaceLayout.canvas.overlays.workspaceMeta.mobile.left}px`,
     ['--canvas-selection-hint-right' as string]: `${workspaceLayout.canvas.overlays.selectionHint.desktop.right}px`,
     ['--canvas-selection-hint-bottom' as string]: `${workspaceLayout.canvas.overlays.selectionHint.desktop.bottom}px`,
     ['--canvas-selection-hint-mobile-left' as string]: `${workspaceLayout.canvas.overlays.selectionHint.mobile.left}px`,
@@ -498,7 +591,7 @@ function CanvasPageInner({}: CanvasPageProps) {
     <div className={s.wrap}>
       <Breadcrumb />
       <div className={s.canvas} style={canvasLayoutVars}>
-        <div className={s.canvasIntro}>
+        <div className={`${s.canvasIntro} ${introVisible ? '' : s.canvasIntroHidden}`}>
           <div className={s.kicker}>{canvasContent.intro.kicker}</div>
           <h1>{workspaceTitle}</h1>
           <p>{workspaceDescription}</p>
@@ -508,13 +601,9 @@ function CanvasPageInner({}: CanvasPageProps) {
           <button className={s.toolBtn} onClick={() => setShowNewModule(true)}>{canvasContent.toolbar.newChild}</button>
           <button className={s.toolBtn} onClick={() => reload()}>{canvasContent.toolbar.reload}</button>
           <button className={s.toolBtn} onClick={() => setShowPalette(true)}>{canvasContent.toolbar.commandMenu}</button>
-        </div>
-
-        <div className={s.workspaceMeta}>
-          <div className={s.metricCard}>
-            <span className={s.metricLabel}>{canvasContent.metrics.submodules}</span>
-            <strong>{currentModule?.children.length ?? 0}</strong>
-          </div>
+          <button className={`${s.toolBtn} ${s.toolBtnAccent}`} onClick={() => setShowHub(true)}>
+            {marketplaceContent.toolbar.moduleHub}
+          </button>
         </div>
 
         <ReactFlow
@@ -541,16 +630,23 @@ function CanvasPageInner({}: CanvasPageProps) {
           <Background variant={BackgroundVariant.Dots} gap={24} size={1.2} color="var(--canvas-dot)" />
           <Controls showInteractive={false} className={s.controls} />
           <MiniMap
-            nodeColor={() => 'var(--node-bg)'}
-            maskColor="var(--overlay-dim)"
-            style={{ background: 'var(--surface-overlay)', border: '1px solid var(--line-default)' }}
+            nodeColor={(node) => node.data?.variant === 'primary' ? 'var(--brand-honey)' : 'var(--brand-lake)'}
+            nodeStrokeColor={() => 'var(--line-default)'}
+            nodeStrokeWidth={2}
+            maskColor="rgba(0, 0, 0, 0.12)"
+            style={{ background: 'var(--surface-panel)', border: '1px solid var(--line-default)', borderRadius: 'var(--radius-soft)' }}
           />
         </ReactFlow>
 
-        {!selectedEntry && (
+        {!selectedEntry && !hintDismissed && hintVisible && (
           <div className={s.selectionHint}>
             <strong>{canvasContent.selectionHint.title}</strong>
             <span>{canvasContent.selectionHint.body}</span>
+            <button
+              className={s.selectionHintClose}
+              onClick={() => { setHintDismissed(true); localStorage.setItem('archui-hint-dismissed', '1') }}
+              aria-label="Dismiss hint"
+            >×</button>
           </div>
         )}
 
@@ -565,6 +661,7 @@ function CanvasPageInner({}: CanvasPageProps) {
               setSelectedUuid(uuid)
             }}
             onClose={() => setSelectedUuid(null)}
+            onReplaceModule={selectedUuid !== currentModule.uuid ? () => { setMyModulesReplaceUuid(selectedUuid); setShowMyModules(true) } : undefined}
           />
         )}
 
@@ -604,6 +701,28 @@ function CanvasPageInner({}: CanvasPageProps) {
         <CommandPalette
           commands={commands}
           onClose={() => setShowPalette(false)}
+        />
+      )}
+
+      {showHub && (
+        <HubOverlay
+          onClose={() => setShowHub(false)}
+          onOpenMyModules={() => { setShowHub(false); setShowMyModules(true) }}
+          onToast={showToast}
+        />
+      )}
+
+      {showMyModules && (
+        <MyModulesOverlay
+          replacingUuid={myModulesReplaceUuid}
+          projectIndex={projectIndex}
+          adapter={adapter}
+          rootPath={rootPath ?? '.'}
+          currentModulePath={currentModule?.path ?? null}
+          onClose={() => { setShowMyModules(false); setMyModulesReplaceUuid(null) }}
+          onOpenHub={() => { setShowMyModules(false); setShowHub(true) }}
+          onChanged={() => { void reload(); setSelectedUuid(null) }}
+          onToast={showToast}
         />
       )}
 

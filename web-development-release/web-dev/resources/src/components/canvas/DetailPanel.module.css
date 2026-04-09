@@ -125,6 +125,30 @@
   color: var(--text-primary);
 }
 
+.replaceBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid color-mix(in srgb, var(--brand-honey) 28%, var(--line-default));
+  background: color-mix(in srgb, var(--brand-honey) 8%, transparent);
+  color: var(--brand-honey);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .16s ease;
+}
+
+.replaceBtn:hover {
+  background: color-mix(in srgb, var(--brand-honey) 14%, transparent);
+  border-color: var(--brand-honey);
+  transform: translateY(-1px);
+}
+
 .section {
   display: flex;
   flex-direction: column;

@@ -1,0 +1,206 @@
+/* ======================================================
+   ModuleDetail — Inline detail view within HubOverlay
+   No standalone overlay — rendered as child of the panel
+   ====================================================== */
+
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  margin-bottom: 16px;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all .16s ease;
+}
+
+.backBtn:hover {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--brand-lake) 28%, var(--line-strong));
+  background: color-mix(in srgb, var(--brand-lake) 6%, transparent);
+}
+
+.backArrow { font-size: 1rem; }
+
+/* ---- Preview header ---- */
+.previewArea {
+  height: 200px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.preview_minimal { background: var(--surface-elevated); }
+.preview_glass { background: linear-gradient(135deg, #667eea, #764ba2); }
+.preview_dark { background: #1a1a2e; }
+.preview_earth { background: var(--surface-raised); }
+.preview_cards { background: var(--surface-elevated); }
+.preview_saas { background: var(--surface-elevated); }
+.preview_bold { background: #18181b; }
+.preview_ios { background: #f2f2f7; }
+.preview_stripe { background: var(--surface-elevated); }
+.preview_social { background: var(--surface-elevated); }
+.preview_steps { background: linear-gradient(180deg, color-mix(in srgb, var(--status-clean) 12%, transparent), var(--surface-elevated)); }
+
+/* ---- Body ---- */
+.body {
+  padding: 24px 0 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-family: var(--font-heading-sans);
+  font-weight: 700;
+  font-size: 1.45rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.author {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btnSecondary {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-default);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all .16s ease;
+}
+
+.btnSecondary:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--brand-lake) 32%, var(--line-strong));
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--brand-lake) 6%, transparent);
+}
+
+.btnDisabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ---- Stats ---- */
+.statsRow {
+  display: flex;
+  gap: 28px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line-subtle);
+  border-bottom: 1px solid var(--line-subtle);
+  margin-bottom: 20px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.statValue {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.statLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.desc {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.sectionTitle {
+  font-family: var(--font-heading-sans);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  margin-top: 24px;
+  margin-bottom: 10px;
+}
+
+/* ---- Module tree ---- */
+.tree {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 2;
+  color: var(--text-secondary);
+  padding: 14px 18px;
+  background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-subtle);
+}
+
+.treeFolder { color: var(--brand-lake); font-weight: 500; }
+.treeFile { color: var(--text-tertiary); }
+
+/* ---- Reviews ---- */
+.reviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review {
+  padding: 14px 16px;
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-raised) 82%, transparent);
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.reviewAuthor {
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: var(--text-primary);
+}
+
+.stars { font-size: 0.82rem; }
+.starFilled { color: var(--status-modified); }
+.starEmpty { color: var(--line-default); }
+
+.reviewText {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
