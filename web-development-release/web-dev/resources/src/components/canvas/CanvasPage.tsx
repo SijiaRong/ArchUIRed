@@ -274,12 +274,13 @@ function CanvasPageInner({}: CanvasPageProps) {
     if (!currentModule) return
     const hasDrag = changes.some(change => change.type === 'position' && change.dragging === false)
     if (!hasDrag) return
+    const moduleUuid = currentModule.uuid
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => {
       setNodes(current => {
         const layout: Record<string, { x: number; y: number }> = {}
         for (const node of current) layout[node.id] = node.position
-        saveLayout(adapter, currentModule.uuid, layout).catch(console.error)
+        saveLayout(adapter, moduleUuid, layout).catch(console.error)
         return current
       })
     }, 500)

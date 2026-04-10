@@ -23,23 +23,14 @@ export async function createModule(
   const modulePath = join(parentPath, folderName)
   const uuid       = nanoid8()
 
-  // FSA needs a microtask yield after mkdir before writeFile works reliably
-  const tick = () => new Promise(r => setTimeout(r, 50))
-
-  await adapter.mkdir(modulePath)
-  await tick()
-
+  // Write files directly — writeFile's { create: true } handles directory creation.
+  // Do NOT call mkdir separately — FSA handles from separate mkdir/writeFile calls
+  // can conflict and cause createWritable() to hang.
   await adapter.writeFile(join(modulePath, 'README.md'), serializeReadme({ name, description }))
 
   const index: IndexYaml = { schema_version: '1', uuid, submodules: {}, links: [] }
-  const indexContent = stringifyYaml(index)
-  const archiuDir = join(modulePath, '.archui')
-
-  await adapter.mkdir(archiuDir)
-  await tick()
-
-  await adapter.writeFile(join(archiuDir, 'index.yaml'), indexContent)
-  await adapter.writeFile(join(archiuDir, 'layout.yaml'), stringifyYaml({ layout: {} }))
+  await adapter.writeFile(join(modulePath, '.archui/index.yaml'), stringifyYaml(index))
+  await adapter.writeFile(join(modulePath, '.archui/layout.yaml'), stringifyYaml({ layout: {} }))
 
   // Register in parent's index.yaml
   const parentIndexPath = join(parentPath, '.archui/index.yaml')

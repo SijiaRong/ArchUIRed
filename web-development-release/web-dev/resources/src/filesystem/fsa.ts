@@ -52,19 +52,11 @@ function createFsaAdapter(root: FileSystemDirectoryHandle, _prefix: string): FsA
         createWritable(): Promise<FileSystemWritableFileStream>
       }).createWritable()
       await writable.write(content)
-      await writable.close()
-      // Debug: verify write succeeded
-      if (import.meta.env.DEV) {
-        try {
-          const verify = await fh.getFile()
-          const written = await verify.text()
-          if (written !== content) {
-            console.warn(`[FSA] write mismatch for ${filePath}: expected ${content.length} chars, got ${written.length}`)
-          }
-        } catch (e) {
-          console.warn(`[FSA] write verify failed for ${filePath}:`, e)
-        }
-      }
+      // FSA close() can hang on newly created directories — race with timeout
+      await Promise.race([
+        writable.close(),
+        new Promise<void>(resolve => setTimeout(resolve, 2000)),
+      ])
     },
 
     async listDir(dirPath: string): Promise<DirEntry[]> {
